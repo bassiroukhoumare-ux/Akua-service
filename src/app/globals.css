@@ -1,26 +1,349 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
+@custom-variant dark (&:is(.dark *));
+
+/* ==========================================================================
+   AKUA Service — design tokens
+   Seule source de couleurs du site. Aucun hex en dur dans les composants.
+   ========================================================================== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --akua-black: #07080c;
+  --akua-ink: #0b1020;
+  --akua-surface-dark: #0f1424;
+  --akua-line-dark: #1e2640;
+
+  --akua-blue: #1f5bff;
+  --akua-blue-600: #1747d1;
+  --akua-blue-100: #e8efff;
+
+  --akua-white: #ffffff;
+  --akua-gray-50: #f4f6fa;
+  --akua-gray-200: #e3e7ef;
+  --akua-gray-500: #5b6478;
+
+  --akua-red: #e5243b; /* promo, stock faible, prix barré */
+  --akua-yellow: #ffc93c; /* compte à rebours, bouton bannière mobile */
+  --akua-whatsapp: #25d366; /* boutons WhatsApp uniquement */
+  --akua-gold: #c9a227; /* uniquement : mise en avant « le plus vendu » */
+  --akua-gold-light: #f2d77a;
+  --akua-tile: #f3f4f7; /* fond des visuels produits */
+  --akua-page: #f2f3f6; /* fond gris des grilles produits */
+  --akua-shadow-card: 0 1px 2px rgb(11 16 32 / 0.04), 0 12px 32px -16px rgb(11 16 32 / 0.18);
+
+  --akua-shadow-blue: 0 20px 40px -20px rgb(31 91 255 / 0.35);
+  --akua-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* --- shadcn/ui mappé sur la palette AKUA --- */
+  --background: var(--akua-white);
+  --foreground: var(--akua-ink);
+  --card: var(--akua-white);
+  --card-foreground: var(--akua-ink);
+  --popover: var(--akua-white);
+  --popover-foreground: var(--akua-ink);
+  --primary: var(--akua-blue);
+  --primary-foreground: var(--akua-white);
+  --secondary: var(--akua-gray-50);
+  --secondary-foreground: var(--akua-ink);
+  --muted: var(--akua-gray-50);
+  --muted-foreground: var(--akua-gray-500);
+  --accent: var(--akua-blue-100);
+  --accent-foreground: var(--akua-ink);
+  --destructive: var(--akua-red);
+  --border: var(--akua-gray-200);
+  --input: var(--akua-gray-200);
+  --ring: var(--akua-blue);
+  --radius: 0.75rem;
 }
 
 @theme inline {
+  /* Palette utilisable en classes : bg-akua-blue, text-akua-ink… */
+  --color-akua-black: var(--akua-black);
+  --color-akua-ink: var(--akua-ink);
+  --color-akua-surface-dark: var(--akua-surface-dark);
+  --color-akua-line-dark: var(--akua-line-dark);
+  --color-akua-blue: var(--akua-blue);
+  --color-akua-blue-600: var(--akua-blue-600);
+  --color-akua-blue-100: var(--akua-blue-100);
+  --color-akua-white: var(--akua-white);
+  --color-akua-gray-50: var(--akua-gray-50);
+  --color-akua-gray-200: var(--akua-gray-200);
+  --color-akua-gray-500: var(--akua-gray-500);
+  --color-akua-red: var(--akua-red);
+  --color-akua-yellow: var(--akua-yellow);
+  --color-akua-whatsapp: var(--akua-whatsapp);
+  --color-akua-tile: var(--akua-tile);
+  --color-akua-gold: var(--akua-gold);
+  --color-akua-gold-light: var(--akua-gold-light);
+  --color-akua-page: var(--akua-page);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Typographie */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-inter), ui-sans-serif, sans-serif;
+  --font-heading: var(--font-display);
+
+  /* Arrondis : badge 8, bouton 12, carte 16–20, bannière 24–32 */
+  --radius-badge: 8px;
+  --radius-btn: 12px;
+  --radius-card: 18px;
+  --radius-banner: 28px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-4xl: 32px;
+
+  --shadow-akua: var(--akua-shadow-blue);
+  --shadow-card: var(--akua-shadow-card);
+  --ease-akua: var(--akua-ease);
+
+  /* Points de rupture du brief */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Conteneur 1320px, gouttières 16 / 24 / 32 */
+@utility container-akua {
+  width: 100%;
+  max-width: 1320px;
+  margin-inline: auto;
+  padding-inline: 16px;
+  @media (width >= 768px) {
+    padding-inline: 24px;
+  }
+  @media (width >= 1024px) {
+    padding-inline: 32px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Espacement vertical entre sections 48 / 72 / 96 */
+@utility section-y {
+  padding-block: 48px;
+  @media (width >= 768px) {
+    padding-block: 72px;
+  }
+  @media (width >= 1024px) {
+    padding-block: 96px;
+  }
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+@utility price {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+@utility text-hero {
+  font-size: clamp(40px, 5vw, 72px);
+}
+
+@utility text-section {
+  font-size: clamp(24px, 2.6vw, 36px);
+}
+
+@utility text-mega {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(110px, 21vw, 330px);
+  line-height: 0.78;
+  letter-spacing: -0.06em;
+}
+
+/* Lueur qui traverse le bouton de droite à gauche au survol.
+   Couche « components » : les utilitaires (fixed, absolute…) restent prioritaires. */
+@layer components {
+  .btn-shine {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+      transform 0.2s var(--akua-ease),
+      box-shadow 0.3s var(--akua-ease),
+      background-color 0.2s,
+      color 0.2s,
+      border-color 0.2s;
+  }
+  .btn-shine::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(105deg, transparent 18%, var(--shine, rgb(255 255 255 / 0.6)) 45%, var(--shine, rgb(255 255 255 / 0.6)) 52%, transparent 80%);
+    transform: translateX(130%);
+  }
+  .btn-shine:hover::after,
+  .btn-shine:focus-visible::after {
+    transform: translateX(-130%);
+    transition: transform 0.9s cubic-bezier(0.45, 0, 0.25, 1);
+  }
+  .btn-shine:active {
+    transform: scale(0.97);
+  }
+}
+
+/* Halo bleu sous les boutons principaux */
+@utility glow-blue {
+  &:hover {
+    box-shadow: 0 12px 30px -10px rgb(31 91 255 / 0.65);
+  }
+}
+
+@utility glow-ink {
+  &:hover {
+    box-shadow: 0 12px 30px -12px rgb(11 16 32 / 0.55);
+  }
+}
+
+/* Fond quadrillé discret */
+@utility bg-grid {
+  background-image:
+    linear-gradient(var(--akua-gray-200) 1px, transparent 1px),
+    linear-gradient(90deg, var(--akua-gray-200) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    @apply font-sans;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  button,
+  [role="button"],
+  a,
+  select,
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
+  body {
+    background: var(--akua-white);
+    color: var(--akua-ink);
+    font-size: 14px;
+    overflow-x: clip;
+    -webkit-font-smoothing: antialiased;
+  }
+  @media (width >= 768px) {
+    body {
+      font-size: 16px;
+    }
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  :focus-visible {
+    outline: 2px solid var(--akua-blue);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--akua-blue);
+    color: var(--akua-white);
+  }
+}
+
+@keyframes akua-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes akua-search-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scaleY(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes akua-progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes akua-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(-1.5deg);
+  }
+}
+
+@keyframes akua-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
