@@ -5,7 +5,8 @@ import { TOP_BANNER } from "@/config/banner";
 
 /** Bannière bord à bord au ratio fixe 1920 × 250 : même format sur ordinateur et mobile. */
 export function TopBanner() {
-  const { src, width, height, href, alt } = TOP_BANNER;
+  const { enabled, src, width, height, href, alt } = TOP_BANNER;
+  if (!enabled) return null;
   const ratio = { aspectRatio: `${width} / ${height}` };
 
   if (!src) {

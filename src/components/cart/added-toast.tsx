@@ -23,7 +23,7 @@ export function AddedToast() {
   }, [toast, dismiss]);
 
   return (
-    <div aria-live="polite" className={cn("pointer-events-none fixed inset-x-3 z-[60] flex justify-center lg:inset-x-auto lg:top-[88px] lg:right-6 lg:bottom-auto", onProduct ? "bottom-[calc(160px+env(safe-area-inset-bottom))]" : "bottom-[calc(84px+env(safe-area-inset-bottom))]")}>
+    <div aria-live="polite" className={cn("pointer-events-none fixed inset-x-3 z-[60] flex justify-center lg:inset-x-auto lg:top-[88px] lg:right-6 lg:bottom-auto", onProduct ? "bottom-[calc(154px+env(safe-area-inset-bottom))]" : "bottom-[calc(78px+env(safe-area-inset-bottom))]")}>
       <AnimatePresence>
         {toast && (
           <motion.div

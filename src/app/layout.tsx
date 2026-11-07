@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: `${SITE_NAME} · ${SITE_TAGLINE}`, template: `%s | ${SITE_NAME}` },
   description:
-    "Consoles, jeux vidéo, manettes et accessoires neufs scellés et garantis. Vente en gros et au détail, livraison dans 7 pays d'Afrique de l'Ouest.",
+    "Consoles, jeux vidéo, manettes et accessoires neufs scellés et garantis. Vente en gros et au détail, livraison au Togo et dans la sous-région.",
   openGraph: { type: "website", locale: "fr_FR", siteName: SITE_NAME },
 };
 

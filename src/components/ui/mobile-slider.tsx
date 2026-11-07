@@ -3,7 +3,7 @@
 import AutoScroll from "embla-carousel-auto-scroll";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Children, type ReactNode } from "react";
+import { Children, type ReactNode, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface MobileSliderProps {
@@ -22,8 +22,10 @@ interface MobileSliderProps {
  */
 export function MobileSlider({ children, slideClass = "w-[44%]", gridClass, label, speed = 0.6 }: MobileSliderProps) {
   const items = Children.toArray(children);
-  const [ref, api] = useEmblaCarousel({ loop: true, align: "start", dragFree: true }, [
-    AutoScroll({ speed, startDelay: 600, stopOnInteraction: false, stopOnMouseEnter: true, stopOnFocusIn: true }),
+  // Au doigt, « mouseenter » est simulé au toucher et bloquerait le défilement : on ne l'active qu'à la souris.
+  const [hoverPause] = useState(() => typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches);
+  const [ref, api] = useEmblaCarousel({ loop: true, align: "start", dragFree: true, duration: 30 }, [
+    AutoScroll({ speed, startDelay: 400, stopOnInteraction: false, stopOnMouseEnter: hoverPause, stopOnFocusIn: false }),
   ]);
 
   const step = (dir: -1 | 1) => {
@@ -32,7 +34,7 @@ export function MobileSlider({ children, slideClass = "w-[44%]", gridClass, labe
     auto?.stop();
     if (dir === 1) api.scrollNext();
     else api.scrollPrev();
-    window.setTimeout(() => auto?.play(), 1800);
+    window.setTimeout(() => auto?.play(), 1500);
   };
 
   const arrow = "grid size-10 place-items-center rounded-full border border-akua-gray-200 bg-akua-white text-akua-ink shadow-[0_6px_16px_-8px_rgb(11_16_32/0.3)] active:scale-95";
@@ -41,9 +43,9 @@ export function MobileSlider({ children, slideClass = "w-[44%]", gridClass, labe
     <>
       <div className="md:hidden">
         <div ref={ref} className="overflow-hidden" aria-roledescription="carrousel" aria-label={label}>
-          <div className="flex touch-pan-y gap-3 px-4">
+          <div className="flex touch-pan-y gap-3 px-4 will-change-transform [backface-visibility:hidden] [transform:translate3d(0,0,0)]">
             {items.map((child, i) => (
-              <div key={i} className={cn("min-w-0 shrink-0", slideClass)}>
+              <div key={i} className={cn("min-w-0 shrink-0 [backface-visibility:hidden]", slideClass)}>
                 {child}
               </div>
             ))}

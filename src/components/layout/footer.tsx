@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Flag } from "@/components/ui/flag";
 import { Logo } from "@/components/ui/logo";
 import { FacebookIcon, TikTokIcon } from "@/components/ui/social-icons";
-import { ADDRESS, DELIVERY_COUNTRIES, FACEBOOK_URL, TIKTOK_HANDLE, TIKTOK_URL } from "@/config/site";
+import { ADDRESS, DELIVERY_COUNTRIES, FACEBOOK_URL, MAPS_URL, TIKTOK_URL } from "@/config/site";
 
 const COLS = [
   {
@@ -35,14 +35,19 @@ const COLS = [
   },
 ];
 
+const LEGAL = [
+  { label: "Conditions générales de vente", href: "/conditions-generales-de-vente" },
+  { label: "Politique de confidentialité", href: "/politique-de-confidentialite" },
+];
+
 const SOCIALS = [
-  { label: "TikTok", handle: TIKTOK_HANDLE, href: TIKTOK_URL, Icon: TikTokIcon },
-  { label: "Facebook", handle: "AKUA Service", href: FACEBOOK_URL, Icon: FacebookIcon },
+  { label: "TikTok", href: TIKTOK_URL, Icon: TikTokIcon },
+  { label: "Facebook", href: FACEBOOK_URL, Icon: FacebookIcon },
 ];
 
 export function Footer() {
   return (
-    <footer className="mt-16 bg-akua-page pb-[calc(96px+env(safe-area-inset-bottom))] md:mt-24 lg:pb-0">
+    <footer className="mt-16 bg-akua-page pb-[calc(80px+env(safe-area-inset-bottom))] md:mt-24 lg:pb-0">
       <div className="container-akua grid gap-10 pt-12 pb-12 md:pt-14 md:grid-cols-2 lg:grid-cols-[1.6fr_repeat(3,1fr)]">
         <div>
           <Logo className="h-14" />
@@ -50,9 +55,14 @@ export function Footer() {
             Votre référence High-Tech en Afrique de l&apos;Ouest. Consoles, jeux, manettes et accessoires, en gros et au détail.
           </p>
           <ul className="mt-5 space-y-3 text-[14px]">
-            <li className="flex items-center gap-3">
-              <MapPin aria-hidden className="size-5 shrink-0 text-akua-blue" strokeWidth={1.5} />
-              {ADDRESS}
+            <li>
+              <a href={MAPS_URL} target="_blank" rel="noopener" className="group flex items-center gap-3 hover:text-akua-blue">
+                <MapPin aria-hidden className="size-5 shrink-0 text-akua-blue" strokeWidth={1.5} />
+                <span>
+                  {ADDRESS}
+                  <span className="block text-[13px] text-akua-gray-500 group-hover:text-akua-blue">Voir sur Google Maps</span>
+                </span>
+              </a>
             </li>
             <li className="flex items-center gap-3">
               <Clock aria-hidden className="size-5 shrink-0 text-akua-blue" strokeWidth={1.5} />
@@ -92,21 +102,19 @@ export function Footer() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="mr-1 w-full text-[13px] font-semibold sm:w-auto">Suivez-nous :</span>
-            {SOCIALS.map(({ label, handle, href, Icon }) => (
+            {SOCIALS.map(({ label, href, Icon }) => (
               <a
                 key={label}
                 href={href}
                 target="_blank"
                 rel="noopener"
-                aria-label={`${label} : ${handle}`}
+                aria-label={`${label} : AKUA Service`}
                 className="btn-shine inline-flex items-center gap-2 rounded-full bg-akua-white py-1.5 pr-3.5 pl-1.5 text-[12.5px] font-medium ring-1 ring-akua-gray-200 [--shine:rgb(31_91_255/0.15)] hover:ring-akua-ink"
               >
                 <span className="relative z-[2] grid size-6 place-items-center rounded-full bg-akua-ink text-akua-white">
                   <Icon className="size-3.5" />
                 </span>
-                <span className="relative z-[2]">
-                  {label} <span className="text-akua-gray-500">{handle}</span>
-                </span>
+                <span className="relative z-[2]">{label}</span>
               </a>
             ))}
           </div>
@@ -116,7 +124,17 @@ export function Footer() {
       <div className="border-t border-akua-gray-200">
         <div className="container-akua flex flex-col items-center justify-between gap-2 py-5 text-center text-[12.5px] text-akua-gray-500 sm:flex-row sm:text-left">
           <p>© 2026 AKUA SERVICE. Tous droits réservés.</p>
-          <p>Commande et paiement confirmés sur WhatsApp</p>
+          <nav aria-label="Informations légales">
+            <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
+              {LEGAL.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="transition-colors hover:text-akua-ink">
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
       </div>
     </footer>

@@ -347,3 +347,15 @@
     scroll-behavior: auto !important;
   }
 }
+
+/*
+ * iOS zoome automatiquement sur un champ dont le texte fait moins de 16 px.
+ * Sur mobile et tablette, tous les champs de saisie passent donc à 16 px (hors cases à cocher).
+ */
+@media (width < 1024px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}

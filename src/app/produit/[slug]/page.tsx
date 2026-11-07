@@ -22,7 +22,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const p = await getProductBySlug((await params).slug);
   if (!p) return {};
-  return { title: p.name, description: `${p.shortDescription} ${formatFCFA(p.price)}. Livraison possible dans 7 pays.`, openGraph: { images: p.images[0] ? [p.images[0]] : [] } };
+  return { title: p.name, description: `${p.shortDescription} ${formatFCFA(p.price)}. Livraison au Togo et dans la sous-région.`, openGraph: { images: p.images[0] ? [p.images[0]] : [] } };
 }
 
 const STOCK_LABEL = { en_stock: "En stock", stock_faible: "Stock limité", rupture: "Rupture", sur_commande: "Sur commande" } as const;
@@ -35,7 +35,9 @@ export default async function ProductPage({ params }: Props) {
   const CatIcon = getCategoryIcon(category?.icon);
   const isNew = product.condition === "neuf";
   const compat = product.compatibility ?? product.platforms.map((p) => PLATFORM_LABELS[p]);
-  const more = [...related, ...allProducts.filter((p) => p.isFeatured && p.id !== product.id)]
+  // produits liés, puis mis en avant, puis le reste du catalogue : toujours 8 (2 lignes complètes sur ordinateur)
+  const more = [...related, ...allProducts.filter((p) => p.isFeatured), ...allProducts]
+    .filter((p) => p.id !== product.id)
     .filter((p, i, arr) => arr.findIndex((x) => x.id === p.id) === i)
     .slice(0, 8);
 
@@ -186,7 +188,7 @@ export default async function ProductPage({ params }: Props) {
           <ReviewsSection productId={product.id} productName={product.name} />
         </div>
       </div>
-      {more.length > 0 && <ProductCarousel eyebrow="Dans le même esprit" title="Vous aimerez aussi" products={more} autoplay />}
+      {more.length > 0 && <ProductCarousel eyebrow="Dans le même esprit" title="Vous aimerez aussi" products={more} autoplay seeAll={{ href: category ? `/boutique/${category.slug}` : "/boutique", label: "Voir tous les articles" }} />}
     </>
   );
 }
