@@ -1,5 +1,7 @@
 import { ArrowRight, BadgeCheck, Check, MessageCircleMore, PackageCheck, ShieldCheck, Store, TrendingUp, Truck } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { HOME_BANNER, HOME_VISUAL } from "@/config/home-visual";
 import { BuyNowButton } from "@/components/product/add-to-cart-button";
 import { ProductCard } from "@/components/product/product-card";
 import { ProductVisual } from "@/components/product/product-visual";
@@ -12,34 +14,29 @@ import { formatFCFA } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { waLink } from "@/lib/whatsapp";
 import type { Category, Product } from "@/types/catalog";
-import { HeroStage } from "./hero-stage";
 import { MobileSlider } from "@/components/ui/mobile-slider";
+import { PLATFORM_LOGOS } from "./platform-logos";
+import { PromoVideo } from "./promo-video";
+import { PROMO_VIDEO_CARDS } from "@/config/promo-video";
 import { PromoTimer } from "./promo-timer";
 import { SectionHeading } from "./section-heading";
 
 export { SectionHeading };
 
 
-/* ------------------------------------------------------------------ hero */
-
-export function HomeHero() {
-  return <HeroStage />;
-}
-
 /* --------------------------------------------------- bandeau plateformes */
-
-const PLATFORMS = ["PlayStation 5", "PS4", "Nintendo Switch 2", "Xbox", "PC", "Android", "PS3", "Xbox 360"];
 
 export function PlatformMarquee() {
   return (
-    <div aria-label="Plateformes disponibles" className="mt-8 overflow-hidden border-y border-akua-gray-200 py-5 [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)] md:mt-14">
-      <div className="flex w-max animate-[akua-marquee_38s_linear_infinite] items-center gap-10 motion-reduce:animate-none">
+    <div className="mt-8 overflow-hidden border-y border-akua-gray-200 py-6 [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)] md:mt-14 md:py-7">
+      <p className="sr-only">Plateformes disponibles : {PLATFORM_LOGOS.map((p) => p.name).join(", ")}</p>
+      <div aria-hidden className="flex w-max animate-[akua-marquee_38s_linear_infinite] items-center gap-12 motion-reduce:animate-none md:gap-16">
         {[0, 1].map((d) => (
-          <ul key={d} aria-hidden={d === 1} className="flex shrink-0 items-center gap-10">
-            {[...PLATFORMS, ...PLATFORMS].map((p, i) => (
-              <li key={`${d}-${i}`} className="flex items-center gap-10 text-[26px] font-extrabold tracking-[-0.03em] whitespace-nowrap text-akua-ink md:text-[34px]">
-                <span className={i % 2 ? "text-transparent [-webkit-text-stroke:1.2px_var(--akua-ink)]" : ""}>{p}</span>
-                <span className="size-2.5 rounded-full bg-akua-blue" />
+          <ul key={d} className="flex shrink-0 items-center gap-12 md:gap-16">
+            {[...PLATFORM_LOGOS, ...PLATFORM_LOGOS].map((p, i) => (
+              <li key={`${d}-${i}`} title={p.name} className="flex items-center gap-12 text-akua-ink md:gap-16">
+                {p.node}
+                <span className="size-2 rounded-full bg-akua-blue" />
               </li>
             ))}
           </ul>
@@ -53,35 +50,71 @@ export function PlatformMarquee() {
 
 export function CategoryRail({ categories }: { categories: Category[]; products?: Product[] }) {
   return (
-    <section id="categories" aria-labelledby="rayons" className="container-akua scroll-mt-[92px] pt-12 md:scroll-mt-28 md:pt-16">
-      <Reveal>
-        <div className="flex items-end justify-between gap-4">
-          <h2 id="rayons" className="text-[22px] font-extrabold tracking-[-0.03em] md:text-[28px]">
-            Nos catégories
-          </h2>
-          <Link href="/boutique" className="group inline-flex items-center gap-1 text-[13.5px] font-semibold text-akua-blue">
-            Tout voir <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-        </div>
-        <nav aria-label="Catégories de produits" className="mt-5 rounded-[24px] border border-akua-gray-200 bg-akua-white">
-          <ul className="grid grid-cols-4 md:grid-cols-8 md:divide-x md:divide-akua-gray-200">
+    <section id="categories" aria-labelledby="rayons" className="container-akua scroll-mt-[120px] pt-5 md:scroll-mt-28 md:pt-10">
+      <div className="flex items-end justify-between gap-4">
+        <h1 id="rayons" className="text-[22px] font-extrabold tracking-[-0.03em] md:text-[28px]">
+          Nos catégories
+        </h1>
+        <Link href="/boutique" className="group inline-flex items-center gap-1 text-[13.5px] font-semibold text-akua-blue">
+          Tout voir <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-0.5" />
+        </Link>
+      </div>
+
+      {/* Mobile : catégories, affiche, bannière (empilées).
+          Tablette : catégories + affiche côte à côte, bannière 3:1 sur toute la largeur.
+          Ordinateur : catégories sur une ligne + bannière à gauche, affiche à droite.
+          La largeur de l'affiche est calculée pour que la bannière garde son ratio 3:1
+          et que son bas soit aligné avec celui de l'affiche :
+          R = (100% + 3 × 104px + 2 × 20px) / (3 × ratio de l’affiche + 1). */}
+      <div className="mt-4 grid gap-4 md:mt-5 md:grid-cols-[minmax(0,1fr)_260px] lg:grid-cols-[minmax(0,1fr)_calc((100%_+_352px)/4.748)] lg:grid-rows-[104px_1fr] lg:gap-5">
+        <nav aria-label="Catégories de produits" className="min-w-0 rounded-[24px] border border-akua-gray-200 bg-akua-white md:col-start-1 md:row-start-1">
+          <ul className="grid h-full grid-cols-4 grid-rows-2 lg:grid-cols-8 lg:grid-rows-1">
             {categories.map((c) => {
               const Icon = getCategoryIcon(c.icon);
               return (
-                <li key={c.id}>
+                <li key={c.id} className="min-w-0">
                   <Link
                     href={`/boutique/${c.slug}`}
-                    className="group flex h-full flex-col items-center justify-center gap-2 rounded-[20px] px-1 py-4 text-center transition-colors hover:bg-akua-page md:gap-2.5 md:rounded-none md:py-6 md:first:rounded-l-[23px] md:last:rounded-r-[23px]"
+                    className="group flex h-full flex-col items-center justify-center gap-2 rounded-[22px] px-1 py-4 text-center lg:px-0.5 transition-colors hover:bg-akua-page md:gap-3"
                   >
-                    <Icon aria-hidden className="size-7 text-akua-ink transition-all duration-300 group-hover:-translate-y-0.5 group-hover:text-akua-blue md:size-8" strokeWidth={1.4} />
-                    <span className="text-[12px] font-semibold tracking-[-0.01em] text-akua-ink group-hover:text-akua-blue md:text-[14px]">{c.name}</span>
+                    <Icon aria-hidden className="size-7 text-akua-ink transition-all duration-300 group-hover:-translate-y-0.5 group-hover:text-akua-blue md:size-8 lg:size-9" strokeWidth={1.4} />
+                    <span className="max-w-full truncate text-[12px] font-semibold tracking-[-0.01em] text-akua-ink group-hover:text-akua-blue md:text-[14px] lg:text-[11.5px] xl:text-[14px]">{c.name}</span>
                   </Link>
                 </li>
               );
             })}
           </ul>
         </nav>
-      </Reveal>
+
+        <Link
+          href={HOME_VISUAL.href}
+          style={{ aspectRatio: `${HOME_VISUAL.width} / ${HOME_VISUAL.height}` }}
+          className="group relative block overflow-hidden rounded-[24px] bg-akua-page md:col-start-2 md:row-start-1 lg:row-span-2"
+        >
+          <Image
+            src={HOME_VISUAL.src}
+            alt={HOME_VISUAL.alt}
+            fill
+            priority
+            sizes="(min-width:1024px) 340px, (min-width:768px) 260px, 100vw"
+            className="object-contain transition-transform duration-700 ease-akua group-hover:scale-[1.03]"
+          />
+        </Link>
+
+        <Link
+          href={HOME_BANNER.href}
+          aria-label={HOME_BANNER.alt}
+          className="group relative block aspect-[3/1] overflow-hidden rounded-[24px] bg-akua-page md:col-span-2 md:row-start-2 lg:col-span-1 lg:col-start-1 lg:aspect-auto"
+        >
+          <Image
+            src={HOME_BANNER.src}
+            alt={HOME_BANNER.alt}
+            fill
+            sizes="(min-width:1024px) 900px, 100vw"
+            className="object-cover transition-transform duration-700 ease-akua group-hover:scale-[1.02]"
+          />
+        </Link>
+      </div>
     </section>
   );
 }
@@ -89,7 +122,11 @@ export function CategoryRail({ categories }: { categories: Category[]; products?
 /* --------------------------------------------------------------- offre spéciale */
 
 export function DealsSection({ deals }: { deals: Product[] }) {
-  const promo = deals.filter((p) => p.compareAtPrice).slice(0, 4);
+  // les 4 dernières promotions ajoutées
+  const promo = deals
+    .filter((p) => p.compareAtPrice)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .slice(0, 4);
   if (!promo.length) return null;
   return (
     <section aria-labelledby="promo" className="container-akua pt-12 md:pt-16">
@@ -105,9 +142,20 @@ export function DealsSection({ deals }: { deals: Product[] }) {
           </div>
           <PromoTimer />
         </div>
-        <div className="mt-8 grid grid-cols-2 gap-2.5 md:gap-4 lg:grid-cols-4">
-          {promo.map((p) => (
-            <ProductCard key={p.id} product={p} />
+        {/* Mobile et tablette : les 2 vidéos côte à côte, puis 2 × 2 produits.
+            Ordinateur : 5 colonnes égales, vidéo | 3 produits | vidéo (même hauteur que les cartes). */}
+        <div className="mt-8 grid grid-cols-2 gap-2.5 md:gap-4 lg:grid-cols-5">
+          {PROMO_VIDEO_CARDS.map((videos, i) => (
+            <PromoVideo
+              key={i}
+              videos={videos}
+              className={cn("aspect-[9/16] w-full lg:aspect-auto lg:h-full lg:min-h-[400px]", i === 0 ? "order-1" : "order-2 lg:order-3")}
+            />
+          ))}
+          {promo.map((p, i) => (
+            <div key={p.id} className={cn("order-2 min-w-0", i === 3 && "lg:hidden")}>
+              <ProductCard product={p} />
+            </div>
           ))}
         </div>
         <div className="mt-7 flex justify-center">
@@ -174,7 +222,7 @@ export function PacksSection({ packs }: { packs: Product[] }) {
         </SectionHeading>
       </Reveal>
       <div className="mt-7 md:container-akua">
-        <MobileSlider label="Packs prêts à jouer" slideClass="w-[82%] sm:w-[60%] py-1" gridClass="grid-cols-3 gap-4" speed={0.5}>
+        <MobileSlider label="Packs prêts à jouer" slideClass="w-[82%] sm:w-[60%] py-1" gridClass="grid-cols-3 gap-4" speed={0.8}>
           {packs.map((p, i) => (
             <PackCard key={p.id} product={p} featured={i === 0} />
           ))}

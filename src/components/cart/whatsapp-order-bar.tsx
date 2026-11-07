@@ -28,7 +28,7 @@ export function CartBar() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 90, opacity: 0 }}
           transition={{ type: "spring", stiffness: 380, damping: 32 }}
-          className="fixed inset-x-3 bottom-[calc(80px+env(safe-area-inset-bottom))] z-40 lg:hidden"
+          className="fixed inset-x-3 bottom-[calc(74px+env(safe-area-inset-bottom))] z-40 lg:hidden"
         >
           <Link href="/panier" className="flex h-[58px] items-center gap-3 rounded-[20px] bg-akua-blue pr-2 pl-5 text-akua-white shadow-[0_18px_36px_-14px_rgb(31_91_255/0.7)]">
             <span className="text-[15px] font-semibold">Voir mon panier</span>

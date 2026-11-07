@@ -5,7 +5,7 @@ import { IconTile } from "@/components/ui/icon-tile";
 import { PageHero } from "@/components/ui/page-hero";
 import { DELIVERY_COUNTRIES } from "@/config/site";
 
-export const metadata: Metadata = { title: "Livraison et garantie", description: "Livraison dans 7 pays d'Afrique de l'Ouest. Produits neufs, scellés et garantis." };
+export const metadata: Metadata = { title: "Livraison et garantie", description: "Livraison disponible au Togo et dans la sous-région. Produits neufs, scellés et garantis." };
 
 const FAQ = [
   { q: "Comment passer commande ?", a: "Ajoutez vos produits au panier puis cliquez sur « Envoyer ma commande sur WhatsApp ». Nous confirmons la disponibilité, le prix de livraison et le paiement directement avec vous." },
@@ -18,7 +18,7 @@ const FAQ = [
 export default function DeliveryPage() {
   return (
     <div className="pb-16">
-      <PageHero word="Livraison" icon={Truck} eyebrow="Livraison et garantie" title="Livré chez vous, dans 7 pays" text="Commande confirmée sur WhatsApp, livraison rapide et produits garantis." />
+      <PageHero word="Livraison" icon={Truck} eyebrow="Livraison et garantie" title="Livraison au Togo et dans la sous-région" text="Commande confirmée sur WhatsApp, livraison rapide et produits garantis." />
       <div className="container-akua mt-10">
         <h2 className="font-display text-[26px] font-semibold md:text-[32px]">Pays desservis</h2>
         <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-7">

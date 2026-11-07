@@ -6,7 +6,7 @@ import { PageHero } from "@/components/ui/page-hero";
 
 export const metadata: Metadata = {
   title: "Vente en gros",
-  description: "Tarifs dégressifs sur les consoles, manettes et jeux pour revendeurs et salles de jeux. Livraison dans 7 pays.",
+  description: "Tarifs dégressifs sur les consoles, manettes et jeux pour revendeurs et salles de jeux. Livraison au Togo et dans la sous-région.",
 };
 
 const PERKS = [
@@ -19,7 +19,7 @@ const PERKS = [
 export default function WholesalePage() {
   return (
     <div className="pb-16">
-      <PageHero word="Gros" image="/products/ds3.webp" icon={Store} eyebrow="Revendeurs et salles de jeux" title="Achetez en gros, gagnez plus" text="Équipez votre boutique ou votre salle de jeux avec du matériel neuf et garanti, à prix revendeur." />
+      <PageHero icon={Store} eyebrow="Revendeurs et salles de jeux" title="Achetez en gros, gagnez plus" text="Équipez votre boutique ou votre salle de jeux avec du matériel neuf et garanti, à prix revendeur." />
       <div className="container-akua mt-10 grid gap-10 lg:grid-cols-[1fr_1.1fr]">
         <div>
           <h2 className="font-display text-[26px] font-semibold md:text-[32px]">Pourquoi acheter en gros chez AKUA Service</h2>

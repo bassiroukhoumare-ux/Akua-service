@@ -80,7 +80,7 @@ export function PurchaseBox({ product }: { product: Product }) {
       </a>
 
       {/* Barre d'achat fixe mobile */}
-      <div className="fixed inset-x-2.5 bottom-[calc(80px+env(safe-area-inset-bottom))] z-30 flex items-center gap-3 rounded-[22px] border border-akua-gray-200 bg-akua-white/95 shadow-[0_18px_40px_-18px_rgb(11_16_32/0.35)] px-4 py-3 backdrop-blur-xl lg:hidden">
+      <div className="fixed inset-x-2.5 bottom-[calc(74px+env(safe-area-inset-bottom))] z-30 flex items-center gap-3 rounded-[22px] border border-akua-gray-200 bg-akua-white/95 shadow-[0_18px_40px_-18px_rgb(11_16_32/0.35)] px-4 py-3 backdrop-blur-xl lg:hidden">
         <div className="min-w-0">
           {product.compareAtPrice && <p className="text-[12px] text-akua-gray-500 line-through decoration-akua-red/70">{formatFCFA(product.compareAtPrice * qty)}</p>}
           <p className="price text-[20px] leading-tight">{formatFCFA(product.price * qty)}</p>

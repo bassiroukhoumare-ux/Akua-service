@@ -1,5 +1,6 @@
 "use client";
 
+import { LockKeyhole, LockKeyholeOpen } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -10,6 +11,7 @@ function isOpen(d: Date) {
   return day !== 0 && h >= 10 && h < 20;
 }
 
+/** Statut d'ouverture : cadenas ouvert / fermé, toujours sur une seule ligne. */
 export function OpenStatus({ className }: { className?: string }) {
   const [open, setOpen] = useState<boolean | null>(null);
   useEffect(() => {
@@ -19,10 +21,17 @@ export function OpenStatus({ className }: { className?: string }) {
     return () => window.clearInterval(id);
   }, []);
   if (open === null) return null;
+  const Icon = open ? LockKeyholeOpen : LockKeyhole;
   return (
-    <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold", open ? "bg-akua-whatsapp/12 text-akua-ink" : "bg-akua-red/10 text-akua-red", className)}>
-      <span className={cn("size-2 rounded-full", open ? "bg-akua-whatsapp" : "bg-akua-red")} />
-      {open ? "Ouvert maintenant" : "Fermé actuellement"}
+    <span
+      className={cn(
+        "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] leading-none font-semibold whitespace-nowrap",
+        open ? "bg-akua-whatsapp/12 text-[#128c4a]" : "bg-akua-red/10 text-akua-red",
+        className,
+      )}
+    >
+      <Icon aria-hidden className="size-3.5 shrink-0" strokeWidth={2.2} />
+      {open ? "Ouvert actuellement" : "Fermé actuellement"}
     </span>
   );
 }

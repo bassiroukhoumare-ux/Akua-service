@@ -16,7 +16,7 @@ const TABS = [
   { label: "Favoris", href: "/favoris", icon: Heart },
 ];
 
-/** Barre de navigation mobile : capsule flottante, onglet actif en pastille bleue. */
+/** Barre de navigation mobile collée au bas de l'écran, onglet actif en pastille bleue. */
 export function MobileBottomNav() {
   const path = usePathname();
   const hydrated = useHydrated();
@@ -24,8 +24,8 @@ export function MobileBottomNav() {
   const menuOpen = useUI((s) => s.menuOpen);
   const setMenuOpen = useUI((s) => s.setMenuOpen);
   return (
-    <nav aria-label="Navigation mobile" className="fixed inset-x-2.5 bottom-[calc(8px+env(safe-area-inset-bottom))] z-40 lg:hidden">
-      <ul className="mx-auto grid h-[64px] max-w-lg grid-cols-5 rounded-[24px] border border-akua-gray-200/80 bg-akua-white/92 px-1.5 shadow-[0_18px_40px_-18px_rgb(11_16_32/0.35)] backdrop-blur-xl">
+    <nav aria-label="Navigation mobile" className="fixed inset-x-0 bottom-0 z-40 border-t border-akua-gray-200 bg-akua-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden">
+      <ul className="mx-auto grid h-[64px] max-w-lg grid-cols-5 px-1.5">
         {TABS.map(({ label, href, icon: Icon }) => {
           const active = !menuOpen && (href === "/" ? path === "/" : path.startsWith(href));
           return (

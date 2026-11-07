@@ -78,17 +78,17 @@ export function MobileMenu() {
             {categories.map((c) => {
               const Icon = getCategoryIcon(c.icon);
               return (
-                <Link key={c.id} href={`/boutique/${c.slug}`} onClick={close} className="group flex flex-col items-center gap-1.5 rounded-[20px] px-1 py-3.5 text-center transition-colors hover:bg-akua-page">
+                <Link key={c.id} href={`/boutique/${c.slug}`} onClick={close} className="group flex flex-col items-center gap-1.5 min-w-0 rounded-[20px] px-0 py-3.5 text-center transition-colors hover:bg-akua-page">
                   <Icon aria-hidden className="size-6 text-akua-ink transition-colors group-hover:text-akua-blue" strokeWidth={1.4} />
-                  <span className="w-full text-[10.5px] leading-tight font-semibold tracking-[-0.01em] whitespace-nowrap">{c.name}</span>
+                  <span className="w-full truncate text-[9.5px] leading-tight font-semibold tracking-[-0.03em] min-[380px]:text-[10.5px] min-[380px]:tracking-[-0.01em]">{c.name}</span>
                 </Link>
               );
             })}
           </div>
 
           <div className="mt-6 rounded-[22px] bg-akua-page p-4">
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-[14px] font-bold">Horaires d&apos;ouverture</p>
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+              <p className="text-[14px] font-bold whitespace-nowrap">Horaires d&apos;ouverture</p>
               <OpenStatus />
             </div>
             <p className="mt-2 text-[13.5px]">Lundi – Samedi : 10h – 20h</p>

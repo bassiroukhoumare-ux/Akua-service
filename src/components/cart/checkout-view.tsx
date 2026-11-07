@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   ArrowRight,
   CalendarDays,
+  ChevronDown,
   Check,
   CheckCircle2,
   Clock,
@@ -24,9 +25,11 @@ import {
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ProductVisual } from "@/components/product/product-visual";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
-import { ADDRESS, DELIVERY_COUNTRIES, OPENING_HOURS } from "@/config/site";
+import { ADDRESS, DELIVERY_COUNTRIES, MAPS_URL, OPENING_HOURS } from "@/config/site";
 import { categories } from "@/data/categories";
+import { CITIES } from "@/data/cities";
 import { products } from "@/data/products";
 import { formatFCFA, pluralize } from "@/lib/format";
 import { checkPromoCode, computeDiscount } from "@/lib/promo";
@@ -36,6 +39,7 @@ import { cn } from "@/lib/utils";
 import { buildCheckoutMessage, waLink } from "@/lib/whatsapp";
 import { type CartItem, type CheckoutDraft, selectCount, selectTotal, useCart } from "@/store/cart";
 
+const OTHER_CITY = "__autre__";
 const TIMES = ["10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
 const DEPOSITS: { id: CheckoutDraft["deposit"]; label: string; pct: number }[] = [
   { id: "25", label: "25 %", pct: 25 },
@@ -112,6 +116,7 @@ const inputCls = (err?: string) =>
 function Line({ item }: { item: CartItem }) {
   const setQuantity = useCart((s) => s.setQuantity);
   const remove = useCart((s) => s.remove);
+  const [confirm, setConfirm] = useState(false);
   const product = products.find((p) => p.id === item.productId);
   const category = categories.find((c) => c.id === item.categoryId);
   return (
@@ -128,13 +133,13 @@ function Line({ item }: { item: CartItem }) {
             </Link>
             {product && <p className="mt-1 line-clamp-1 text-[12.5px] text-akua-gray-500">{product.shortDescription}</p>}
           </div>
-          <button type="button" onClick={() => remove(item.productId)} aria-label={`Retirer ${item.name}`} className="grid size-9 shrink-0 place-items-center rounded-full text-akua-gray-500 transition-colors hover:bg-akua-red/10 hover:text-akua-red">
+          <button type="button" onClick={() => setConfirm(true)} aria-label={`Retirer ${item.name}`} className="grid size-9 shrink-0 place-items-center rounded-full text-akua-gray-500 transition-colors hover:bg-akua-red/10 hover:text-akua-red">
             <Trash2 aria-hidden className="size-4" strokeWidth={1.75} />
           </button>
         </div>
         <div className="mt-auto flex items-end justify-between gap-3 pt-3">
           <div className="flex h-10 items-center rounded-full border border-akua-gray-200">
-            <button type="button" onClick={() => setQuantity(item.productId, item.quantity - 1)} aria-label="Diminuer la quantité" className="grid size-10 place-items-center rounded-full hover:bg-akua-tile">
+            <button type="button" onClick={() => (item.quantity <= 1 ? setConfirm(true) : setQuantity(item.productId, item.quantity - 1))} aria-label="Diminuer la quantité" className="grid size-10 place-items-center rounded-full hover:bg-akua-tile">
               <Minus aria-hidden className="size-4" />
             </button>
             <span className="w-7 text-center text-[15px] font-semibold tabular-nums" aria-live="polite">
@@ -150,6 +155,18 @@ function Line({ item }: { item: CartItem }) {
           </div>
         </div>
       </div>
+      <ConfirmDialog
+        open={confirm}
+        onOpenChange={setConfirm}
+        title="Retirer cet article du panier ?"
+        description={
+          <>
+            <span className="font-semibold text-akua-ink">{item.name}</span> sera retiré de votre commande. Vous pourrez l&apos;ajouter à nouveau depuis la boutique.
+          </>
+        }
+        confirmLabel="Oui, retirer"
+        onConfirm={() => remove(item.productId)}
+      />
     </motion.li>
   );
 }
@@ -166,6 +183,11 @@ export function CheckoutView() {
   const clear = useCart((s) => s.clear);
 
   const [errors, setErrors] = useState<Errors>({});
+  const [otherCity, setOtherCity] = useState(false);
+  const countryCode = DELIVERY_COUNTRIES.find((c) => c.name === draft.country)?.code ?? "TG";
+  const cityList = CITIES[countryCode];
+  // « Autre ville » choisie, ou ville déjà saisie à la main lors d'une visite précédente
+  const cityIsOther = otherCity || (!!draft.city && !cityList.includes(draft.city));
   const [promoInput, setPromoInput] = useState("");
   const [promoState, setPromoState] = useState<{ loading: boolean; error?: string }>({ loading: false });
   const [sending, setSending] = useState(false);
@@ -214,7 +236,7 @@ export function CheckoutView() {
       total,
       customer: { name: draft.name.trim(), phone: draft.phone.trim(), email: draft.email.trim() || undefined },
       mode: draft.mode,
-      delivery: draft.mode === "livraison" ? { country: draft.country, city: draft.city.trim(), address: draft.address.trim(), landmark: draft.landmark.trim() || undefined } : undefined,
+      delivery: draft.mode === "livraison" ? { country: draft.country, city: draft.city.trim(), address: draft.address.trim() } : undefined,
       pickup:
         draft.mode === "retrait"
           ? { date: draft.pickupDate, time: draft.pickupTime, deposit: depositPct ? { label: depositPct === 100 ? "paiement total" : `${depositPct} %`, amount: depositAmount } : undefined }
@@ -309,7 +331,7 @@ export function CheckoutView() {
           <Section step={2} title="Mode de réception" subtitle="Choisissez comment vous souhaitez récupérer votre commande.">
             <div role="radiogroup" aria-label="Mode de réception" className="grid gap-3 sm:grid-cols-2">
               {[
-                { id: "livraison" as const, icon: Truck, title: "Livraison", text: "Chez vous, dans 7 pays. Frais confirmés sur WhatsApp." },
+                { id: "livraison" as const, icon: Truck, title: "Livraison", text: "Livraison disponible au Togo et dans la sous-région. Frais confirmés sur WhatsApp." },
                 { id: "retrait" as const, icon: Store, title: "Retrait en boutique", text: "Gratuit. Réservez votre jour et votre heure de passage." },
               ].map((o) => {
                 const on = draft.mode === o.id;
@@ -361,23 +383,64 @@ export function CheckoutView() {
                 <Section step={4} title="Adresse de livraison" subtitle="Soyez le plus précis possible pour une livraison rapide.">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field label="Pays" htmlFor="f-country">
-                      <select id="f-country" value={draft.country} onChange={up("country")} className={cn(inputCls(), "appearance-none")}>
+                      <div className="relative">
+                      <select
+                        id="f-country"
+                        value={draft.country}
+                        onChange={(e) => {
+                          setOtherCity(false);
+                          setDraft({ country: e.target.value, city: "" });
+                        }}
+                        className={cn(inputCls(), "appearance-none pr-11")}
+                      >
                         {DELIVERY_COUNTRIES.map((c) => (
                           <option key={c.code}>{c.name}</option>
                         ))}
                       </select>
+                      <ChevronDown aria-hidden className="pointer-events-none absolute top-1/2 right-4 size-[18px] -translate-y-1/2 text-akua-gray-500" />
+                      </div>
                     </Field>
                     <Field label="Ville" htmlFor="f-city" error={errors.city}>
-                      <input id="f-city" value={draft.city} onChange={up("city")} autoComplete="address-level2" placeholder="Ex. Lomé" aria-invalid={!!errors.city} className={inputCls(errors.city)} />
+                      <div className="relative">
+                        <select
+                          id="f-city"
+                          value={cityIsOther ? OTHER_CITY : draft.city}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setOtherCity(v === OTHER_CITY);
+                            setDraft({ city: v === OTHER_CITY ? "" : v });
+                            if (errors.city) setErrors((er) => ({ ...er, city: undefined }));
+                          }}
+                          aria-invalid={!!errors.city}
+                          className={cn(inputCls(errors.city), "appearance-none pr-11", !draft.city && !cityIsOther && "text-akua-gray-500")}
+                        >
+                          <option value="" disabled>
+                            Choisir une ville
+                          </option>
+                          {cityList.map((c) => (
+                            <option key={c} value={c}>
+                              {c}
+                            </option>
+                          ))}
+                          <option value={OTHER_CITY}>Autre ville…</option>
+                        </select>
+                        <ChevronDown aria-hidden className="pointer-events-none absolute top-1/2 right-4 size-[18px] -translate-y-1/2 text-akua-gray-500" />
+                      </div>
+                      {cityIsOther && (
+                        <input
+                          value={draft.city}
+                          onChange={up("city")}
+                          autoFocus
+                          autoComplete="address-level2"
+                          placeholder="Nom de votre ville"
+                          aria-label="Nom de votre ville"
+                          aria-invalid={!!errors.city}
+                          className={cn(inputCls(errors.city), "mt-2")}
+                        />
+                      )}
                     </Field>
                     <Field label="Adresse exacte" htmlFor="f-address" error={errors.address} className="sm:col-span-2">
                       <textarea id="f-address" value={draft.address} onChange={up("address")} rows={3} autoComplete="street-address" placeholder="Quartier, rue, numéro ou couleur de la maison…" aria-invalid={!!errors.address} className={cn(inputCls(errors.address), "h-auto resize-none py-3 leading-relaxed")} />
-                    </Field>
-                    <Field label="Point de repère" htmlFor="f-landmark" optional className="sm:col-span-2">
-                      <div className="relative">
-                        <MapPin aria-hidden className="pointer-events-none absolute top-1/2 left-4 size-[18px] -translate-y-1/2 text-akua-gray-500" />
-                        <input id="f-landmark" value={draft.landmark} onChange={up("landmark")} placeholder="Ex. à côté de la pharmacie, derrière l'école…" className={cn(inputCls(), "pl-11")} />
-                      </div>
                     </Field>
                   </div>
                 </Section>
@@ -391,6 +454,10 @@ export function CheckoutView() {
                       <span className="font-semibold text-akua-ink">AKUA Service</span> · {ADDRESS}
                       <br />
                       <span className="text-akua-gray-500">Horaires : {OPENING_HOURS}</span>
+                      <br />
+                      <a href={MAPS_URL} target="_blank" rel="noopener" className="mt-1.5 inline-flex items-center gap-1.5 font-semibold text-akua-blue hover:underline">
+                        <MapPin aria-hidden className="size-4" strokeWidth={1.8} /> Voir sur Google Maps
+                      </a>
                     </p>
                   </div>
                   <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -585,7 +652,7 @@ export function CheckoutView() {
       </div>
 
       {/* Barre d'envoi mobile */}
-      <div className="fixed inset-x-2.5 bottom-[calc(80px+env(safe-area-inset-bottom))] z-30 rounded-[22px] border border-akua-gray-200 bg-akua-white/95 shadow-[0_18px_40px_-18px_rgb(11_16_32/0.35)] px-4 py-3 backdrop-blur-xl lg:hidden">
+      <div className="fixed inset-x-2.5 bottom-[calc(74px+env(safe-area-inset-bottom))] z-30 rounded-[22px] border border-akua-gray-200 bg-akua-white/95 shadow-[0_18px_40px_-18px_rgb(11_16_32/0.35)] px-4 py-3 backdrop-blur-xl lg:hidden">
         <div className="flex items-center gap-3">
           <div className="min-w-0">
             <p className="text-[12px] text-akua-gray-500">Total{depositPct > 0 ? ` · acompte ${formatFCFA(depositAmount)}` : ""}</p>

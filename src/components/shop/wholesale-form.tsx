@@ -5,8 +5,11 @@ import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import { DELIVERY_COUNTRIES } from "@/config/site";
 import { buildWholesaleLink } from "@/lib/whatsapp";
 
+const OTHER = "Autre";
+
 export function WholesaleForm() {
-  const [f, setF] = useState({ name: "", country: "Togo", phone: "", products: "", message: "" });
+  const [f, setF] = useState({ name: "", country: "Togo", otherCountry: "", phone: "", products: "", message: "" });
+  const isOther = f.country === OTHER;
   const field = "h-12 w-full rounded-2xl border border-akua-gray-200 bg-akua-white px-4 text-[14.5px] outline-none transition-colors focus:border-akua-blue";
   const up = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setF((s) => ({ ...s, [k]: e.target.value }));
 
@@ -14,7 +17,8 @@ export function WholesaleForm() {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        window.open(buildWholesaleLink(f), "_blank", "noopener");
+        const { otherCountry, ...req } = f;
+        window.open(buildWholesaleLink({ ...req, country: isOther ? otherCountry.trim() : f.country }), "_blank", "noopener");
       }}
       className="grid gap-4 rounded-[28px] border border-akua-gray-200 bg-akua-white p-6 shadow-card md:grid-cols-2 md:p-8"
     >
@@ -29,8 +33,15 @@ export function WholesaleForm() {
           {DELIVERY_COUNTRIES.map((c) => (
             <option key={c.code}>{c.name}</option>
           ))}
+          <option value={OTHER}>Autre pays</option>
         </select>
       </label>
+      {isOther && (
+        <label className="block md:col-span-2">
+          <span className="mb-1.5 block text-[13px] font-medium">Votre pays</span>
+          <input required autoFocus value={f.otherCountry} onChange={up("otherCountry")} className={field} placeholder="Ex. Sénégal, Nigeria, Guinée…" autoComplete="country-name" />
+        </label>
+      )}
       <label className="block md:col-span-2">
         <span className="mb-1.5 block text-[13px] font-medium">Téléphone</span>
         <input required type="tel" value={f.phone} onChange={up("phone")} className={field} placeholder="+228 …" autoComplete="tel" />

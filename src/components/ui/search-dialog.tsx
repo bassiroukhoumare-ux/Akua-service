@@ -16,6 +16,21 @@ import { useUI } from "@/store/ui";
 const norm = (t: string) => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 const POPULAR = ["Manette PS4", "FC 27", "PS4 Slim", "Switch 2", "DualSense", "Volant"];
 
+/**
+ * iOS n'ouvre le clavier que si un champ reçoit le focus pendant le toucher lui-même.
+ * On donne donc le focus à un champ invisible au moment du clic ; la recherche le transfère
+ * ensuite à son vrai champ et le clavier reste ouvert.
+ */
+export function primeKeyboard() {
+  if (typeof document === "undefined") return;
+  const el = document.createElement("input");
+  el.setAttribute("aria-hidden", "true");
+  el.style.cssText = "position:fixed;top:0;left:0;opacity:0;height:0;font-size:16px;pointer-events:none";
+  document.body.appendChild(el);
+  el.focus();
+  window.setTimeout(() => el.remove(), 1000);
+}
+
 /** Recherche minimaliste : ligne de saisie, suggestions en texte, catégories en icônes, résultats épurés. */
 export function SearchDialog() {
   const open = useUI((s) => s.searchOpen);
@@ -25,7 +40,7 @@ export function SearchDialog() {
 
   const results = useMemo(() => {
     const n = norm(q.trim());
-    if (!n) return products.filter((p) => p.isFeatured).slice(0, 5);
+    if (!n) return [];
     return products.filter((p) => norm(`${p.name} ${p.shortDescription} ${p.platforms.join(" ")}`).includes(n)).slice(0, 8);
   }, [q]);
 
@@ -56,9 +71,10 @@ export function SearchDialog() {
             e.preventDefault();
             submit();
           }}
-          className="flex items-center gap-3 border-b border-akua-gray-200 px-4 sm:px-6"
+          className="flex items-center gap-3 border-b border-akua-gray-200 px-4 py-2.5 sm:px-6 sm:py-0"
         >
-          <Search aria-hidden className="size-5 shrink-0 text-akua-blue" strokeWidth={1.8} />
+          <div className="flex h-11 min-w-0 flex-1 items-center gap-2.5 rounded-full bg-akua-page px-4 ring-akua-blue/40 focus-within:ring-2 sm:h-16 sm:rounded-none sm:bg-transparent sm:px-0 sm:ring-0 sm:focus-within:ring-0">
+          <Search aria-hidden className="size-[18px] shrink-0 text-akua-ink sm:size-5 sm:text-akua-blue" strokeWidth={1.8} />
           <label htmlFor="global-search" className="sr-only">
             Rechercher
           </label>
@@ -69,23 +85,26 @@ export function SearchDialog() {
             onChange={(e) => setQ(e.target.value)}
             placeholder="Console, manette, jeu…"
             enterKeyHint="search"
-            className="h-16 min-w-0 flex-1 bg-transparent text-[17px] outline-none placeholder:text-akua-gray-500"
+            type="search"
+            autoComplete="off"
+            className="h-full min-w-0 flex-1 bg-transparent text-[16px] outline-none placeholder:text-akua-gray-500 sm:text-[17px] [&::-webkit-search-cancel-button]:hidden"
           />
           {q && (
-            <button type="button" onClick={() => setQ("")} aria-label="Effacer" className="text-akua-gray-500 hover:text-akua-ink">
-              <X aria-hidden className="size-[18px]" strokeWidth={1.8} />
+            <button type="button" onClick={() => setQ("")} aria-label="Effacer" className="grid size-6 shrink-0 place-items-center rounded-full bg-akua-gray-500/80 text-akua-white sm:bg-transparent sm:text-akua-gray-500 sm:hover:text-akua-ink">
+              <X aria-hidden className="size-3.5 sm:size-[18px]" strokeWidth={2.2} />
             </button>
           )}
+          </div>
           <button type="button" onClick={close} className="shrink-0 text-[14px] font-semibold text-akua-ink hover:text-akua-blue">
             Annuler
           </button>
         </form>
 
-        <div className="flex-1 overflow-y-auto px-4 pt-5 pb-8 sm:px-6">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 pt-6 pb-10 sm:px-6 sm:pb-7">
           {!q && (
             <>
               <p className="text-[11.5px] font-semibold tracking-[0.14em] text-akua-gray-500 uppercase">Recherches populaires</p>
-              <ul className="mt-2.5 flex flex-wrap gap-x-5 gap-y-2">
+              <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-3">
                 {POPULAR.map((s) => (
                   <li key={s}>
                     <button type="button" onClick={() => setQ(s)} className="group inline-flex items-center gap-1 text-[15px] font-medium text-akua-ink hover:text-akua-blue">
@@ -96,7 +115,7 @@ export function SearchDialog() {
                 ))}
               </ul>
 
-              <p className="mt-7 text-[11.5px] font-semibold tracking-[0.14em] text-akua-gray-500 uppercase">Catégories</p>
+              <p className="mt-8 text-[11.5px] font-semibold tracking-[0.14em] text-akua-gray-500 uppercase">Catégories</p>
               <ul className="mt-2 grid grid-cols-4 gap-y-1">
                 {categories.map((c) => {
                   const Icon = getCategoryIcon(c.icon);
@@ -113,9 +132,11 @@ export function SearchDialog() {
             </>
           )}
 
-          <p className={cn("text-[11.5px] font-semibold tracking-[0.14em] text-akua-gray-500 uppercase", !q && "mt-6")}>
-            {q ? `${results.length} résultat${results.length > 1 ? "s" : ""}` : "Produits populaires"}
-          </p>
+          {q && results.length > 0 && (
+            <p className="text-[11.5px] font-semibold tracking-[0.14em] text-akua-gray-500 uppercase">
+              {results.length} résultat{results.length > 1 ? "s" : ""}
+            </p>
+          )}
           <ul className="mt-1 divide-y divide-akua-gray-200">
             {results.map((p) => (
               <li key={p.id}>

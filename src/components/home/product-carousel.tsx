@@ -3,9 +3,11 @@
 import Autoplay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ProductCard } from "@/components/product/product-card";
 import { Reveal } from "@/components/ui/reveal";
+import { btn } from "@/lib/btn";
 import { cn } from "@/lib/utils";
 import type { Platform, Product } from "@/types/catalog";
 
@@ -17,10 +19,12 @@ interface ProductCarouselProps {
   filters?: { id: string; label: string; platforms: Platform[] | null }[];
   /** défilement automatique (droite → gauche) sur mobile */
   autoplay?: boolean;
+  /** à partir de md : grille de 2 lignes (3 puis 4 colonnes) + bouton « voir tout », au lieu du carrousel */
+  seeAll?: { href: string; label?: string };
 }
 
 /** Carrousel « Explorez nos recommandations » (réf.), filtres optionnels. */
-export function ProductCarousel({ eyebrow, title, products, filters, autoplay }: ProductCarouselProps) {
+export function ProductCarousel({ eyebrow, title, products, filters, autoplay, seeAll }: ProductCarouselProps) {
   const [ref, api] = useEmblaCarousel(
     autoplay ? { align: "start", loop: true } : { align: "start", containScroll: "trimSnaps", dragFree: true },
     autoplay ? [Autoplay({ delay: 2800, stopOnInteraction: false, stopOnMouseEnter: true, active: false, breakpoints: { "(max-width: 767px)": { active: true } } })] : [],
@@ -70,7 +74,7 @@ export function ProductCarousel({ eyebrow, title, products, filters, autoplay }:
               ))}
             </div>
           )}
-          <div className="hidden gap-2 md:flex">
+          <div className={cn("hidden gap-2", !seeAll && "md:flex")}>
             <button type="button" onClick={() => api?.scrollPrev()} disabled={!can.prev} aria-label="Précédent" className={arrow}>
               <ArrowLeft aria-hidden className="size-[18px]" />
             </button>
@@ -80,7 +84,7 @@ export function ProductCarousel({ eyebrow, title, products, filters, autoplay }:
           </div>
         </div>
       </Reveal>
-      <div ref={ref} className="mt-4 overflow-hidden">
+      <div ref={ref} className={cn("mt-4 overflow-hidden", seeAll && "md:hidden")}>
         <div className="flex gap-2.5 px-4 md:gap-3.5 md:px-[max(24px,calc((100vw-1320px)/2+32px))]">
           {list.map((p) => (
             <div key={p.id} className="w-[47%] shrink-0 sm:w-[31%] lg:w-[23.5%] xl:w-[302px]">
@@ -90,6 +94,23 @@ export function ProductCarousel({ eyebrow, title, products, filters, autoplay }:
           <div aria-hidden className="w-1 shrink-0" />
         </div>
       </div>
+      {seeAll && (
+        <div className="container-akua mt-6 md:mt-5">
+          {/* 2 lignes : 6 produits sur tablette (3 colonnes), 8 sur ordinateur (4 colonnes) */}
+          <ul className="hidden grid-cols-3 gap-4 md:grid lg:grid-cols-4 lg:gap-5">
+            {list.slice(0, 8).map((p, i) => (
+              <li key={p.id} className={cn("min-w-0", i >= 6 && "hidden lg:block")}>
+                <ProductCard product={p} sizes="(min-width:1024px) 300px, 33vw" />
+              </li>
+            ))}
+          </ul>
+          <div className="flex justify-center md:mt-8">
+            <Link href={seeAll.href} className={btn({ variant: "outline", size: "md" })}>
+              {seeAll.label ?? "Voir tous les articles"} <ArrowRight aria-hidden className="size-4" />
+            </Link>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
