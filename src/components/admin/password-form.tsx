@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { btn } from "@/lib/btn";
 import { cn } from "@/lib/utils";
@@ -12,7 +13,9 @@ const RULES = [
 ];
 
 /** Choix d'un mot de passe personnel (remplace le mot de passe provisoire). */
-export function PasswordForm() {
+export function PasswordForm({ first = false }: { first?: boolean }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
   const [cur, setCur] = useState("");
   const [pw, setPw] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -21,13 +24,21 @@ export function PasswordForm() {
   const [done, setDone] = useState(false);
   const valid = RULES.every((r) => r.ok(pw));
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!cur) return setError("Saisissez votre mot de passe actuel.");
+    if (!cur) return setError(first ? "Saisissez le mot de passe provisoire reçu sur WhatsApp." : "Saisissez votre mot de passe actuel.");
     if (!valid) return setError("Le nouveau mot de passe ne respecte pas les règles.");
     if (pw !== confirm) return setError("Les deux mots de passe ne sont pas identiques.");
     setError("");
+    setBusy(true);
+    const res = await fetch("/equipe-akua/api/mot-de-passe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ current: cur, next: pw }) }).catch(() => null);
+    setBusy(false);
+    if (!res?.ok) {
+      const data = (await res?.json().catch(() => null)) as { error?: string } | null;
+      return setError(data?.error ?? "Enregistrement impossible. Vérifiez votre connexion internet.");
+    }
     setDone(true);
+    if (first) window.setTimeout(() => router.refresh(), 1400);
   }
 
   const field = "h-12 w-full rounded-2xl border border-akua-gray-200 bg-akua-white px-4 text-[16px] outline-none transition-colors focus:border-akua-blue focus:ring-4 focus:ring-akua-blue/10 sm:text-[15px]";
@@ -36,9 +47,9 @@ export function PasswordForm() {
     return (
       <div className="flex flex-col items-center py-6 text-center">
         <CheckCircle2 aria-hidden className="size-12 text-[#128c4a]" strokeWidth={1.5} />
-        <p className="mt-3 text-[18px] font-extrabold">Mot de passe prêt</p>
+        <p className="mt-3 text-[18px] font-extrabold">Mot de passe enregistré</p>
         <p className="mt-1 max-w-sm text-[14px] text-akua-gray-500">
-          Démonstration : l&apos;enregistrement réel du nouveau mot de passe sera actif dès que la base de données sera branchée.
+          {first ? "Votre espace s'ouvre…" : "Utilisez-le dès votre prochaine connexion. Il n'est connu que de vous."}
         </p>
       </div>
     );
@@ -53,7 +64,7 @@ export function PasswordForm() {
       )}
       <div>
         <label htmlFor="pw-cur" className="mb-1.5 block text-[13.5px] font-medium">
-          Mot de passe actuel (ou provisoire)
+          {first ? "Mot de passe provisoire (reçu sur WhatsApp)" : "Mot de passe actuel"}
         </label>
         <input id="pw-cur" type="password" value={cur} onChange={(e) => setCur(e.target.value)} autoComplete="current-password" className={field} />
       </div>
@@ -90,8 +101,8 @@ export function PasswordForm() {
         </label>
         <input id="pw-confirm" type={show ? "text" : "password"} value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" className={field} />
       </div>
-      <button type="submit" className={btn({ variant: "primary", size: "md", className: "mt-1 self-start" })}>
-        Enregistrer mon mot de passe
+      <button type="submit" disabled={busy} className={btn({ variant: "primary", size: "md", className: "mt-1 self-start" })}>
+        {busy ? "Enregistrement…" : "Enregistrer mon mot de passe"}
       </button>
     </form>
   );

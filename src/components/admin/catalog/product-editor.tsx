@@ -10,8 +10,10 @@ import {
   Info,
   Package,
   PackageOpen,
+  Plus,
   ShieldCheck,
-  Sparkles,
+  BadgePercent,
+  Tag,
   Store,
   Trash2,
 } from "lucide-react";
@@ -58,6 +60,7 @@ type Draft = {
   condition: Condition;
   packaging: Packaging;
   platforms: Platform[];
+  otherPlatforms: string[];
   compatibility: string[];
   stockStatus: StockStatus;
   stockLeft?: number;
@@ -85,6 +88,7 @@ function toDraft(p?: Product, pack?: boolean): Draft {
     condition: p?.condition ?? "neuf",
     packaging: p?.packaging ?? "carton",
     platforms: p?.platforms ?? [],
+    otherPlatforms: p?.otherPlatforms ?? [],
     compatibility: p?.compatibility ?? [],
     stockStatus: p?.stockStatus ?? "en_stock",
     stockLeft: p?.stockLeft,
@@ -127,6 +131,7 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
   const [errors, setErrors] = useState<Errors>({});
   const [loaded, setLoaded] = useState(!productId);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showOther, setShowOther] = useState(false);
 
   // le catalogue est lu depuis ce navigateur : on remplit le formulaire une fois chargé
   useEffect(() => {
@@ -172,6 +177,7 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
       name: d.name.trim(),
       categoryId: d.categoryId,
       platforms: d.platforms,
+      otherPlatforms: d.otherPlatforms.length ? d.otherPlatforms : undefined,
       condition: d.condition,
       packaging: d.packaging,
       price: d.price ?? 0,
@@ -338,7 +344,7 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
           <div id="pe-price">
             <Section n={existing ? 3 : 4} title="Prix" description="Activez le prix promotionnel pour afficher un prix barré et le pourcentage de réduction.">
               <div className="grid gap-4">
-                <Toggle checked={d.promo} onChange={(v) => set("promo", v)} label="Prix promotionnel" description="Le prix de départ sera barré, le prix promo mis en avant." icon={Sparkles} />
+                <Toggle checked={d.promo} onChange={(v) => set("promo", v)} label="Prix promotionnel" description="Le prix de départ sera barré, le prix promo mis en avant." icon={BadgePercent} />
                 <div className={cn("grid gap-4", d.promo && "sm:grid-cols-2")}>
                   {d.promo && (
                     <Field id="pe-compareAt" label="Prix de départ (barré)" error={errors.compareAt}>
@@ -415,7 +421,24 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
                       </button>
                     );
                   })}
+                  <button
+                    type="button"
+                    aria-pressed={showOther}
+                    onClick={() => setShowOther((o) => !o)}
+                    className={cn(
+                      "inline-flex h-9 items-center gap-1.5 rounded-full border border-dashed px-3.5 text-[13px] font-semibold transition-colors",
+                      showOther || d.otherPlatforms.length ? "border-akua-blue bg-akua-blue-100 text-akua-blue" : "border-akua-gray-200 text-akua-ink hover:border-akua-ink",
+                    )}
+                  >
+                    <Plus aria-hidden className="size-3.5" strokeWidth={2.4} /> Autre
+                  </button>
                 </div>
+                {(showOther || d.otherPlatforms.length > 0) && (
+                  <div className="mt-3 rounded-[18px] bg-akua-page p-3.5">
+                    <p className="mb-2 text-[12.5px] text-akua-gray-500">Plateforme absente de la liste ? Écrivez-la puis appuyez sur Entrée.</p>
+                    <TagInput id="pe-other-platform" value={d.otherPlatforms} onChange={(v) => set("otherPlatforms", v)} placeholder="Ex. PS Vita, Steam Deck, Meta Quest…" />
+                  </div>
+                )}
               </Field>
               <Field label="Compatibilité" optional hint="Avec quoi le produit fonctionne : télévision, jeu en ligne, applications…">
                 <TagInput value={d.compatibility} onChange={(v) => set("compatibility", v)} placeholder="Ex. Télévision HDMI" suggestions={COMPAT_SUGGEST} />
@@ -455,7 +478,7 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
                 </Field>
               )}
               <Toggle checked={d.wholesale} onChange={(v) => set("wholesale", v)} label="Disponible en vente en gros" description="Propose un devis aux revendeurs et salles de jeux." icon={Store} />
-              <Toggle checked={d.isNew} onChange={(v) => set("isNew", v)} label="Badge « Nouveau »" description="Met en avant un produit qui vient d'arriver." icon={Sparkles} />
+              <Toggle checked={d.isNew} onChange={(v) => set("isNew", v)} label="Badge « Nouveau »" description="Met en avant un produit qui vient d'arriver." icon={Tag} />
               <Toggle checked={d.featured} onChange={(v) => set("featured", v)} label="Mettre en avant" description="Apparaît en priorité dans les suggestions." icon={BadgeCheck} />
             </div>
           </Section>

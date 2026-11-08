@@ -1,15 +1,19 @@
 "use client";
 
 import { Check, Copy, KeyRound, MoreHorizontal, Pencil, Power, ShieldCheck, Trash2, UserPlus, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import { ADMIN_GROUPS, ADMIN_MODULES, type AdminModuleId, TEAM_BASE } from "@/config/admin";
-import { DEMO_TEAM, type MemberStatus, type TeamMember, tempPassword, timeAgo } from "@/lib/admin/demo";
+import { type MemberStatus, timeAgo } from "@/lib/admin/demo";
+import type { PublicMember } from "@/lib/admin/team-store";
 import { btn } from "@/lib/btn";
 import { cn } from "@/lib/utils";
-import { DemoNotice, PageHeader, Panel } from "./ui";
+import { PageHeader, Panel } from "./ui";
+
+type TeamMember = PublicMember & { owner?: boolean };
+const OWNER_ROW: TeamMember = { id: "owner", name: "Propriétaire AKUA Service", identifier: "Connexion par mot de passe seul", owner: true, modules: [], status: "active", mustChange: false, createdAt: "" };
 
 // le tableau de bord est ouvert à tous les équipiers ; l'équipe et l'activité restent réservées au propriétaire
 const RIGHTS = ADMIN_GROUPS.map((g) => ({ ...g, modules: g.modules.filter((m) => m.id !== "dashboard" && !m.ownerOnly) })).filter((g) => g.modules.length);
@@ -36,6 +40,8 @@ const initials = (n: string) =>
     .map((w) => w[0]?.toUpperCase())
     .join("");
 
+const API = "/spaceakua/api/equipe";
+
 const moduleLabel = (id: AdminModuleId) => ADMIN_MODULES.find((m) => m.id === id)?.label ?? id;
 
 /* ------------------------------------------------------------ formulaire */
@@ -52,8 +58,9 @@ function MemberDialog({
   open: boolean;
   onOpenChange: (o: boolean) => void;
   initial?: TeamMember;
-  onSave: (d: Draft) => void;
+  onSave: (d: Draft) => Promise<string | null>;
 }) {
+  const [busy, setBusy] = useState(false);
   const [d, setD] = useState<Draft>({ name: "", identifier: "", modules: [] });
   const [errors, setErrors] = useState<FormErrors>({});
   useEffect(() => {
@@ -69,7 +76,7 @@ function MemberDialog({
   };
   const same = (a: AdminModuleId[], b: AdminModuleId[]) => a.length === b.length && a.every((m) => b.includes(m));
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     const er: FormErrors = {};
     if (d.name.trim().length < 2) er.name = "Indiquez le nom de l'équipier.";
@@ -77,7 +84,10 @@ function MemberDialog({
     if (!d.modules.length) er.modules = "Choisissez au moins un module.";
     setErrors(er);
     if (Object.keys(er).length) return;
-    onSave({ ...d, name: d.name.trim(), identifier: d.identifier.trim() });
+    setBusy(true);
+    const err = await onSave({ ...d, name: d.name.trim(), identifier: d.identifier.trim() });
+    setBusy(false);
+    if (err) setErrors({ identifier: err.includes("numéro") ? err : undefined, modules: err.includes("numéro") ? undefined : err });
   }
 
   const field = (err?: string) =>
@@ -194,8 +204,8 @@ function MemberDialog({
             <button type="button" onClick={() => onOpenChange(false)} className={btn({ variant: "outline", size: "md" })}>
               Annuler
             </button>
-            <button type="submit" className={btn({ variant: "primary", size: "md" })}>
-              {initial ? "Enregistrer les modifications" : "Créer l'accès"}
+            <button type="submit" disabled={busy} className={btn({ variant: "primary", size: "md" })}>
+              {busy ? "Enregistrement…" : initial ? "Enregistrer les modifications" : "Créer l'accès"}
             </button>
           </div>
         </form>
@@ -350,24 +360,40 @@ function PortalLink() {
 /* ------------------------------------------------------------------ page */
 
 export function TeamView() {
-  const [team, setTeam] = useState<TeamMember[]>(DEMO_TEAM);
+  const [members, setMembers] = useState<TeamMember[] | null>(null);
+  const [loadError, setLoadError] = useState("");
   const [editing, setEditing] = useState<TeamMember | undefined>();
   const [formOpen, setFormOpen] = useState(false);
   const [creds, setCreds] = useState<{ member: TeamMember; password: string } | null>(null);
   const [toDelete, setToDelete] = useState<TeamMember | null>(null);
 
+  const load = useCallback(async () => {
+    const res = await fetch(`${API}`, { cache: "no-store" }).catch(() => null);
+    if (!res?.ok) return setLoadError("La liste des équipiers n'a pas pu être chargée.");
+    setLoadError("");
+    setMembers(await res.json());
+  }, []);
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const team = useMemo(() => [OWNER_ROW, ...(members ?? [])], [members]);
   const counts = useMemo(() => ({ total: team.length, active: team.filter((m) => m.status === "active").length, pending: team.filter((m) => m.status === "pending").length }), [team]);
 
-  function save(d: Draft) {
-    if (editing) {
-      setTeam((t) => t.map((m) => (m.id === editing.id ? { ...m, ...d } : m)));
-      setFormOpen(false);
-      return;
-    }
-    const member: TeamMember = { id: `m${Date.now()}`, ...d, status: "pending", createdAt: new Date() };
-    setTeam((t) => [...t, member]);
+  async function call(method: string, body?: object, query = "") {
+    const res = await fetch(`${API}${query}`, { method, headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined }).catch(() => null);
+    const data = (await res?.json().catch(() => null)) as { error?: string; member?: TeamMember; password?: string } | null;
+    if (!res?.ok) return { error: data?.error ?? "Action impossible. Vérifiez votre connexion internet." };
+    await load();
+    return data ?? {};
+  }
+
+  async function save(d: Draft): Promise<string | null> {
+    const r = editing ? await call("PATCH", { id: editing.id, ...d }) : await call("POST", d);
+    if ("error" in r && r.error) return r.error;
     setFormOpen(false);
-    setCreds({ member, password: tempPassword() });
+    if (!editing && r.member && r.password) setCreds({ member: r.member, password: r.password });
+    return null;
   }
 
   return (
@@ -389,7 +415,11 @@ export function TeamView() {
         }
       />
 
-      <DemoNotice>Les équipiers affichés sont des exemples. Vous pouvez tester l&apos;ajout, les droits et l&apos;envoi par WhatsApp : rien n&apos;est encore enregistré.</DemoNotice>
+      {loadError && (
+        <p role="alert" className="rounded-[18px] border border-akua-red/25 bg-akua-red/5 px-4 py-3 text-[13.5px] font-medium text-akua-red">
+          {loadError}
+        </p>
+      )}
 
       {/* fonctionnement */}
       <ol className="grid gap-3 md:grid-cols-3">
@@ -431,7 +461,7 @@ export function TeamView() {
                   </p>
                   <p className="truncate text-[13px] text-akua-gray-500 tabular-nums">
                     {m.identifier}
-                    {m.lastSeen ? ` · vu ${timeAgo(m.lastSeen)}` : ""}
+                    {m.lastSeen ? ` · vu ${timeAgo(new Date(m.lastSeen))}` : m.owner ? "" : " · jamais connecté"}
                   </p>
                 </div>
               </div>
@@ -464,11 +494,11 @@ export function TeamView() {
                       setEditing(m);
                       setFormOpen(true);
                     }}
-                    onReset={() => {
-                      setTeam((t) => t.map((x) => (x.id === m.id ? { ...x, status: "pending" } : x)));
-                      setCreds({ member: m, password: tempPassword() });
+                    onReset={async () => {
+                      const r = await call("PATCH", { id: m.id, reset: true });
+                      if ("password" in r && r.password) setCreds({ member: m, password: r.password });
                     }}
-                    onToggle={() => setTeam((t) => t.map((x) => (x.id === m.id ? { ...x, status: x.status === "disabled" ? "active" : "disabled" } : x)))}
+                    onToggle={() => void call("PATCH", { id: m.id, status: m.status === "disabled" ? "active" : "disabled" })}
                     onDelete={() => setToDelete(m)}
                   />
                 )}
@@ -485,8 +515,8 @@ export function TeamView() {
         onOpenChange={(o) => !o && setToDelete(null)}
         title={`Supprimer ${toDelete?.name ?? "cet équipier"} ?`}
         description="Il ne pourra plus se connecter à l'espace administrateur. Cette action est définitive."
-        onConfirm={() => {
-          setTeam((t) => t.filter((x) => x.id !== toDelete?.id));
+        onConfirm={async () => {
+          if (toDelete) await call("DELETE", undefined, `?id=${encodeURIComponent(toDelete.id)}`);
           setToDelete(null);
         }}
       />

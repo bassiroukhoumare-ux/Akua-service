@@ -40,6 +40,23 @@ function session(): { id: string; src: SourceId } {
   }
 }
 
+function send(payload: object) {
+  const body = JSON.stringify(payload);
+  try {
+    if (!navigator.sendBeacon?.("/api/visite", new Blob([body], { type: "application/json" }))) {
+      void fetch("/api/visite", { method: "POST", body, keepalive: true, headers: { "content-type": "application/json" } });
+    }
+  } catch {
+    /* hors ligne : ignoré */
+  }
+}
+
+/** Compte une commande envoyée sur WhatsApp (appelé au moment de l'envoi). */
+export function trackOrder() {
+  const s = session();
+  send({ v: visitorId(), s: s.id, p: location.pathname, src: s.src, e: "order" });
+}
+
 /** Compte chaque page vue du site public (anonyme : aucun nom, numéro ni adresse IP enregistré). */
 export function VisitTracker() {
   const path = usePathname();
@@ -49,14 +66,7 @@ export function VisitTracker() {
     if (!path || last.current === path) return;
     last.current = path;
     const s = session();
-    const body = JSON.stringify({ v: visitorId(), s: s.id, p: path, src: s.src });
-    try {
-      if (!navigator.sendBeacon?.("/api/visite", new Blob([body], { type: "application/json" }))) {
-        void fetch("/api/visite", { method: "POST", body, keepalive: true, headers: { "content-type": "application/json" } });
-      }
-    } catch {
-      /* hors ligne : ignoré */
-    }
+    send({ v: visitorId(), s: s.id, p: path, src: s.src });
   }, [path]);
 
   return null;

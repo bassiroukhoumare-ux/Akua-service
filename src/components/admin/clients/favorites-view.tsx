@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, Info, Pencil, Sparkles } from "lucide-react";
+import { BadgePercent, Heart, Info, Pencil } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
@@ -97,7 +97,7 @@ export function FavoritesView() {
               <div className="flex shrink-0 gap-2">
                 {!pct && (
                   <Link href={`${base}/produits/${p.id}`} className={btn({ variant: "soft", size: "sm" })}>
-                    <Sparkles aria-hidden className="size-4" /> Mettre en promo
+                    <BadgePercent aria-hidden className="size-4" /> Mettre en promo
                   </Link>
                 )}
                 <Link href={`${base}/produits/${p.id}`} aria-label={`Modifier ${p.name}`} className={btn({ variant: "outline", size: "icon-sm" })}>

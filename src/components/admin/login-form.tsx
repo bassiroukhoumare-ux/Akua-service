@@ -45,8 +45,8 @@ export function LoginForm({ kind }: { kind: PortalKind }) {
   }
 
   const field =
-    "h-[52px] w-full rounded-2xl border bg-akua-white pr-4 pl-11 text-[16px] text-akua-ink outline-none transition-colors placeholder:text-akua-gray-500 focus:border-akua-blue focus:ring-4 focus:ring-akua-blue/10 sm:text-[15px]";
-  const border = error ? "border-akua-red/60" : "border-akua-gray-200";
+    "h-[54px] w-full rounded-[18px] border bg-akua-page/70 pr-4 pl-12 text-[16px] text-akua-ink outline-none transition-all duration-200 placeholder:text-akua-gray-500/80 hover:bg-akua-page focus:border-akua-blue focus:bg-akua-white focus:ring-4 focus:ring-akua-blue/10 sm:text-[15px]";
+  const border = error ? "border-akua-red/60 bg-akua-red/[0.03]" : "border-transparent";
 
   return (
     <form onSubmit={submit} noValidate className="flex flex-col gap-4">
@@ -61,7 +61,7 @@ export function LoginForm({ kind }: { kind: PortalKind }) {
             Numéro WhatsApp
           </label>
           <div className="relative">
-            <Phone aria-hidden className="pointer-events-none absolute top-1/2 left-4 size-[18px] -translate-y-1/2 text-akua-gray-500" strokeWidth={1.8} />
+            <Phone aria-hidden className="pointer-events-none absolute top-1/2 left-[18px] size-[18px] -translate-y-1/2 text-akua-gray-500" strokeWidth={1.8} />
             <input
               id="login-id"
               type="tel"
@@ -81,7 +81,7 @@ export function LoginForm({ kind }: { kind: PortalKind }) {
           Mot de passe
         </label>
         <div className="relative">
-          <Lock aria-hidden className="pointer-events-none absolute top-1/2 left-4 size-[18px] -translate-y-1/2 text-akua-gray-500" strokeWidth={1.8} />
+          <Lock aria-hidden className="pointer-events-none absolute top-1/2 left-[18px] size-[18px] -translate-y-1/2 text-akua-gray-500" strokeWidth={1.8} />
           <input
             id="login-pw"
             type={show ? "text" : "password"}
@@ -106,7 +106,7 @@ export function LoginForm({ kind }: { kind: PortalKind }) {
         <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="size-4 rounded accent-[var(--akua-blue)]" />
         Rester connecté 7 jours sur cet appareil
       </label>
-      <button type="submit" disabled={busy} className={btn({ variant: "primary", size: "lg", className: "mt-1 w-full" })}>
+      <button type="submit" disabled={busy} className={btn({ variant: "primary", size: "lg", className: "mt-2 h-[54px] w-full rounded-[18px] text-[15.5px] shadow-[0_18px_36px_-16px_rgb(31_91_255/0.75)]" })}>
         {busy ? "Connexion…" : "Se connecter"} {!busy && <ArrowRight aria-hidden className="size-4" />}
       </button>
     </form>

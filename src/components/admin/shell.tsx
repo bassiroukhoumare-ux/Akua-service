@@ -12,6 +12,9 @@ import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
 import type { Actor } from "@/store/admin-catalog";
 import { AdminProvider } from "./actor-context";
+import { PageTransition } from "./page-transition";
+
+const TODAY = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" });
 
 const isActive = (path: string, href: string, base: string) => (href === base ? path === base : path === href || path.startsWith(`${href}/`));
 
@@ -42,7 +45,7 @@ function Nav({ base, allowed, onNavigate }: { base: string; allowed?: AdminModul
     <nav aria-label="Menu principal" className="flex flex-col gap-6">
       {visibleGroups(allowed).map((g) => (
         <div key={g.label}>
-          <p className="px-3 text-[10.5px] font-bold tracking-[0.14em] text-akua-gray-500/80 uppercase">{g.label}</p>
+          <p className="px-3 text-[10.5px] font-bold tracking-[0.16em] text-akua-gray-500/70 uppercase">{g.label}</p>
           <ul className="mt-2 flex flex-col gap-0.5">
             {g.modules.map((m) => {
               const href = moduleHref(base, m);
@@ -55,11 +58,13 @@ function Nav({ base, allowed, onNavigate }: { base: string; allowed?: AdminModul
                     onClick={onNavigate}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "group flex h-10 items-center gap-2.5 rounded-[14px] px-3 text-[13.5px] font-medium transition-colors",
-                      active ? "bg-akua-ink text-akua-white" : "text-akua-ink hover:bg-akua-page",
+                      "group relative flex h-11 items-center gap-3 rounded-[14px] px-2 text-[13.5px] font-medium transition-all duration-200",
+                      active ? "bg-akua-ink text-akua-white shadow-[0_12px_24px_-14px_rgb(11_16_32/0.8)]" : "text-akua-ink hover:bg-akua-page",
                     )}
                   >
-                    <m.icon aria-hidden className={cn("size-[18px] shrink-0 transition-colors", active ? "text-akua-white" : "text-akua-gray-500 group-hover:text-akua-ink")} strokeWidth={1.8} />
+                    <span className={cn("grid size-7 shrink-0 place-items-center rounded-[9px] transition-colors", active ? "bg-akua-white/12" : "bg-transparent group-hover:bg-akua-white")}>
+                      <m.icon aria-hidden className={cn("size-[17px] transition-colors", active ? "text-akua-white" : "text-akua-gray-500 group-hover:text-akua-blue")} strokeWidth={1.8} />
+                    </span>
                     <span className="min-w-0 flex-1 truncate">{m.label}</span>
                     {soon && (
                       <span className={cn("shrink-0 rounded-full px-1.5 py-0.5 text-[10px] leading-none font-semibold", active ? "bg-akua-white/15 text-akua-white" : "bg-akua-page text-akua-gray-500")}>
@@ -97,9 +102,9 @@ function UserMenu({ kind, user, compact }: { kind: PortalKind; user: ShellUser; 
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className={cn("flex items-center gap-2.5 rounded-full text-left transition-colors hover:bg-akua-page", compact ? "p-1" : "w-full p-1.5 pr-3")}
+        className={cn("flex items-center gap-2.5 text-left transition-colors", compact ? "rounded-full p-1 hover:bg-akua-page" : "w-full rounded-[18px] bg-akua-page/70 p-2 pr-3 ring-1 ring-akua-gray-200/70 hover:bg-akua-page")}
       >
-        <span className="grid size-9 shrink-0 place-items-center rounded-full bg-akua-blue text-[13px] font-bold text-akua-white">{initials(user.name)}</span>
+        <span className="grid size-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-akua-blue to-[#5b82ff] text-[13px] font-bold text-akua-white shadow-[0_6px_14px_-6px_rgb(31_91_255/0.8)] ring-2 ring-akua-white">{initials(user.name)}</span>
         {!compact && (
           <span className="min-w-0 flex-1">
             <span className="block truncate text-[13.5px] font-semibold">{user.name}</span>
@@ -197,7 +202,10 @@ export function AdminShell({ kind, user, actor, allowed, children }: { kind: Por
               <Menu aria-hidden className="size-5" />
             </button>
             <div className="min-w-0 flex-1">
-              <p className="hidden text-[12px] font-medium text-akua-gray-500 sm:block">{portal}</p>
+              <p className="hidden text-[12px] font-medium text-akua-gray-500 sm:block">
+                {portal}
+                {hydrated && <span className="text-akua-gray-500/70"> · {TODAY.format(new Date())}</span>}
+              </p>
               <p className="truncate text-[16px] font-bold tracking-[-0.01em] sm:text-[15px]">{current?.label ?? (path.endsWith("/mot-de-passe") ? "Mon mot de passe" : "Tableau de bord")}</p>
             </div>
             <Link
@@ -216,7 +224,7 @@ export function AdminShell({ kind, user, actor, allowed, children }: { kind: Por
         <main className="mx-auto max-w-[1320px] px-4 pt-6 pb-16 md:px-8 md:pt-8">
           <AdminProvider actor={actor} base={base}>
             {hydrated ? (
-              children
+              <PageTransition>{children}</PageTransition>
             ) : (
               <div aria-busy className="flex flex-col gap-5">
                 <div className="h-10 w-64 animate-pulse rounded-xl bg-akua-white" />

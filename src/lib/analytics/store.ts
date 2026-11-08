@@ -17,6 +17,8 @@ export interface Visit {
   /** code pays ISO (vide si inconnu) */
   c: string;
   d: Device;
+  /** événement (absent = page vue) : commande envoyée sur WhatsApp */
+  e?: "order";
 }
 
 const FILE = path.join(process.cwd(), ".data", "visites.jsonl");

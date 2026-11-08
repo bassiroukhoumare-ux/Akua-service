@@ -7,7 +7,7 @@ import { findMember } from "./team-auth";
 /** Équipier connecté (portail équipe) ; renvoie vers la connexion sinon. */
 export async function requireMember() {
   const id = await readSession("team", (await cookies()).get(SESSION.team.cookie)?.value);
-  const member = id ? findMember(id) : undefined;
+  const member = id ? await findMember(id) : undefined;
   if (!member) redirect(`${TEAM_BASE}/connexion`);
   return member;
 }

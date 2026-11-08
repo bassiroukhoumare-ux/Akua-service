@@ -6,6 +6,8 @@ import type { Visit } from "./store";
 import { type Device, SOURCE_LABEL, type SourceId } from "./sources";
 
 export type StatsPeriod = "jour" | "semaine" | "mois" | "annee";
+/** période choisie dans le calendrier */
+export type StatsRange = { from: number; to: number };
 export const STATS_PERIODS: StatsPeriod[] = ["jour", "semaine", "mois", "annee"];
 
 export interface StatsPoint {
@@ -13,6 +15,7 @@ export interface StatsPoint {
   full: string;
   visitors: number;
   pageviews: number;
+  orders: number;
 }
 
 export interface StatsTotals {
@@ -21,10 +24,14 @@ export interface StatsTotals {
   pageviews: number;
   /** pages vues par visite */
   depth: number;
+  /** commandes envoyées sur WhatsApp */
+  orders: number;
 }
 
 export interface StatsResult {
-  period: StatsPeriod;
+  period: StatsPeriod | "perso";
+  /** granularité de la courbe */
+  unit: "heure" | "jour" | "mois";
   demo: boolean;
   /** visites enregistrées depuis le début (toutes périodes) */
   recorded: number;
@@ -86,6 +93,36 @@ export function buckets(period: StatsPeriod, now: number): Bucket[] {
   });
 }
 
+/** Tranches d'une période choisie : heures (≤ 2 jours), jours (≤ 3 mois) ou mois. */
+export function rangeBuckets(from: number, to: number): { list: Bucket[]; unit: "heure" | "jour" | "mois" } {
+  const days = (to - from) / DAY;
+  if (days <= 2) {
+    const list: Bucket[] = [];
+    for (let t = from; t < to; t += HOUR) {
+      const h = new Date(t).getUTCHours();
+      list.push({ start: t, end: t + HOUR, label: days > 1 ? `${clean(fDay.format(t))} ${h}h` : `${h}h`, full: `${days > 1 ? `${fDayFull.format(t)}, ` : ""}${h}h – ${h + 1}h` });
+    }
+    return { list, unit: "heure" };
+  }
+  if (days <= 92) {
+    const list: Bucket[] = [];
+    for (let t = from; t < to; t += DAY) list.push({ start: t, end: t + DAY, label: clean(days <= 7 ? fWeekday.format(t) : fDay.format(t)), full: fDayFull.format(t) });
+    return { list, unit: "jour" };
+  }
+  const list: Bucket[] = [];
+  const d = new Date(from);
+  const y = d.getUTCFullYear();
+  let m = d.getUTCMonth();
+  for (;;) {
+    const start = Math.max(from, Date.UTC(y, m, 1));
+    const end = Math.min(to, Date.UTC(y, m + 1, 1));
+    if (start >= to) break;
+    list.push({ start, end, label: clean(fMonth.format(start)), full: fMonthFull.format(start) });
+    m++;
+  }
+  return { list, unit: "mois" };
+}
+
 /** Début de la période précédente : pour comparer, on regarde la même durée juste avant. */
 export function periodRange(period: StatsPeriod, now: number) {
   const b = buckets(period, now);
@@ -121,25 +158,35 @@ const pct = (a: number, b: number) => (b ? Math.round(((a - b) / b) * 100) : nul
 const share = (n: number, total: number) => (total ? Math.round((n / total) * 1000) / 10 : 0);
 
 function totals(list: Visit[]): StatsTotals {
-  const visitors = new Set(list.map((v) => v.v)).size;
-  const sessions = new Set(list.map((v) => v.s)).size;
-  return { visitors, sessions, pageviews: list.length, depth: sessions ? Math.round((list.length / sessions) * 10) / 10 : 0 };
+  const views = list.filter((v) => !v.e);
+  const visitors = new Set(views.map((v) => v.v)).size;
+  const sessions = new Set(views.map((v) => v.s)).size;
+  return { visitors, sessions, pageviews: views.length, depth: sessions ? Math.round((views.length / sessions) * 10) / 10 : 0, orders: list.length - views.length };
 }
 
-export function aggregate(all: Visit[], period: StatsPeriod, now: number, demo: boolean): StatsResult {
-  const b = buckets(period, now);
-  const { from, to, prevFrom } = periodRange(period, now);
-  const cur = all.filter((v) => v.t >= from && v.t < to);
+/** Statistiques d'une période prédéfinie (jour, semaine, mois, année) ou choisie dans le calendrier. */
+export function aggregate(all: Visit[], period: StatsPeriod | StatsRange, now: number, demo: boolean): StatsResult {
+  const custom = typeof period === "object";
+  const rb = custom ? rangeBuckets(period.from, period.to) : null;
+  const b = rb ? rb.list : buckets(period as StatsPeriod, now);
+  const unit = rb ? rb.unit : period === "jour" ? "heure" : period === "annee" ? "mois" : "jour";
+  const { from, to, prevFrom } = custom ? { from: period.from, to: period.to, prevFrom: period.from - (period.to - period.from) } : periodRange(period, now);
+  const curAll = all.filter((v) => v.t >= from && v.t < to);
+  const cur = curAll.filter((v) => !v.e);
   const prev = all.filter((v) => v.t >= prevFrom && v.t < from);
-  const t = totals(cur);
+  const t = totals(curAll);
   const p = totals(prev);
 
   // courbe : visiteurs uniques et pages vues par tranche
-  const series: StatsPoint[] = b.map((x) => ({ label: x.label, full: x.full, visitors: 0, pageviews: 0 }));
+  const series: StatsPoint[] = b.map((x) => ({ label: x.label, full: x.full, visitors: 0, pageviews: 0, orders: 0 }));
   const seen = b.map(() => new Set<string>());
-  for (const v of cur) {
+  for (const v of curAll) {
     let i = b.length - 1;
     while (i > 0 && v.t < b[i].start) i--;
+    if (v.e) {
+      series[i].orders++;
+      continue;
+    }
     series[i].pageviews++;
     seen[i].add(v.v);
   }
@@ -170,17 +217,18 @@ export function aggregate(all: Visit[], period: StatsPeriod, now: number, demo: 
     .map(([path, views]) => ({ path, views, ...pageLabel(path) }));
 
   return {
-    period,
+    period: custom ? "perso" : period,
+    unit,
     demo,
     recorded: all.length,
     totals: t,
-    delta: { visitors: pct(t.visitors, p.visitors), sessions: pct(t.sessions, p.sessions), pageviews: pct(t.pageviews, p.pageviews), depth: pct(t.depth, p.depth) },
+    delta: { visitors: pct(t.visitors, p.visitors), sessions: pct(t.sessions, p.sessions), pageviews: pct(t.pageviews, p.pageviews), depth: pct(t.depth, p.depth), orders: pct(t.orders, p.orders) },
     series,
     countries,
     sources,
     devices,
     pages,
-    live: new Set(all.filter((v) => v.t >= now - 5 * 60_000).map((v) => v.v)).size,
+    live: new Set(all.filter((v) => !v.e && v.t >= now - 5 * 60_000).map((v) => v.v)).size,
     from,
     to,
   };
@@ -231,6 +279,8 @@ export function demoVisits(now: number): Visit[] {
         const t = t0 + k * 45_000;
         if (t <= now) out.push({ t, v, s, p: k === 0 && r() < 0.5 ? "/" : pick(r, PAGES), src, c, d });
       }
+      // environ 3 % des visites se terminent par une commande WhatsApp
+      if (r() < 0.03 && t0 + depth * 45_000 <= now) out.push({ t: t0 + depth * 45_000, v, s, p: "/panier", src, c, d, e: "order" });
     }
   }
   return out;

@@ -1,4 +1,4 @@
-import { ArrowDownRight, ArrowUpRight, FlaskConical, type LucideIcon } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Info, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /** Titre de page : sur-titre, titre, description et actions à droite. */
@@ -17,11 +17,11 @@ export function PageHeader({ title, description, actions, className }: { title: 
 /** Carte blanche de l'espace admin. */
 export function Panel({ title, description, action, children, className, bodyClassName }: { title?: string; description?: string; action?: React.ReactNode; children: React.ReactNode; className?: string; bodyClassName?: string }) {
   return (
-    <section className={cn("rounded-[24px] border border-akua-gray-200 bg-akua-white", className)}>
+    <section className={cn("rounded-[26px] border border-akua-gray-200/90 bg-akua-white shadow-[0_1px_2px_rgb(11_16_32/0.03),0_14px_34px_-28px_rgb(11_16_32/0.22)]", className)}>
       {(title || action) && (
         <div className="flex items-start justify-between gap-3 px-5 pt-5 md:px-6 md:pt-6">
           <div className="min-w-0">
-            {title && <h2 className="text-[16px] font-bold tracking-[-0.01em]">{title}</h2>}
+            {title && <h2 className="text-[16.5px] font-bold tracking-[-0.015em]">{title}</h2>}
             {description && <p className="mt-0.5 text-[13px] text-akua-gray-500">{description}</p>}
           </div>
           {action}
@@ -36,7 +36,7 @@ export function Panel({ title, description, action, children, className, bodyCla
 export function DemoNotice({ children }: { children?: React.ReactNode }) {
   return (
     <div className="flex items-start gap-3 rounded-[18px] border border-dashed border-akua-blue/35 bg-akua-blue-100/50 px-4 py-3 text-[13.5px]">
-      <FlaskConical aria-hidden className="mt-0.5 size-[18px] shrink-0 text-akua-blue" strokeWidth={1.8} />
+      <Info aria-hidden className="mt-0.5 size-[18px] shrink-0 text-akua-blue" strokeWidth={1.8} />
       <p className="text-akua-ink">
         <span className="font-semibold">Données d&apos;exemple.</span>{" "}
         <span className="text-akua-gray-500">{children ?? "Cet écran montre le design final. Les vrais chiffres s'afficheront dès que la base de données sera branchée."}</span>
@@ -57,14 +57,14 @@ export function StatTile({ icon: Icon, label, value, delta, hint, invert }: { ic
   // invert : une hausse est une mauvaise nouvelle (ex. paniers abandonnés)
   const good = delta === undefined ? true : invert ? delta <= 0 : delta >= 0;
   return (
-    <div className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5">
+    <div className="group rounded-[26px] border border-akua-gray-200/90 bg-akua-white p-5 shadow-[0_1px_2px_rgb(11_16_32/0.03),0_14px_34px_-28px_rgb(11_16_32/0.22)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_44px_-28px_rgb(31_91_255/0.4)]">
       <div className="flex items-center justify-between gap-2">
         <p className="text-[13px] font-medium text-akua-gray-500">{label}</p>
-        <span className="grid size-9 place-items-center rounded-xl bg-akua-page">
-          <Icon aria-hidden className="size-[18px] text-akua-ink" strokeWidth={1.7} />
+        <span className="grid size-10 place-items-center rounded-[14px] bg-akua-page transition-colors group-hover:bg-akua-blue-100">
+          <Icon aria-hidden className="size-[18px] text-akua-ink transition-colors group-hover:text-akua-blue" strokeWidth={1.7} />
         </span>
       </div>
-      <p className="mt-3 text-[28px] leading-none font-extrabold tracking-[-0.03em] tabular-nums md:text-[30px]">{value}</p>
+      <p className="mt-3 text-[28px] leading-none font-extrabold tracking-[-0.035em] tabular-nums md:text-[32px]">{value}</p>
       <div className="mt-3 flex items-center gap-2 text-[12.5px]">
         {delta !== undefined && (
           <span className={cn("inline-flex shrink-0 items-center gap-0.5 rounded-full px-1.5 py-0.5 font-semibold whitespace-nowrap", good ? "bg-akua-whatsapp/12 text-[#128c4a]" : "bg-akua-red/10 text-akua-red")}>

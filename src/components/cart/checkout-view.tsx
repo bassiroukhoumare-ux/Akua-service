@@ -1,5 +1,6 @@
 "use client";
 
+import { trackOrder } from "@/components/analytics/visit-tracker";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -277,6 +278,7 @@ export function CheckoutView() {
     });
     const link = waLink(message);
     markOrdered(draft.phone);
+    trackOrder();
     window.open(link, "_blank", "noopener");
     window.setTimeout(() => {
       setDone({ ref, link, mode: draft.mode });

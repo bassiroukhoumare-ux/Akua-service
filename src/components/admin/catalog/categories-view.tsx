@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Check, ExternalLink, Pencil, Plus, Search, Trash2, Wand2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, ExternalLink, Pencil, Plus, Search, RotateCcw, Shapes, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
@@ -92,7 +92,7 @@ function CategoryDialog({ open, onOpenChange, initial }: { open: boolean; onOpen
 
             {!manual && suggestion && (
               <p className="mt-3 flex items-center gap-2 rounded-[14px] bg-akua-blue-100/60 px-3.5 py-2.5 text-[13px]">
-                <Wand2 aria-hidden className="size-4 shrink-0 text-akua-blue" />
+                <Shapes aria-hidden className="size-4 shrink-0 text-akua-blue" strokeWidth={1.8} />
                 Icône proposée : <span className="font-semibold">{CATEGORY_ICON_DEFS[suggestion]?.label}</span>
               </p>
             )}
@@ -106,7 +106,7 @@ function CategoryDialog({ open, onOpenChange, initial }: { open: boolean; onOpen
                 <p className="text-[13.5px] font-medium">Icône</p>
                 {manual && (
                   <button type="button" onClick={() => setManual(false)} className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-akua-blue">
-                    <Wand2 aria-hidden className="size-3.5" /> Revenir à la proposition
+                    <RotateCcw aria-hidden className="size-3.5" /> Revenir à la proposition
                   </button>
                 )}
               </div>

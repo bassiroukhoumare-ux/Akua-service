@@ -34,7 +34,7 @@ export default async function ProductPage({ params }: Props) {
   const pct = discountPercent(product.price, product.compareAtPrice);
   const CatIcon = getCategoryIcon(category?.icon);
   const isNew = product.condition === "neuf";
-  const compat = product.compatibility ?? product.platforms.map((p) => PLATFORM_LABELS[p]);
+  const compat = product.compatibility ?? [...product.platforms.map((p) => PLATFORM_LABELS[p]), ...(product.otherPlatforms ?? [])];
   // produits liés, puis mis en avant, puis le reste du catalogue : toujours 8 (2 lignes complètes sur ordinateur)
   const more = [...related, ...allProducts.filter((p) => p.isFeatured), ...allProducts]
     .filter((p) => p.id !== product.id)

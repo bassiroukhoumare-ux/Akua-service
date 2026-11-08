@@ -1,24 +1,17 @@
 "use client";
 
 import { Check, Copy, Eye, FileText, Ghost, Globe, Globe2, Layers, Monitor, MousePointer2, Package, Radio, RefreshCw, Search, ShieldCheck, Smartphone, Tablet, Users } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { DemoNotice, formatNumber, PageHeader, Panel, StatTile } from "@/components/admin/ui";
 import { FacebookIcon, InstagramIcon, TikTokIcon, XIcon, YouTubeIcon } from "@/components/ui/social-icons";
 import { Flag } from "@/components/ui/flag";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import { SITE_URL } from "@/config/site";
-import type { StatsPeriod, StatsResult } from "@/lib/analytics/aggregate";
 import type { SourceId } from "@/lib/analytics/sources";
 import { cn } from "@/lib/utils";
-import { useAdmin } from "../actor-context";
+import { type PeriodValue, PeriodFilter, PRESETS, periodHint, rangeDays, rangeLabel } from "../period-filter";
+import { useStats } from "./use-stats";
 import { VisitsChart } from "../visits-chart";
-
-const PERIODS: { id: StatsPeriod; label: string; hint: string; range: string }[] = [
-  { id: "jour", label: "Jour", hint: "vs les 24 h précédentes", range: "24 dernières heures" },
-  { id: "semaine", label: "Semaine", hint: "vs semaine précédente", range: "7 derniers jours" },
-  { id: "mois", label: "Mois", hint: "vs mois précédent", range: "30 derniers jours" },
-  { id: "annee", label: "Année", hint: "vs année précédente", range: "12 derniers mois" },
-];
 
 const FLAGS = new Set(["TG", "BJ", "GH", "BF", "CI", "NE", "ML"]);
 const fRange = new Intl.DateTimeFormat("fr-FR", { timeZone: "UTC", day: "numeric", month: "long", year: "numeric" });
@@ -127,75 +120,31 @@ function Skeleton({ className }: { className?: string }) {
 }
 
 export function StatsView() {
-  const { base } = useAdmin();
-  const [period, setPeriod] = useState<StatsPeriod>("semaine");
+  const [period, setPeriod] = useState<PeriodValue>({ kind: "preset", id: "semaine" });
   const [metric, setMetric] = useState<"visitors" | "pageviews">("visitors");
-  const [data, setData] = useState<StatsResult | null>(null);
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const { data, fresh, error, loading, reload } = useStats(period);
 
-  const load = useCallback(
-    async (p: StatsPeriod) => {
-      setLoading(true);
-      try {
-        const res = await fetch(`${base}/api/stats?periode=${p}`, { cache: "no-store" });
-        if (!res.ok) throw new Error();
-        setData(await res.json());
-        setError(false);
-      } catch {
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [base],
-  );
-
-  useEffect(() => {
-    void load(period);
-  }, [period, load]);
-
-  // vraies visites : actualisation automatique chaque minute
-  useEffect(() => {
-    if (!data || data.demo) return;
-    const id = setInterval(() => void load(period), 60_000);
-    return () => clearInterval(id);
-  }, [data, period, load]);
-
-  const meta = PERIODS.find((p) => p.id === period)!;
-  const d = data?.period === period ? data : null;
+  const hint = periodHint(period);
+  const rangeText = period.kind === "preset" ? PRESETS.find((p) => p.id === period.id)!.range : `${rangeDays(period.from, period.to)} jour${rangeDays(period.from, period.to) > 1 ? "s" : ""} choisi${rangeDays(period.from, period.to) > 1 ? "s" : ""}`;
+  const d = data;
   const dl = (n: number | null | undefined) => (n === null || n === undefined ? undefined : n);
   const maxCountry = d ? Math.max(0, ...d.countries.map((c) => c.share)) : 0;
   const maxSource = d ? Math.max(0, ...d.sources.map((s) => s.share)) : 0;
   const maxPage = d ? Math.max(1, ...d.pages.map((p) => p.views)) : 1;
+  const unitText = d?.unit === "heure" ? "Heure par heure" : d?.unit === "mois" ? "Mois par mois" : "Jour par jour";
 
   return (
     <div className="flex flex-col gap-5 md:gap-6">
       <PageHeader
         title="Statistiques"
         description="Qui visite la boutique, d'où et sur quelles pages. Choisissez la période à afficher."
-        actions={
-          <div role="tablist" aria-label="Période" className="flex rounded-full bg-akua-white p-1 ring-1 ring-akua-gray-200">
-            {PERIODS.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                role="tab"
-                aria-selected={period === p.id}
-                onClick={() => setPeriod(p.id)}
-                className={cn("h-9 rounded-full px-3.5 text-[13.5px] font-semibold transition-colors sm:px-4", period === p.id ? "bg-akua-ink text-akua-white" : "text-akua-gray-500 hover:text-akua-ink")}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-        }
+        actions={<PeriodFilter value={period} onChange={setPeriod} />}
       />
 
       {error && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-[18px] border border-akua-red/25 bg-akua-red/5 px-4 py-3 text-[13.5px]">
           <p>Les statistiques n&apos;ont pas pu être chargées.</p>
-          <button type="button" onClick={() => load(period)} className="inline-flex items-center gap-1.5 font-semibold text-akua-blue">
+          <button type="button" onClick={() => reload()} className="inline-flex items-center gap-1.5 font-semibold text-akua-blue">
             <RefreshCw aria-hidden className="size-4" /> Réessayer
           </button>
         </div>
@@ -222,7 +171,7 @@ export function StatsView() {
             </span>
           </span>
           <span className="text-akua-gray-500 sm:ml-auto">
-            {meta.range} · du {fRange.format(d.from)} au {fRange.format(d.to - 1)}
+            {rangeText} · {period.kind === "range" ? rangeLabel(period.from, period.to) : `du ${fRange.format(d.from)} au ${fRange.format(d.to - 1)}`}
           </span>
         </div>
       )}
@@ -237,17 +186,17 @@ export function StatsView() {
           <Skeleton className="h-[340px]" />
         </>
       ) : (
-        <div className={cn("flex flex-col gap-5 transition-opacity md:gap-6", loading && "opacity-60")}>
+        <div className={cn("flex flex-col gap-5 transition-opacity duration-300 md:gap-6", (loading || !fresh) && "pointer-events-none opacity-55")}>
           <div className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
-            <StatTile icon={Users} label="Visiteurs" value={formatNumber(d.totals.visitors)} delta={dl(d.delta.visitors)} hint={meta.hint} />
-            <StatTile icon={MousePointer2} label="Visites" value={formatNumber(d.totals.sessions)} delta={dl(d.delta.sessions)} hint={meta.hint} />
-            <StatTile icon={Eye} label="Pages vues" value={formatNumber(d.totals.pageviews)} delta={dl(d.delta.pageviews)} hint={meta.hint} />
-            <StatTile icon={Layers} label="Pages par visite" value={d.totals.depth.toLocaleString("fr-FR")} delta={dl(d.delta.depth)} hint={meta.hint} />
+            <StatTile icon={Users} label="Visiteurs" value={formatNumber(d.totals.visitors)} delta={dl(d.delta.visitors)} hint={hint} />
+            <StatTile icon={MousePointer2} label="Visites" value={formatNumber(d.totals.sessions)} delta={dl(d.delta.sessions)} hint={hint} />
+            <StatTile icon={Eye} label="Pages vues" value={formatNumber(d.totals.pageviews)} delta={dl(d.delta.pageviews)} hint={hint} />
+            <StatTile icon={Layers} label="Pages par visite" value={d.totals.depth.toLocaleString("fr-FR")} delta={dl(d.delta.depth)} hint={hint} />
           </div>
 
           <Panel
             title={metric === "visitors" ? "Visiteurs" : "Pages vues"}
-            description={period === "jour" ? "Heure par heure, sur les 24 dernières heures" : period === "annee" ? "Mois par mois" : "Jour par jour"}
+            description={unitText}
             action={
               <div role="tablist" aria-label="Mesure" className="flex shrink-0 rounded-full bg-akua-page p-1">
                 {(

@@ -3,7 +3,7 @@ import { checkMemberCredentials } from "@/lib/admin/team-auth";
 
 // Portail des équipiers : numéro WhatsApp + mot de passe.
 export async function POST(req: Request) {
-  return handleLogin(req, "team", (b) => checkMemberCredentials(b.identifier ?? "", b.password ?? "")?.id ?? null, "Numéro ou mot de passe incorrect.");
+  return handleLogin(req, "team", async (b) => (await checkMemberCredentials(b.identifier ?? "", b.password ?? ""))?.id ?? null, "Numéro ou mot de passe incorrect.");
 }
 
 export function DELETE() {

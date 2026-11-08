@@ -1,19 +1,21 @@
-// Connexion des équipiers. En attendant la base de données, un compte de démonstration
-// (défini dans .env.local) permet de tester le portail équipe.
-import { DEMO_TEAM, type TeamMember } from "./demo";
-import { same } from "./session";
+// Connexion des équipiers : numéro WhatsApp (ou identifiant) + mot de passe, vérifiés dans le registre.
+import { type PublicMember, readTeam, sameIdentifier, toPublic, updateTeam, verifyPassword } from "./team-store";
 
-const digits = (s: string) => s.replace(/\D/g, "");
-
-export function findMember(id: string): TeamMember | undefined {
-  return DEMO_TEAM.find((m) => m.id === id && !m.owner && m.status !== "disabled");
+/** Équipier actif (ou en attente de son premier mot de passe) ; undefined s'il est désactivé ou supprimé. */
+export async function findMember(id: string): Promise<PublicMember | undefined> {
+  const m = (await readTeam()).find((x) => x.id === id && x.status !== "disabled");
+  return m ? toPublic(m) : undefined;
 }
 
-/** Renvoie l'équipier si l'identifiant (numéro WhatsApp) et le mot de passe sont corrects. */
-export function checkMemberCredentials(identifier: string, password: string): TeamMember | null {
-  const pw = process.env.TEAM_DEMO_PASSWORD ?? "";
-  const d = digits(identifier);
-  if (!pw || d.length < 8) return null;
-  const member = DEMO_TEAM.find((m) => !m.owner && m.status === "active" && digits(m.identifier).endsWith(d.slice(-8)));
-  return member && same(password, pw) ? member : null;
+/** Renvoie l'équipier si l'identifiant et le mot de passe sont corrects. */
+export async function checkMemberCredentials(identifier: string, password: string): Promise<PublicMember | null> {
+  if (!identifier.trim() || !password) return null;
+  const list = await readTeam();
+  const m = list.find((x) => x.status !== "disabled" && sameIdentifier(x.identifier, identifier));
+  if (!m || !verifyPassword(password, m.secret)) return null;
+  await updateTeam((l) => {
+    const x = l.find((y) => y.id === m.id);
+    if (x) x.lastSeen = new Date().toISOString();
+  });
+  return toPublic(m);
 }

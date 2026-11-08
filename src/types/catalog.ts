@@ -41,6 +41,8 @@ export interface Product {
   name: string;
   categoryId: string;
   platforms: Platform[];
+  /** plateformes hors liste, saisies librement (« Autre ») */
+  otherPlatforms?: string[];
   condition: Condition;
   price: number; // en FCFA, entier
   compareAtPrice?: number; // prix barré

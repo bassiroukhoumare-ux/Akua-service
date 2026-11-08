@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import type { PortalKind } from "@/config/admin-base";
 import { readSession, SESSION } from "@/lib/admin/session";
 import { findMember } from "@/lib/admin/team-auth";
-import { aggregate, demoVisits, periodRange, STATS_PERIODS, type StatsPeriod } from "./aggregate";
+import { aggregate, demoVisits, periodRange, STATS_PERIODS, type StatsPeriod, type StatsRange } from "./aggregate";
 import { readVisits } from "./store";
 
 // exemple recalculé une fois par heure au plus
@@ -17,14 +17,27 @@ function demo(now: number) {
 /** Statistiques d'une période : vraies visites dès qu'il y en a, sinon exemple. */
 export async function statsHandler(req: NextRequest, kind: PortalKind) {
   const user = await readSession(kind, (await cookies()).get(SESSION[kind].cookie)?.value);
-  const allowed = kind === "owner" ? !!user : !!user && !!findMember(user)?.modules.includes("stats");
+  const allowed = kind === "owner" ? !!user : !!user && !!(await findMember(user))?.modules.includes("stats");
   if (!allowed) return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
 
-  const q = req.nextUrl.searchParams.get("periode");
-  const period: StatsPeriod = STATS_PERIODS.includes(q as StatsPeriod) ? (q as StatsPeriod) : "semaine";
+  const sp = req.nextUrl.searchParams;
+  const q = sp.get("periode");
   const now = Date.now();
-  // on lit large (deux ans) pour savoir si de vraies visites existent et comparer avec l'année précédente
-  const real = await readVisits(periodRange("annee", now).prevFrom);
-  const result = real.length ? aggregate(real, period, now, false) : aggregate(demo(now), period, now, true);
+  // période choisie dans le calendrier : du=AAAA-MM-JJ&au=AAAA-MM-JJ (jours inclus, heure de Lomé = UTC)
+  const day = (s: string | null) => (s && /^\d{4}-\d{2}-\d{2}$/.test(s) ? Date.parse(`${s}T00:00:00Z`) : NaN);
+  const du = day(sp.get("du"));
+  const au = day(sp.get("au"));
+  let range: StatsRange | null = null;
+  if (!Number.isNaN(du) && !Number.isNaN(au)) {
+    const from = Math.min(du, au);
+    const to = Math.max(du, au) + 864e5;
+    if (to - from > 3 * 366 * 864e5) return NextResponse.json({ error: "Période trop longue (3 ans maximum)." }, { status: 400 });
+    range = { from, to };
+  }
+  const period: StatsPeriod = STATS_PERIODS.includes(q as StatsPeriod) ? (q as StatsPeriod) : "semaine";
+  const since = Math.min(periodRange("annee", now).prevFrom, range ? range.from - (range.to - range.from) : Infinity);
+  const real = await readVisits(since);
+  const sel = range ?? period;
+  const result = real.length ? aggregate(real, sel, now, false) : aggregate(demo(now), sel, now, true);
   return NextResponse.json(result, { headers: { "Cache-Control": "no-store" } });
 }

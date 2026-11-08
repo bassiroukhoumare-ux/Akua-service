@@ -11,7 +11,7 @@ type Body = { identifier?: string; password?: string; remember?: boolean };
  * Traite une demande de connexion pour un portail : `check` renvoie l'identifiant de session
  * si les informations sont correctes, sinon null.
  */
-export async function handleLogin(req: Request, kind: PortalKind, check: (b: Body) => string | null, wrong: string) {
+export async function handleLogin(req: Request, kind: PortalKind, check: (b: Body) => string | null | Promise<string | null>, wrong: string) {
   const ip = `${kind}:${req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local"}`;
   const a = attempts.get(ip);
   if (a && a.until > Date.now()) {
@@ -20,7 +20,7 @@ export async function handleLogin(req: Request, kind: PortalKind, check: (b: Bod
   const body = (await req.json().catch(() => ({}))) as Body;
   // délai constant : ne révèle rien sur la validité
   await new Promise((r) => setTimeout(r, 400));
-  const user = check(body);
+  const user = await check(body);
   if (!user) {
     const n = (a?.n ?? 0) + 1;
     attempts.set(ip, { n, until: n >= 5 ? Date.now() + 5 * 60_000 : 0 });
