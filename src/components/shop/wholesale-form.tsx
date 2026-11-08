@@ -1,17 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { allCountryOptions } from "@/components/ui/country-options";
+import { SearchSelect } from "@/components/ui/search-select";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
-import { DELIVERY_COUNTRIES } from "@/config/site";
 import { buildWholesaleLink } from "@/lib/whatsapp";
 
 const OTHER = "Autre";
+const COUNTRY_OPTIONS = allCountryOptions(OTHER);
 
 export function WholesaleForm() {
   const [f, setF] = useState({ name: "", country: "Togo", otherCountry: "", phone: "", products: "", message: "" });
   const isOther = f.country === OTHER;
   const field = "h-12 w-full rounded-2xl border border-akua-gray-200 bg-akua-white px-4 text-[14.5px] outline-none transition-colors focus:border-akua-blue";
-  const up = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setF((s) => ({ ...s, [k]: e.target.value }));
+  const up = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF((s) => ({ ...s, [k]: e.target.value }));
 
   return (
     <form
@@ -27,15 +29,19 @@ export function WholesaleForm() {
         <span className="mb-1.5 block text-[13px] font-medium">Nom ou entreprise</span>
         <input required value={f.name} onChange={up("name")} className={field} autoComplete="organization" />
       </label>
-      <label className="block">
-        <span className="mb-1.5 block text-[13px] font-medium">Pays</span>
-        <select value={f.country} onChange={up("country")} className={field}>
-          {DELIVERY_COUNTRIES.map((c) => (
-            <option key={c.code}>{c.name}</option>
-          ))}
-          <option value={OTHER}>Autre pays</option>
-        </select>
-      </label>
+      <div>
+        <label htmlFor="wh-country" className="mb-1.5 block text-[13px] font-medium">
+          Pays
+        </label>
+        <SearchSelect
+          id="wh-country"
+          value={f.country}
+          onChange={(country) => setF((s) => ({ ...s, country }))}
+          options={COUNTRY_OPTIONS}
+          searchPlaceholder="Rechercher un pays…"
+          emptyText="Pays introuvable : choisissez « Autre pays » en bas de la liste."
+        />
+      </div>
       {isOther && (
         <label className="block md:col-span-2">
           <span className="mb-1.5 block text-[13px] font-medium">Votre pays</span>

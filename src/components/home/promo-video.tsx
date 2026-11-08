@@ -1,6 +1,6 @@
 "use client";
 
-import { Volume2, VolumeX } from "lucide-react";
+import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { TikTokIcon } from "@/components/ui/social-icons";
 import { parsePromoVideo, type PromoVideoSource } from "@/config/promo-video";
@@ -8,17 +8,20 @@ import { TIKTOK_URL } from "@/config/site";
 import { cn } from "@/lib/utils";
 
 const ORIGIN = "https://www.tiktok.com";
-// Lecteur officiel TikTok : lecture auto sans le son (obligatoire pour les navigateurs), en boucle, interface réduite.
-const PARAMS = "autoplay=1&muted=1&loop=1&controls=0&description=0&music_info=0&rel=0&native_context_menu=0&closed_caption=0";
+// Lecteur officiel TikTok. Avant le clic : simple aperçu (sans lecture automatique, le lecteur
+// ne répond à aucune commande). Au clic : le lecteur est rechargé en mode lecture, avec le son.
+const BASE = "loop=1&controls=0&description=0&music_info=0&rel=0&native_context_menu=0&closed_caption=0";
+const POSTER_PARAMS = `autoplay=0&muted=1&${BASE}`;
+const LIVE_PARAMS = `autoplay=1&muted=0&${BASE}`;
 
 type PlayerMsg = { type?: string; value?: unknown; "x-tiktok-player"?: boolean };
-// une seule carte avec le son à la fois : activer le son d'une carte coupe les autres
-const SOUND_EVENT = "akua:promo-video-sound";
+// une seule vidéo à la fois : lancer une carte met les autres en pause
+const PLAY_EVENT = "akua:promo-video-play";
 
 /**
- * Carte portrait qui lit les vidéos de la boutique en boucle : fichier vidéo du site
+ * Carte portrait qui lit les vidéos de la boutique à la demande : fichier vidéo du site
  * (sans aucun élément TikTok) ou lecteur officiel TikTok.
- * La vidéo n'est chargée qu'à l'approche de la section, et mise en pause quand elle sort de l'écran.
+ * Rien ne se lance tout seul : bouton lecture / pause par carte, et une seule vidéo joue à la fois.
  */
 export function PromoVideo({ videos, className }: { videos: string[]; className?: string }) {
   const uid = useId();
@@ -26,9 +29,13 @@ export function PromoVideo({ videos, className }: { videos: string[]; className?
   const [idx, setIdx] = useState(0);
   const [load, setLoad] = useState(false);
   const [ready, setReady] = useState(false);
-  const [muted, setMuted] = useState(true);
-  const wantSound = useRef(false);
-  const visible = useRef(false);
+  const [playing, setPlaying] = useState(false);
+  const [muted, setMuted] = useState(false);
+  // lecteur TikTok chargé en mode lecture (après le premier clic)
+  const [started, setStarted] = useState(false);
+  const wantPlay = useRef(false);
+  const gotPlaying = useRef(false);
+  const lastPlayAt = useRef(0);
   const box = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
   const video = useRef<HTMLVideoElement>(null);
@@ -38,43 +45,64 @@ export function PromoVideo({ videos, className }: { videos: string[]; className?
   const sendTikTok = (type: string, value?: unknown) =>
     frame.current?.contentWindow?.postMessage({ type, value, "x-tiktok-player": true }, ORIGIN);
 
+  const pause = () => {
+    wantPlay.current = false;
+    setPlaying(false);
+    video.current?.pause();
+    sendTikTok("pause");
+  };
+
+  const play = () => {
+    wantPlay.current = true;
+    lastPlayAt.current = Date.now();
+    setPlaying(true);
+    window.dispatchEvent(new CustomEvent(PLAY_EVENT, { detail: uid }));
+    if (src?.kind === "file") {
+      const v = video.current;
+      if (!v) return;
+      v.muted = muted;
+      v.play().catch(() => {
+        // le navigateur refuse le son : on relance sans le son
+        v.muted = true;
+        setMuted(true);
+        v.play().catch(() => setPlaying(false));
+      });
+    } else if (!started) setStarted(true);
+    else {
+      sendTikTok("play");
+      sendTikTok(muted ? "mute" : "unMute");
+    }
+  };
+
   const next = () => {
     setReady(false);
     setIdx((i) => i + 1);
   };
 
-  // chargement à l'approche, pause / reprise selon la visibilité
+  // le lecteur n'est chargé qu'à l'approche de la section ; hors écran, la vidéo se met en pause
   useEffect(() => {
     const el = box.current;
     if (!el) return;
     const io = new IntersectionObserver(
       ([e]) => {
-        visible.current = e.isIntersecting;
         if (e.isIntersecting) setLoad(true);
-        sendTikTok(e.isIntersecting ? "play" : "pause");
-        const v = video.current;
-        if (v) {
-          if (e.isIntersecting) v.play().catch(() => {});
-          else v.pause();
-        }
+        else if (wantPlay.current) pause();
       },
       { rootMargin: "300px 0px" },
     );
     io.observe(el);
     return () => io.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // une autre carte vient d'activer son son : on coupe celui-ci
+  // une autre carte vient d'être lancée : celle-ci se met en pause
   useEffect(() => {
     const on = (e: Event) => {
-      if ((e as CustomEvent<string>).detail === uid) return;
-      wantSound.current = false;
-      if (video.current) video.current.muted = true;
-      sendTikTok("mute");
-      setMuted(true);
+      if ((e as CustomEvent<string>).detail !== uid && wantPlay.current) pause();
     };
-    window.addEventListener(SOUND_EVENT, on);
-    return () => window.removeEventListener(SOUND_EVENT, on);
+    window.addEventListener(PLAY_EVENT, on);
+    return () => window.removeEventListener(PLAY_EVENT, on);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uid]);
 
   // événements du lecteur TikTok
@@ -92,53 +120,76 @@ export function PromoVideo({ videos, className }: { videos: string[]; className?
       if (!d?.["x-tiktok-player"]) return;
       if (d.type === "onPlayerReady") {
         setReady(true);
-        if (wantSound.current) sendTikTok("unMute");
-      } else if (d.type === "onMute") setMuted(Boolean(d.value));
-      else if (d.type === "onStateChange" && d.value === 0) {
-        // fin de la vidéo : suivante s'il y en a plusieurs, sinon on relance
-        if (many) next();
+        gotPlaying.current = false;
+        if (!wantPlay.current) sendTikTok("pause");
         else {
-          sendTikTok("seekTo", 0);
+          // le visiteur a cliqué sur lecture : on active le son
+          sendTikTok("unMute");
+          sendTikTok("play");
+          // lecture avec le son refusée par le navigateur : on relance sans le son
+          window.setTimeout(() => {
+            if (wantPlay.current && !gotPlaying.current) {
+              sendTikTok("mute");
+              sendTikTok("play");
+            }
+          }, 2500);
+        }
+      } else if (d.type === "onMute") setMuted(Boolean(d.value));
+      else if (d.type === "onStateChange") {
+        if (d.value === 0) {
+          // fin : suivante s'il y en a plusieurs, sinon on relance
+          if (many) next();
+          else if (wantPlay.current) {
+            sendTikTok("seekTo", 0);
+            sendTikTok("play");
+          }
+        } else if (d.value === 1) {
+          gotPlaying.current = true;
+          if (!wantPlay.current) sendTikTok("pause");
+          else setPlaying(true);
+        } else if (d.value === 2 && wantPlay.current && Date.now() - lastPlayAt.current < 1500) {
+          // le navigateur a bloqué la lecture avec le son : on relance sans le son
+          sendTikTok("mute");
           sendTikTok("play");
         }
       }
     };
     window.addEventListener("message", on);
     return () => window.removeEventListener("message", on);
-  }, [many]);
+     
+  }, [many, muted]);
 
   if (!src) return null;
 
   const toggleSound = () => {
-    wantSound.current = muted;
-    if (muted) window.dispatchEvent(new CustomEvent(SOUND_EVENT, { detail: uid }));
+    const m = !muted;
+    setMuted(m);
     if (src.kind === "file") {
-      const v = video.current;
-      if (!v) return;
-      v.muted = !muted;
-      if (!v.muted) v.play().catch(() => {});
-      setMuted(v.muted);
-    } else sendTikTok(muted ? "unMute" : "mute");
+      if (video.current) video.current.muted = m;
+    } else sendTikTok(m ? "mute" : "unMute");
   };
 
   return (
-    <div ref={box} className={cn("relative isolate overflow-hidden rounded-[24px] bg-akua-ink", className)}>
+    <div ref={box} className={cn("group/video relative isolate overflow-hidden rounded-[24px] bg-akua-ink", className)}>
       {load && src.kind === "file" && (
         <video
           key={src.src}
           ref={video}
           src={src.src}
-          autoPlay
-          muted={!wantSound.current}
           loop={!many}
           playsInline
           preload="metadata"
           aria-label="Vidéo AKUA Service"
           onLoadedData={(e) => {
             setReady(true);
-            setMuted(e.currentTarget.muted);
-            if (!visible.current) e.currentTarget.pause();
+            if (wantPlay.current) e.currentTarget.play().catch(() => {});
           }}
+          onPause={(e) => {
+            if (e.currentTarget.ended) return;
+            wantPlay.current = false;
+            setPlaying(false);
+          }}
+          onPlay={() => setPlaying(true)}
           onEnded={many ? next : undefined}
           className={cn("absolute inset-0 size-full object-cover transition-opacity duration-500", ready ? "opacity-100" : "opacity-0")}
         />
@@ -146,16 +197,18 @@ export function PromoVideo({ videos, className }: { videos: string[]; className?
 
       {load && src.kind === "tiktok" && (
         <iframe
-          key={src.id}
+          key={`${src.id}-${started}`}
           ref={frame}
-          src={`${ORIGIN}/player/v1/${src.id}?${PARAMS}`}
+          src={`${ORIGIN}/player/v1/${src.id}?${started ? LIVE_PARAMS : POSTER_PARAMS}`}
+          onLoad={() => !started && setReady(true)}
           title="Vidéo TikTok AKUA Service"
           allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+          tabIndex={-1}
           className={cn("absolute inset-0 size-full border-0 transition-opacity duration-500", ready ? "opacity-100" : "opacity-0")}
         />
       )}
 
-      {/* attente de la vidéo */}
+      {/* attente du lecteur */}
       {!ready && (
         <div className="absolute inset-0 grid place-items-center">
           <span className="grid size-14 animate-pulse place-items-center rounded-full bg-akua-white/10 text-akua-white">
@@ -164,14 +217,42 @@ export function PromoVideo({ videos, className }: { videos: string[]; className?
         </div>
       )}
 
+      {/* couche de contrôle : un toucher sur la vidéo lance ou met en pause */}
+      <button
+        type="button"
+        onClick={() => (playing ? pause() : play())}
+        disabled={!ready}
+        aria-label={playing ? "Mettre la vidéo en pause" : "Lire la vidéo"}
+        className={cn(
+          "absolute inset-0 z-[5] grid place-items-center outline-none transition-colors duration-300 focus-visible:ring-4 focus-visible:ring-akua-blue/60 focus-visible:ring-inset disabled:cursor-default",
+          playing ? "bg-transparent" : "bg-[radial-gradient(circle_at_50%_50%,rgb(11_16_32/0.12),rgb(11_16_32/0.45))]",
+        )}
+      >
+        {ready && (
+          <span
+            className={cn(
+              "grid place-items-center rounded-full text-akua-white ring-1 ring-akua-white/30 backdrop-blur-md transition-all duration-300 ease-akua",
+              playing
+                ? "size-14 scale-90 bg-akua-black/45 opacity-0 group-hover/video:opacity-100 group-focus-within/video:opacity-100"
+                : "size-16 bg-akua-white/20 shadow-[0_12px_30px_-10px_rgb(0_0_0/0.6)] group-hover/video:scale-105 group-hover/video:bg-akua-white/30 md:size-[72px]",
+            )}
+          >
+            {playing ? <Pause aria-hidden className="size-6 fill-current" strokeWidth={0} /> : <Play aria-hidden className="ml-1 size-7 fill-current md:size-8" strokeWidth={0} />}
+          </span>
+        )}
+      </button>
+
+      {/* son : visible pendant la lecture */}
       <button
         type="button"
         onClick={toggleSound}
-        disabled={!ready}
         aria-label={muted ? "Activer le son" : "Couper le son"}
         aria-pressed={!muted}
         title={muted ? "Activer le son" : "Couper le son"}
-        className="absolute bottom-3 left-3 z-10 grid size-10 place-items-center rounded-full bg-akua-black/60 text-akua-white ring-1 ring-akua-white/20 backdrop-blur-md transition-all hover:scale-105 hover:bg-akua-black/80 disabled:opacity-0"
+        className={cn(
+          "absolute bottom-3 left-3 z-10 grid size-10 place-items-center rounded-full bg-akua-black/60 text-akua-white ring-1 ring-akua-white/20 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:bg-akua-black/80",
+          playing ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
       >
         {muted ? <VolumeX aria-hidden className="size-[18px]" /> : <Volume2 aria-hidden className="size-[18px]" />}
       </button>

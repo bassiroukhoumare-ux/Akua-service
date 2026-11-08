@@ -5,13 +5,13 @@ import { IconTile } from "@/components/ui/icon-tile";
 import { PageHero } from "@/components/ui/page-hero";
 import { DELIVERY_COUNTRIES } from "@/config/site";
 
-export const metadata: Metadata = { title: "Livraison et garantie", description: "Livraison disponible au Togo et dans la sous-région. Produits neufs, scellés et garantis." };
+export const metadata: Metadata = { title: "Livraison et garantie", description: "Livraison disponible au Togo et dans la sous-région. Produits testés et garantis." };
 
 const FAQ = [
   { q: "Comment passer commande ?", a: "Ajoutez vos produits au panier puis cliquez sur « Envoyer ma commande sur WhatsApp ». Nous confirmons la disponibilité, le prix de livraison et le paiement directement avec vous." },
-  { q: "Les produits sont-ils neufs ?", a: "Oui. Nos consoles, manettes et jeux sont neufs et scellés, sauf mention « occasion » sur la fiche produit." },
-  { q: "Quels sont les délais de livraison ?", a: "[À COMPLÉTER]" },
-  { q: "Comment fonctionne la garantie ?", a: "[À COMPLÉTER]" },
+  { q: "Les produits sont-ils neufs ?", a: "Selon l'article, un produit peut être neuf ou venant, dans son carton d'origine ou sans carton. Vérifiez toujours la fiche du produit : son état et son conditionnement y sont indiqués. En cas de doute, posez-nous la question sur WhatsApp." },
+  { q: "Quels sont les délais de livraison ?", a: "Ils dépendent de la destination et de la commande. Le délai et les frais vous sont confirmés sur WhatsApp avant l'expédition." },
+  { q: "Comment fonctionne la garantie ?", a: "Tous nos produits sont testés et garantis. En cas de problème, écrivez-nous sur WhatsApp avec votre référence de commande." },
   { q: "Puis-je acheter en gros ?", a: "Oui, nous proposons des tarifs dégressifs aux revendeurs et salles de jeux. Utilisez le formulaire de la page Vente en gros." },
 ];
 
@@ -26,8 +26,7 @@ export default function DeliveryPage() {
             <div key={c.code} className="rounded-[22px] border border-akua-gray-200 p-4 transition-shadow hover:shadow-card">
               <IconTile icon={MapPin} size="sm" />
               <p className="mt-3 font-display text-[16px] font-semibold">{c.name}</p>
-              <p className="mt-1 text-[12.5px] text-akua-gray-500">Délai : [À COMPLÉTER]</p>
-              <p className="text-[12.5px] text-akua-gray-500">Frais : [À COMPLÉTER]</p>
+              <p className="mt-1 text-[12.5px] text-akua-gray-500">{c.code === "TG" ? "Livraison locale" : "Sous-région"}</p>
             </div>
           ))}
         </div>
@@ -36,7 +35,7 @@ export default function DeliveryPage() {
           <IconTile icon={ShieldCheck} tone="solid" size="lg" shape="squircle" />
           <div>
             <h2 className="font-display text-[24px] font-semibold">Garantie AKUA Service</h2>
-            <p className="mt-2 text-[14.5px] text-akua-gray-500">Conditions de garantie : [À COMPLÉTER]</p>
+            <p className="mt-2 text-[14.5px] text-akua-gray-500">Tous nos produits sont testés et garantis.</p>
           </div>
         </div>
 

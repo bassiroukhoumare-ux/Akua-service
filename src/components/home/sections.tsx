@@ -7,15 +7,14 @@ import { ProductCard } from "@/components/product/product-card";
 import { ProductVisual } from "@/components/product/product-visual";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Reveal } from "@/components/ui/reveal";
-import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import { btn } from "@/lib/btn";
 import { getCategoryIcon } from "@/lib/icons";
-import { formatFCFA } from "@/lib/format";
+import { CONDITION_LABEL, formatFCFA } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { waLink } from "@/lib/whatsapp";
 import type { Category, Product } from "@/types/catalog";
 import { MobileSlider } from "@/components/ui/mobile-slider";
 import { PLATFORM_LOGOS } from "./platform-logos";
+import { WhatsAppContactButton } from "@/components/shop/whatsapp-contact-dialog";
 import { PromoVideo } from "./promo-video";
 import { PROMO_VIDEO_CARDS } from "@/config/promo-video";
 import { PromoTimer } from "./promo-timer";
@@ -60,14 +59,14 @@ export function CategoryRail({ categories }: { categories: Category[]; products?
         </Link>
       </div>
 
-      {/* Mobile : catégories, affiche, bannière (empilées).
+      {/* Mobile : catégories, bannière, puis affiche (empilées).
           Tablette : catégories + affiche côte à côte, bannière 3:1 sur toute la largeur.
           Ordinateur : catégories sur une ligne + bannière à gauche, affiche à droite.
           La largeur de l'affiche est calculée pour que la bannière garde son ratio 3:1
           et que son bas soit aligné avec celui de l'affiche :
           R = (100% + 3 × 104px + 2 × 20px) / (3 × ratio de l’affiche + 1). */}
       <div className="mt-4 grid gap-4 md:mt-5 md:grid-cols-[minmax(0,1fr)_260px] lg:grid-cols-[minmax(0,1fr)_calc((100%_+_352px)/4.748)] lg:grid-rows-[104px_1fr] lg:gap-5">
-        <nav aria-label="Catégories de produits" className="min-w-0 rounded-[24px] border border-akua-gray-200 bg-akua-white md:col-start-1 md:row-start-1">
+        <nav aria-label="Catégories de produits" className="order-1 min-w-0 rounded-[24px] border border-akua-gray-200 bg-akua-white md:order-none md:col-start-1 md:row-start-1">
           <ul className="grid h-full grid-cols-4 grid-rows-2 lg:grid-cols-8 lg:grid-rows-1">
             {categories.map((c) => {
               const Icon = getCategoryIcon(c.icon);
@@ -89,7 +88,7 @@ export function CategoryRail({ categories }: { categories: Category[]; products?
         <Link
           href={HOME_VISUAL.href}
           style={{ aspectRatio: `${HOME_VISUAL.width} / ${HOME_VISUAL.height}` }}
-          className="group relative block overflow-hidden rounded-[24px] bg-akua-page md:col-start-2 md:row-start-1 lg:row-span-2"
+          className="group relative order-3 block overflow-hidden rounded-[24px] bg-akua-page md:order-none md:col-start-2 md:row-start-1 lg:row-span-2"
         >
           <Image
             src={HOME_VISUAL.src}
@@ -104,13 +103,14 @@ export function CategoryRail({ categories }: { categories: Category[]; products?
         <Link
           href={HOME_BANNER.href}
           aria-label={HOME_BANNER.alt}
-          className="group relative block aspect-[3/1] overflow-hidden rounded-[24px] bg-akua-page md:col-span-2 md:row-start-2 lg:col-span-1 lg:col-start-1 lg:aspect-auto"
+          className="group relative order-2 block aspect-[3/1] overflow-hidden rounded-[24px] bg-akua-page md:order-none md:col-span-2 md:row-start-2 lg:col-span-1 lg:col-start-1 lg:aspect-auto"
         >
           <Image
             src={HOME_BANNER.src}
             alt={HOME_BANNER.alt}
             fill
             sizes="(min-width:1024px) 900px, 100vw"
+            priority
             className="object-cover transition-transform duration-700 ease-akua group-hover:scale-[1.02]"
           />
         </Link>
@@ -131,14 +131,14 @@ export function DealsSection({ deals }: { deals: Product[] }) {
   return (
     <section aria-labelledby="promo" className="container-akua pt-12 md:pt-16">
       <Reveal>
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div className="flex flex-col items-center gap-5 text-center md:flex-row md:items-end md:justify-between md:gap-6 md:text-left">
           <div>
             <h2 id="promo" className="text-[34px] leading-[1.02] font-extrabold tracking-[-0.04em] md:text-[54px]">
               Offre spéciale
               <br />
               <span className="text-akua-blue">jusqu&apos;à minuit</span>
             </h2>
-            <p className="mt-3 max-w-md text-[14.5px] text-akua-gray-500">Promotions exclusives, en quantité limitée. Les prix reviennent à la normale à la fin du compte à rebours.</p>
+            <p className="mx-auto mt-3 max-w-md text-[14.5px] text-akua-gray-500 md:mx-0">Promotions exclusives, en quantité limitée. Les prix reviennent à la normale à la fin du compte à rebours.</p>
           </div>
           <PromoTimer />
         </div>
@@ -154,7 +154,7 @@ export function DealsSection({ deals }: { deals: Product[] }) {
           ))}
           {promo.map((p, i) => (
             <div key={p.id} className={cn("order-2 min-w-0", i === 3 && "lg:hidden")}>
-              <ProductCard product={p} />
+              <ProductCard product={p} exclusive />
             </div>
           ))}
         </div>
@@ -182,7 +182,7 @@ export function PackCard({ product, featured }: { product: Product; featured?: b
             <TrendingUp aria-hidden className="size-3.5" strokeWidth={2.5} /> Le plus vendu
           </span>
         ) : (
-          <span className="absolute top-4 left-4 rounded-full bg-akua-ink px-3 py-1 text-[11.5px] font-bold text-akua-white">{product.badges.includes("premium") ? "Premium" : "Neuf scellé"}</span>
+          <span className="absolute top-4 left-4 rounded-full bg-akua-ink px-3 py-1 text-[11.5px] font-bold text-akua-white">{product.badges.includes("premium") ? "Premium" : CONDITION_LABEL[product.condition]}</span>
         )}
       </Link>
       <div className="flex flex-1 flex-col p-5 md:p-6">
@@ -215,7 +215,7 @@ export function PacksSection({ packs }: { packs: Product[] }) {
   return (
     <section aria-labelledby="packs" className="pt-14 md:pt-20">
       <Reveal className="container-akua">
-        <SectionHeading index="03" eyebrow="Consoles complètes" title={<span id="packs">Packs prêts à jouer</span>}>
+        <SectionHeading index="03" eyebrow="Consoles complètes" centerMobile title={<span id="packs">Packs prêts à jouer</span>}>
           <Link href="/packs" className={btn({ variant: "outline", size: "md" })}>
             Tous les packs <ArrowRight aria-hidden className="size-4" />
           </Link>
@@ -235,9 +235,9 @@ export function PacksSection({ packs }: { packs: Product[] }) {
 /* ------------------------------------------------------------ pourquoi AKUA */
 
 const WHY = [
-  { icon: BadgeCheck, t: "Neuf et scellé", d: "Chaque produit sort de son carton d'origine, garanti par AKUA Service." },
+  { icon: BadgeCheck, t: "Testé et garanti", d: "Neuf ou venant, chaque produit est vérifié avant la vente et garanti par AKUA Service." },
   { icon: ShieldCheck, t: "Zéro risque", d: "Vous ne payez qu'après confirmation de votre commande sur WhatsApp." },
-  { icon: Truck, t: "Livraison 7 pays", d: "Togo, Bénin, Ghana, Burkina Faso, Côte d'Ivoire, Niger et Mali." },
+  { icon: Truck, t: "Togo et sous-région", d: "Livraison au Togo et dans la sous-région : Bénin, Ghana, Burkina Faso, Côte d'Ivoire, Niger et Mali." },
   { icon: PackageCheck, t: "Retrait en boutique", d: "Réservez votre créneau et récupérez votre commande sur place." },
 ];
 
@@ -264,7 +264,7 @@ export function WhySection() {
             <Store aria-hidden className="size-10 shrink-0" strokeWidth={1.3} />
             <div>
               <p className="text-[22px] font-extrabold tracking-[-0.03em] md:text-[26px]">Revendeur ou salle de jeux ?</p>
-              <p className="text-[14px] text-akua-white/80">Tarifs dégressifs, stock disponible et livraison multi-pays.</p>
+              <p className="text-[14px] text-akua-white/80">Tarifs dégressifs, stock disponible, livraison au Togo et dans la sous-région.</p>
             </div>
           </div>
           <Link href="/vente-en-gros" className={btn({ variant: "light", size: "lg" })}>
@@ -280,9 +280,9 @@ export function WhySection() {
 
 const FAQ = [
   { q: "Comment passer commande ?", a: "Ajoutez vos produits au panier, remplissez vos informations puis envoyez la commande sur WhatsApp. Notre équipe vous répond avec le lien de paiement." },
-  { q: "Les produits sont-ils vraiment neufs ?", a: "Oui. Nos consoles, manettes et jeux sont neufs et scellés d'origine, sauf mention « occasion » sur la fiche produit." },
+  { q: "Les produits sont-ils neufs ?", a: "Selon l'article, un produit peut être neuf ou venant, dans son carton d'origine ou sans carton. Vérifiez toujours la fiche du produit : son état et son conditionnement y sont indiqués. En cas de doute, posez-nous la question sur WhatsApp." },
   { q: "Puis-je récupérer ma commande en boutique ?", a: "Oui. Choisissez « Retrait en boutique », indiquez le jour et l'heure de passage. Vous pouvez verser un acompte pour réserver le produit." },
-  { q: "Livrez-vous hors du Togo ?", a: "Nous livrons au Bénin, Ghana, Burkina Faso, Côte d'Ivoire, Niger et Mali. Les frais sont confirmés sur WhatsApp." },
+  { q: "Livrez-vous hors du Togo ?", a: "Oui, nous livrons dans les pays de la sous-région : Bénin, Ghana, Burkina Faso, Côte d'Ivoire, Niger et Mali. Les frais sont confirmés sur WhatsApp." },
 ];
 
 export function FaqCta() {
@@ -307,11 +307,9 @@ export function FaqCta() {
             <div aria-hidden className="bg-grid absolute inset-0 opacity-60 [mask-image:radial-gradient(ellipse_at_bottom_right,black,transparent_70%)]" />
             <MessageCircleMore aria-hidden className="relative size-11 text-akua-blue" strokeWidth={1.3} />
             <p className="relative mt-6 text-[28px] leading-[1.08] font-extrabold tracking-[-0.035em] md:text-[34px]">Une question ? Écrivez-nous, on répond vite.</p>
-            <p className="relative mt-3 text-[14.5px] text-akua-gray-500">Conseil, disponibilité, prix de gros : notre équipe est sur WhatsApp du lundi au samedi, de 10h à 20h.</p>
+            <p className="relative mt-3 text-[14.5px] text-akua-gray-500">Conseil, disponibilité, prix de gros : écrivez-nous sur WhatsApp, notre équipe vous répond rapidement.</p>
             <div className="relative mt-auto flex flex-wrap gap-2.5 pt-8">
-              <a href={waLink("Bonjour AKUA Service, j'ai une question.")} target="_blank" rel="noopener" className={btn({ variant: "whatsapp", size: "lg" })}>
-                <WhatsAppIcon size={19} /> Écrire sur WhatsApp
-              </a>
+              <WhatsAppContactButton />
               <Link href="/contact" className={btn({ variant: "outline", size: "lg" })}>
                 Nous contacter
               </Link>

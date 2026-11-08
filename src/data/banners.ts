@@ -17,5 +17,5 @@ export const banners: Banner[] = [
   { id: "b-asym-3", placement: "asymmetric", theme: "light", eyebrow: "Stockage", title: "Disques durs WD", ctaLabel: "Voir", href: "/boutique/informatique", productId: "p-wd-elements", order: 3 },
 
   // Bannière finale
-  { id: "b-final", placement: "final", theme: "light", eyebrow: "Professionnels", title: "Équipez votre salle de jeux", subtitle: "Consoles, manettes et jeux à tarifs dégressifs, livrés dans 7 pays.", ctaLabel: "Vente en gros", href: "/vente-en-gros", categoryId: "cat-consoles", order: 1 },
+  { id: "b-final", placement: "final", theme: "light", eyebrow: "Professionnels", title: "Équipez votre salle de jeux", subtitle: "Consoles, manettes et jeux à tarifs dégressifs, livrés au Togo et dans la sous-région.", ctaLabel: "Vente en gros", href: "/vente-en-gros", categoryId: "cat-consoles", order: 1 },
 ];

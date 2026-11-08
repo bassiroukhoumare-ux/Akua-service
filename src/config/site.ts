@@ -49,9 +49,9 @@ export const MAIN_NAV = [
 ] as const;
 
 export const MARQUEE_ITEMS = [
-  "Neuf scellé",
+  "Neuf ou venant",
   "Garantie",
-  "Livraison 7 pays",
+  "Togo et sous-région",
   "Gros et détail",
   "Commande en 1 clic sur WhatsApp",
 ] as const;

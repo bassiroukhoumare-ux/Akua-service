@@ -42,3 +42,6 @@ next-env.d.ts
 
 # projet séparé (dépôt indépendant)
 /izikit/
+
+# visites enregistrées en local
+/.data

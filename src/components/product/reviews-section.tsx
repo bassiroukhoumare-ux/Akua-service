@@ -3,7 +3,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, MessageSquarePlus, Star } from "lucide-react";
 import { useState } from "react";
-import { DELIVERY_COUNTRIES } from "@/config/site";
+import { allCountryOptions } from "@/components/ui/country-options";
+import { SearchSelect } from "@/components/ui/search-select";
 import { btn } from "@/lib/btn";
 import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
@@ -11,15 +12,18 @@ import { summarize, useReviews } from "@/store/reviews";
 import type { Review } from "@/types/catalog";
 import { Stars } from "./rating-stars";
 
-type Form = { firstName: string; lastName: string; country: string; email: string; rating: number; comment: string };
+type Form = { firstName: string; lastName: string; country: string; otherCountry: string; email: string; rating: number; comment: string };
 type Errors = Partial<Record<keyof Form, string>>;
-const EMPTY: Form = { firstName: "", lastName: "", country: "", email: "", rating: 0, comment: "" };
+const OTHER = "__autre__";
+const COUNTRY_OPTIONS = allCountryOptions(OTHER);
+const EMPTY: Form = { firstName: "", lastName: "", country: "", otherCountry: "", email: "", rating: 0, comment: "" };
 
 function validate(f: Form): Errors {
   const e: Errors = {};
   if (f.firstName.trim().length < 2) e.firstName = "Indiquez votre prénom.";
   if (f.lastName.trim().length < 2) e.lastName = "Indiquez votre nom.";
   if (!f.country) e.country = "Choisissez votre pays.";
+  else if (f.country === OTHER && f.otherCountry.trim().length < 2) e.otherCountry = "Écrivez le nom de votre pays.";
   if (!/^\S+@\S+\.\S+$/.test(f.email.trim())) e.email = "Adresse e-mail invalide.";
   if (!f.rating) e.rating = "Choisissez une note.";
   if (f.comment.trim().length < 10) e.comment = "Votre avis doit faire au moins 10 caractères.";
@@ -87,7 +91,7 @@ export function ReviewsSection({ productId, productName }: { productId: string; 
       productId,
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
-      country: form.country,
+      country: form.country === OTHER ? form.otherCountry.trim() : form.country,
       email: form.email.trim(),
       rating: form.rating as Review["rating"],
       comment: form.comment.trim(),
@@ -190,17 +194,41 @@ export function ReviewsSection({ productId, productName }: { productId: string; 
                         {errors[k] && <span className="mt-1 block text-[12.5px] font-medium text-akua-red">{errors[k]}</span>}
                       </label>
                     ))}
-                    <label className="block">
-                      <span className="mb-1.5 block text-[13.5px] font-medium">Pays</span>
-                      <select id="rv-country" value={form.country} onChange={up("country")} aria-invalid={!!errors.country} className={cn(field(errors.country), "appearance-none")}>
-                        <option value="">Choisir…</option>
-                        {DELIVERY_COUNTRIES.map((c) => (
-                          <option key={c.code}>{c.name}</option>
-                        ))}
-                        <option>Autre pays</option>
-                      </select>
+                    <div>
+                      <label htmlFor="rv-country" className="mb-1.5 block text-[13.5px] font-medium">
+                        Pays
+                      </label>
+                      <SearchSelect
+                        id="rv-country"
+                        value={form.country}
+                        onChange={(country) => {
+                          setForm((x) => ({ ...x, country }));
+                          if (errors.country) setErrors((x) => ({ ...x, country: undefined }));
+                        }}
+                        options={COUNTRY_OPTIONS}
+                        placeholder="Choisir…"
+                        searchPlaceholder="Rechercher un pays…"
+                        invalid={!!errors.country}
+                        emptyText="Pays introuvable : choisissez « Autre pays » en bas de la liste."
+                      />
                       {errors.country && <span className="mt-1 block text-[12.5px] font-medium text-akua-red">{errors.country}</span>}
-                    </label>
+                    </div>
+                    {form.country === OTHER && (
+                      <label className="block">
+                        <span className="mb-1.5 block text-[13.5px] font-medium">Nom de votre pays</span>
+                        <input
+                          id="rv-otherCountry"
+                          value={form.otherCountry}
+                          onChange={up("otherCountry")}
+                          autoFocus
+                          autoComplete="country-name"
+                          placeholder="Ex. Sénégal, Nigeria, France…"
+                          aria-invalid={!!errors.otherCountry}
+                          className={field(errors.otherCountry)}
+                        />
+                        {errors.otherCountry && <span className="mt-1 block text-[12.5px] font-medium text-akua-red">{errors.otherCountry}</span>}
+                      </label>
+                    )}
                     <label className="block">
                       <span className="mb-1.5 block text-[13.5px] font-medium">E-mail</span>
                       <input id="rv-email" type="email" value={form.email} onChange={up("email")} autoComplete="email" aria-invalid={!!errors.email} className={field(errors.email)} />

@@ -123,3 +123,30 @@ export function buildWholesaleLink(req: WholesaleRequest): string {
     ].join("\n"),
   );
 }
+
+export interface ContactRequest {
+  firstName: string;
+  lastName: string;
+  country: string;
+  phone: string;
+  message: string;
+}
+
+/** Message envoyé depuis la fenêtre « Écrire sur WhatsApp » : coordonnées puis demande. */
+export function buildContactLink(req: ContactRequest): string {
+  return waLink(
+    [
+      `Bonjour ${SITE_NAME},`,
+      "",
+      "NOUVELLE DEMANDE",
+      `Nom : ${req.firstName} ${req.lastName}`,
+      `Pays : ${req.country}`,
+      `Téléphone : ${req.phone}`,
+      "",
+      "MESSAGE",
+      req.message,
+      "",
+      `Envoyé depuis ${siteHost}`,
+    ].join("\n"),
+  );
+}

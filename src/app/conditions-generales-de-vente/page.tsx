@@ -38,8 +38,9 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <P>
-          Les produits sont décrits avec la plus grande exactitude possible : désignation, caractéristiques principales, état et prix. Sauf mention « occasion » sur la fiche produit, les
-          produits vendus sont <B>neufs</B>. Les photographies sont fournies à titre illustratif ; une légère différence de présentation (emballage, édition, couleur) ne saurait engager la
+          Les produits sont décrits avec la plus grande exactitude possible : désignation, caractéristiques principales, état et prix. Selon l&apos;article, un produit peut être <B>neuf</B> ou
+          <B> venant</B>, dans son carton d&apos;origine ou sans carton : l&apos;état et le conditionnement sont précisés sur la fiche produit, que le Client est invité à consulter avant
+          toute commande. Les photographies sont fournies à titre illustratif ; une légère différence de présentation (emballage, édition, couleur) ne saurait engager la
           responsabilité du Vendeur ni remettre en cause la vente.
         </P>
         <P>

@@ -15,3 +15,7 @@ export function discountPercent(price: number, compareAtPrice?: number): number 
 export function pluralize(count: number, singular: string, plural = `${singular}s`): string {
   return `${count} ${count > 1 ? plural : singular}`;
 }
+
+/** Libellés d'état des produits (la valeur « occasion » correspond aux produits venants). */
+export const CONDITION_LABEL = { neuf: "Neuf", occasion: "Venant", reconditionne: "Reconditionné" } as const;
+export const PACKAGING_LABEL = { carton: "Dans son carton d'origine", "sans-carton": "Sans carton" } as const;

@@ -8,7 +8,7 @@ import { parseShopParams, type RawParams } from "@/lib/shop-params";
 
 export const metadata: Metadata = {
   title: "Boutique",
-  description: "Consoles, jeux vidéo, manettes, simulation et accessoires neufs et garantis. Livraison au Togo et dans la sous-région.",
+  description: "Consoles, jeux vidéo, manettes, simulation et accessoires testés et garantis. Livraison au Togo et dans la sous-région.",
 };
 
 export default async function ShopPage({ searchParams }: { searchParams: Promise<RawParams> }) {

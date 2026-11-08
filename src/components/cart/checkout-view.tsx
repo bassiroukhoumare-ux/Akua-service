@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   ArrowRight,
   CalendarDays,
-  ChevronDown,
   Check,
   CheckCircle2,
   Clock,
@@ -26,20 +25,24 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ProductVisual } from "@/components/product/product-visual";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { deliveryCountryOptions } from "@/components/ui/country-options";
+import { SearchSelect } from "@/components/ui/search-select";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import { ADDRESS, DELIVERY_COUNTRIES, MAPS_URL, OPENING_HOURS } from "@/config/site";
 import { categories } from "@/data/categories";
 import { CITIES } from "@/data/cities";
 import { products } from "@/data/products";
 import { formatFCFA, pluralize } from "@/lib/format";
-import { checkPromoCode, computeDiscount } from "@/lib/promo";
-import { promoCodes } from "@/data/promo-codes";
+import { checkPromoCode, computeDiscount, isPromoValid } from "@/lib/promo";
+import { useAdminPromos } from "@/store/admin-promos";
+import { useSavedCarts } from "@/store/saved-carts";
 import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
 import { buildCheckoutMessage, waLink } from "@/lib/whatsapp";
 import { type CartItem, type CheckoutDraft, selectCount, selectTotal, useCart } from "@/store/cart";
 
 const OTHER_CITY = "__autre__";
+const COUNTRY_OPTIONS = deliveryCountryOptions();
 const TIMES = ["10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
 const DEPOSITS: { id: CheckoutDraft["deposit"]; label: string; pct: number }[] = [
   { id: "25", label: "25 %", pct: 25 },
@@ -191,13 +194,42 @@ export function CheckoutView() {
   const [promoInput, setPromoInput] = useState("");
   const [promoState, setPromoState] = useState<{ loading: boolean; error?: string }>({ loading: false });
   const [sending, setSending] = useState(false);
+  const saveCart = useSavedCarts((s) => s.save);
+  const markOrdered = useSavedCarts((s) => s.markOrdered);
+  const [cartSaved, setCartSaved] = useState(false);
+
+  /** « Enregistrer mon panier » : nom + WhatsApp suffisent, l'équipe peut recontacter le client */
+  function saveForLater() {
+    const e: Errors = {};
+    if (draft.name.trim().length < 2) e.name = "Indiquez votre nom complet.";
+    if (draft.phone.replace(/\D/g, "").length < 8) e.phone = "Numéro WhatsApp invalide (8 chiffres minimum).";
+    if (draft.email && !/^\S+@\S+\.\S+$/.test(draft.email)) e.email = "Adresse e-mail invalide.";
+    setErrors((x) => ({ ...x, ...e }));
+    if (Object.keys(e).length) {
+      document.getElementById(`f-${Object.keys(e)[0]}`)?.focus();
+      return;
+    }
+    saveCart({
+      name: draft.name.trim(),
+      phone: draft.phone.trim(),
+      email: draft.email.trim() || undefined,
+      country: draft.mode === "livraison" ? draft.country : undefined,
+      city: draft.mode === "livraison" ? draft.city.trim() || undefined : undefined,
+      items,
+      subtotal,
+      promoCode: promo?.code,
+    });
+    setCartSaved(true);
+  }
   const [done, setDone] = useState<{ ref: string; link: string; mode: CheckoutDraft["mode"] } | null>(null);
 
+  // codes gérés depuis l'espace administrateur (pour l'instant : ceux enregistrés dans ce navigateur)
+  const promoCodes = useAdminPromos((s) => s.codes);
   const promo = useMemo(() => {
     const p = promoCodes.find((x) => x.code === draft.promoCode);
-    if (!p || (p.minTotal && subtotal < p.minTotal)) return null;
+    if (!p || !isPromoValid(p) || (p.minTotal && subtotal < p.minTotal)) return null;
     return { code: p.code, label: p.label, discount: computeDiscount(p, subtotal) };
-  }, [draft.promoCode, subtotal]);
+  }, [promoCodes, draft.promoCode, subtotal]);
 
   const total = subtotal - (promo?.discount ?? 0);
   const depositPct = draft.mode === "retrait" ? (DEPOSITS.find((d) => d.id === draft.deposit)?.pct ?? 0) : 0;
@@ -209,7 +241,7 @@ export function CheckoutView() {
 
   async function applyPromo() {
     setPromoState({ loading: true });
-    const r = await checkPromoCode(promoInput, subtotal);
+    const r = await checkPromoCode(promoInput, subtotal, promoCodes);
     if (r.ok) {
       setDraft({ promoCode: r.promo.code });
       setPromoInput("");
@@ -244,6 +276,7 @@ export function CheckoutView() {
       note: draft.note.trim() || undefined,
     });
     const link = waLink(message);
+    markOrdered(draft.phone);
     window.open(link, "_blank", "noopener");
     window.setTimeout(() => {
       setDone({ ref, link, mode: draft.mode });
@@ -374,6 +407,23 @@ export function CheckoutView() {
                 <input id="f-email" type="email" value={draft.email} onChange={up("email")} autoComplete="email" placeholder="vous@exemple.com" aria-invalid={!!errors.email} className={inputCls(errors.email)} />
               </Field>
             </div>
+            <div className="mt-5 flex flex-col gap-3 rounded-[18px] bg-akua-tile p-4 sm:flex-row sm:items-center sm:justify-between">
+              {cartSaved ? (
+                <p role="status" className="flex items-start gap-2.5 text-[13.5px]">
+                  <CheckCircle2 aria-hidden className="mt-0.5 size-[18px] shrink-0 text-akua-whatsapp" />
+                  <span>
+                    <span className="font-semibold">Panier enregistré.</span> <span className="text-akua-gray-500">Finalisez quand vous voulez : notre équipe peut aussi vous recontacter.</span>
+                  </span>
+                </p>
+              ) : (
+                <p className="text-[13.5px] text-akua-gray-500">
+                  <span className="font-semibold text-akua-ink">Pas encore prêt ?</span> Enregistrez votre panier avec votre nom et votre numéro : vous le retrouverez, et notre équipe pourra vous aider.
+                </p>
+              )}
+              <button type="button" onClick={saveForLater} className="h-11 shrink-0 rounded-full border border-akua-gray-200 bg-akua-white px-5 text-[14px] font-semibold transition-colors hover:border-akua-ink">
+                {cartSaved ? "Mettre à jour" : "Enregistrer mon panier"}
+              </button>
+            </div>
           </Section>
 
           {/* 4. Livraison ou retrait */}
@@ -383,49 +433,33 @@ export function CheckoutView() {
                 <Section step={4} title="Adresse de livraison" subtitle="Soyez le plus précis possible pour une livraison rapide.">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field label="Pays" htmlFor="f-country">
-                      <div className="relative">
-                      <select
+                      <SearchSelect
                         id="f-country"
                         value={draft.country}
-                        onChange={(e) => {
+                        onChange={(country) => {
                           setOtherCity(false);
-                          setDraft({ country: e.target.value, city: "" });
+                          setDraft({ country, city: "" });
                         }}
-                        className={cn(inputCls(), "appearance-none pr-11")}
-                      >
-                        {DELIVERY_COUNTRIES.map((c) => (
-                          <option key={c.code}>{c.name}</option>
-                        ))}
-                      </select>
-                      <ChevronDown aria-hidden className="pointer-events-none absolute top-1/2 right-4 size-[18px] -translate-y-1/2 text-akua-gray-500" />
-                      </div>
+                        options={COUNTRY_OPTIONS}
+                        searchPlaceholder="Rechercher un pays…"
+                      />
                     </Field>
                     <Field label="Ville" htmlFor="f-city" error={errors.city}>
-                      <div className="relative">
-                        <select
-                          id="f-city"
-                          value={cityIsOther ? OTHER_CITY : draft.city}
-                          onChange={(e) => {
-                            const v = e.target.value;
-                            setOtherCity(v === OTHER_CITY);
-                            setDraft({ city: v === OTHER_CITY ? "" : v });
-                            if (errors.city) setErrors((er) => ({ ...er, city: undefined }));
-                          }}
-                          aria-invalid={!!errors.city}
-                          className={cn(inputCls(errors.city), "appearance-none pr-11", !draft.city && !cityIsOther && "text-akua-gray-500")}
-                        >
-                          <option value="" disabled>
-                            Choisir une ville
-                          </option>
-                          {cityList.map((c) => (
-                            <option key={c} value={c}>
-                              {c}
-                            </option>
-                          ))}
-                          <option value={OTHER_CITY}>Autre ville…</option>
-                        </select>
-                        <ChevronDown aria-hidden className="pointer-events-none absolute top-1/2 right-4 size-[18px] -translate-y-1/2 text-akua-gray-500" />
-                      </div>
+                      <SearchSelect
+                        id="f-city"
+                        value={cityIsOther ? OTHER_CITY : draft.city}
+                        onChange={(v) => {
+                          setOtherCity(v === OTHER_CITY);
+                          setDraft({ city: v === OTHER_CITY ? "" : v });
+                          if (errors.city) setErrors((er) => ({ ...er, city: undefined }));
+                        }}
+                        options={[...cityList.map((c) => ({ value: c, label: c })), { value: OTHER_CITY, label: "Autre ville…", display: "Autre ville" }]}
+                        placeholder="Choisir une ville"
+                        searchPlaceholder="Rechercher une ville…"
+                        emptyText="Ville introuvable : choisissez « Autre ville » en bas de la liste."
+                        invalid={!!errors.city}
+                        aria-describedby={errors.city ? "f-city-err" : undefined}
+                      />
                       {cityIsOther && (
                         <input
                           value={draft.city}
@@ -639,7 +673,7 @@ export function CheckoutView() {
 
             <ul className="mt-5 space-y-2 border-t border-akua-gray-200 pt-5 text-[13px] text-akua-gray-500">
               {[
-                { icon: ShieldCheck, t: "Produits neufs, scellés et garantis" },
+                { icon: ShieldCheck, t: "Produits testés et garantis" },
                 { icon: CheckCircle2, t: "Aucun paiement avant confirmation" },
               ].map(({ icon: Icon, t }) => (
                 <li key={t} className="flex items-center gap-2">

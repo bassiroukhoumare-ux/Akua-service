@@ -1,4 +1,4 @@
-import { ArrowUpRight, Clock, MapPin } from "lucide-react";
+import { ArrowUpRight, Clock, Globe2, MapPin } from "lucide-react";
 import Link from "next/link";
 import { Flag } from "@/components/ui/flag";
 import { Logo } from "@/components/ui/logo";
@@ -99,6 +99,9 @@ export function Footer() {
                 <Flag code={c.code} /> {c.name}
               </span>
             ))}
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-akua-white px-3 py-1.5 text-[12.5px] font-medium text-akua-gray-500 ring-1 ring-akua-gray-200">
+              <Globe2 aria-hidden className="size-3.5" strokeWidth={1.8} /> et autres pays
+            </span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="mr-1 w-full text-[13px] font-semibold sm:w-auto">Suivez-nous :</span>

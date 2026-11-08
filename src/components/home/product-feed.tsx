@@ -33,9 +33,9 @@ export function ProductFeed({ products, initial = 8 }: { products: Product[]; in
   return (
     <section aria-labelledby="catalogue" className="container-akua pt-14 md:pt-20">
       <Reveal>
-        <SectionHeading index="02" eyebrow="Catalogue" title={<span id="catalogue">Nos produits disponibles.</span>}>
+        <SectionHeading index="02" eyebrow="Catalogue" centerMobile title={<span id="catalogue">Nos produits disponibles.</span>}>
           <div role="tablist" aria-label="Filtrer le catalogue" className="no-scrollbar -mx-4 flex w-[calc(100%+32px)] overflow-x-auto px-4 md:mx-0 md:w-auto md:px-0">
-            <div className="flex shrink-0 rounded-full bg-akua-page p-1">
+            <div className="mx-auto flex shrink-0 rounded-full bg-akua-page p-1 md:mx-0">
               {TABS.map((t) => (
                 <button
                   key={t.id}
@@ -46,7 +46,7 @@ export function ProductFeed({ products, initial = 8 }: { products: Product[]; in
                     setTab(t.id);
                     setN(initial);
                   }}
-                  className={cn("relative h-9 rounded-full px-4 text-[13.5px] font-semibold whitespace-nowrap transition-colors", tab === t.id ? "text-akua-white" : "text-akua-gray-500 hover:text-akua-ink")}
+                  className={cn("relative h-9 rounded-full px-3 text-[13px] font-semibold whitespace-nowrap transition-colors min-[400px]:px-3.5 md:px-4 md:text-[13.5px]", tab === t.id ? "text-akua-white" : "text-akua-gray-500 hover:text-akua-ink")}
                 >
                   {tab === t.id && <motion.span layoutId="feed-tab" transition={{ type: "spring", stiffness: 420, damping: 34 }} className="absolute inset-0 rounded-full bg-akua-ink" />}
                   <span className="relative">{t.label}</span>

@@ -2,13 +2,13 @@ import { ArrowRight, Clock, ExternalLink, Map as MapIcon, MapPin, MessageCircleM
 import type { Metadata } from "next";
 import Link from "next/link";
 import { OpenStatus } from "@/components/shop/open-status";
+import { WhatsAppContactButton } from "@/components/shop/whatsapp-contact-dialog";
 import { PageHero } from "@/components/ui/page-hero";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import { ADDRESS, FACEBOOK_URL, MAPS_DIRECTIONS_URL, MAPS_EMBED_URL, MAPS_URL, OPENING_SCHEDULE, SHOP_COORDS, SITE_NAME, SITE_URL, WHATSAPP_DISPLAY } from "@/config/site";
 import { btn } from "@/lib/btn";
-import { waLink } from "@/lib/whatsapp";
 
-export const metadata: Metadata = { title: "Contact", description: "Contactez AKUA Service sur WhatsApp. Boutique ouverte du lundi au samedi, de 10h à 20h." };
+export const metadata: Metadata = { title: "Contact", description: "Contactez AKUA Service sur WhatsApp : notre équipe vous répond rapidement." };
 
 export default function ContactPage() {
   const org = {
@@ -35,9 +35,9 @@ export default function ContactPage() {
             <p className="relative mt-6 text-[13px] font-medium text-akua-white/85">WhatsApp</p>
             <p className="relative text-[24px] font-extrabold tracking-[-0.02em]">{WHATSAPP_DISPLAY}</p>
             <p className="relative mt-2 text-[14px] text-akua-white/85">Commandes, devis et questions.</p>
-            <a href={waLink("Bonjour AKUA Service,")} target="_blank" rel="noopener" className={btn({ variant: "light", size: "lg", className: "relative mt-auto w-full [--shine:rgb(37_211_102/0.3)]" })}>
+            <WhatsAppContactButton className={btn({ variant: "light", size: "lg", className: "relative mt-auto w-full [--shine:rgb(37_211_102/0.3)]" })}>
               <WhatsAppIcon size={20} variant="color" /> Écrire sur WhatsApp
-            </a>
+            </WhatsAppContactButton>
           </div>
 
           {/* Adresse */}
@@ -45,7 +45,7 @@ export default function ContactPage() {
             <MapPin aria-hidden className="size-9 text-akua-ink" strokeWidth={1.4} />
             <p className="mt-6 text-[13px] font-medium text-akua-gray-500">Adresse de la boutique</p>
             <p className="text-[22px] font-extrabold tracking-[-0.02em]">{ADDRESS}</p>
-            <p className="mt-2 text-[14px] text-akua-gray-500">Retrait de commande en boutique du lundi au samedi, sur le créneau choisi lors de la commande.</p>
+            <p className="mt-2 text-[14px] text-akua-gray-500">Retrait de commande en boutique sur le créneau choisi lors de la commande.</p>
             <a href="#carte" className={btn({ variant: "outline", size: "lg", className: "mt-auto w-full" })}>
               <MapIcon aria-hidden className="size-4" /> Voir sur la carte
             </a>
@@ -66,7 +66,7 @@ export default function ContactPage() {
                 </li>
               ))}
             </ul>
-            <p className="mt-auto pt-4 text-[13px] text-akua-gray-500">Les messages WhatsApp reçus le dimanche sont traités dès le lundi matin.</p>
+            <p className="mt-auto pt-4 text-[13px] text-akua-gray-500">Écrivez-nous à tout moment sur WhatsApp : nous vous répondons dans les meilleurs délais.</p>
           </div>
         </div>
 

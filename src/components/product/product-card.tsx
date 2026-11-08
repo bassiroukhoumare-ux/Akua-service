@@ -13,6 +13,8 @@ interface ProductCardProps {
   className?: string;
   priority?: boolean;
   sizes?: string;
+  /** petite mention « Exclusif » à côté de la remise (offres spéciales) */
+  exclusive?: boolean;
 }
 
 export function StockText({ product, className }: { product: Product; className?: string }) {
@@ -42,7 +44,7 @@ export function CardBadges({ product, className }: { product: Product; className
  * Carte produit : liseré dégradé bleu au survol, visuel sur tuile douce,
  * nom, plateformes, note, prix mis en avant et ajout rapide.
  */
-export function ProductCard({ product, className, priority, sizes = "(min-width:1024px) 23vw, (min-width:768px) 31vw, 48vw" }: ProductCardProps) {
+export function ProductCard({ product, className, priority, exclusive, sizes = "(min-width:1024px) 23vw, (min-width:768px) 31vw, 48vw" }: ProductCardProps) {
   const href = `/produit/${product.slug}`;
   const category = categories.find((c) => c.id === product.categoryId);
 
@@ -63,7 +65,14 @@ export function ProductCard({ product, className, priority, sizes = "(min-width:
             {category?.name}
           </span>
           <FavoriteButton productId={product.id} className="absolute top-2 right-2 size-8 rounded-full md:size-9" />
-          <CardBadges product={product} className="pointer-events-none absolute bottom-2.5 left-2.5" />
+          <div className="pointer-events-none absolute bottom-2.5 left-2.5 flex items-center gap-1">
+            <CardBadges product={product} />
+            {exclusive && (
+              <span className="inline-flex h-6 items-center gap-1 rounded-full bg-akua-white/95 px-2 text-[11px] font-semibold text-akua-ink ring-1 ring-akua-gray-200 backdrop-blur">
+                <span aria-hidden className="size-1.5 rounded-full bg-akua-blue" /> Exclusif
+              </span>
+            )}
+          </div>
           {product.stockStatus === "stock_faible" && (
             <span className="pointer-events-none absolute right-2.5 bottom-2.5 hidden rounded-full bg-akua-white/95 px-2.5 py-1 text-[11px] font-semibold text-akua-red sm:inline">Plus que {product.stockLeft}</span>
           )}

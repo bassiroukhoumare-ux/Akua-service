@@ -10,6 +10,9 @@ import type { Review } from "@/types/catalog";
 interface ReviewsState {
   reviews: Review[];
   addReview: (r: Omit<Review, "id" | "createdAt" | "status">) => Review;
+  /** modération depuis l'espace administrateur */
+  setStatus: (id: string, status: Review["status"]) => void;
+  removeReview: (id: string) => void;
 }
 
 export const useReviews = create<ReviewsState>()(
@@ -21,6 +24,8 @@ export const useReviews = create<ReviewsState>()(
         set((s) => ({ reviews: [review, ...s.reviews] }));
         return review;
       },
+      setStatus: (id, status) => set((s) => ({ reviews: s.reviews.map((r) => (r.id === id ? { ...r, status } : r)) })),
+      removeReview: (id) => set((s) => ({ reviews: s.reviews.filter((r) => r.id !== id) })),
     }),
     { name: "akua-reviews" },
   ),

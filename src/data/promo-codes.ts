@@ -1,11 +1,19 @@
 // Codes promo de démonstration. Plus tard : table Supabase `promo_codes`.
 
 export interface PromoCode {
+  /** identifiant interne (espace administrateur) */
+  id?: string;
   code: string;
   type: "percent" | "amount";
   value: number;
   minTotal?: number;
   label: string;
+  /** désactivé depuis l'espace administrateur */
+  active?: boolean;
+  /** début et fin de validité (ISO) ; sans fin : valable tant qu'il est actif */
+  startsAt?: string;
+  endsAt?: string;
+  createdBy?: string;
 }
 
 export const promoCodes: PromoCode[] = [

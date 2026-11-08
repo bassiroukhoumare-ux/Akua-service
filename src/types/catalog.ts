@@ -12,7 +12,10 @@ export type Platform =
   | "android"
   | "ios";
 
-export type Condition = "neuf" | "occasion";
+/** État : neuf, venant (occasion importée) ou reconditionné. La valeur « occasion » s'affiche « Venant ». */
+export type Condition = "neuf" | "occasion" | "reconditionne";
+/** Conditionnement : dans son carton d'origine ou sans carton. */
+export type Packaging = "carton" | "sans-carton";
 export type StockStatus = "en_stock" | "stock_faible" | "rupture" | "sur_commande";
 
 export type ProductBadgeType =
@@ -56,6 +59,19 @@ export interface Product {
   isFeatured?: boolean;
   isPack?: boolean;
   isDealOfDay?: boolean;
+  packaging?: Packaging;
+  /** garantie proposée (par défaut : oui) */
+  warranty?: boolean;
+  /** durée ou précision de la garantie : « 3 mois », « 1 an »… */
+  warrantyLabel?: string;
+  /** proposé en vente en gros (revendeurs, salles de jeux) */
+  wholesale?: boolean;
+  /** visible sur le site (par défaut : oui) */
+  published?: boolean;
+  /** équipier qui a créé / modifié en dernier le produit (espace administrateur) */
+  createdBy?: string;
+  updatedBy?: string;
+  updatedAt?: string;
   createdAt: string;
 }
 

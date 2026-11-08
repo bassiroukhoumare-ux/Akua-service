@@ -10,7 +10,7 @@ import { ReviewsSection } from "@/components/product/reviews-section";
 import { SITE_NAME, SITE_URL } from "@/config/site";
 import { products as allProducts } from "@/data/products";
 import { getCategoryById, getProductBySlug, getRelatedProducts, PLATFORM_LABELS } from "@/lib/catalog";
-import { discountPercent, formatFCFA } from "@/lib/format";
+import { CONDITION_LABEL, discountPercent, formatFCFA, PACKAGING_LABEL } from "@/lib/format";
 import { getCategoryIcon } from "@/lib/icons";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -60,15 +60,16 @@ export default async function ProductPage({ params }: Props) {
 
   const specs = [
     { k: "Catégorie", v: category?.name ?? "" },
-    { k: "État", v: isNew ? "Neuf" : "Occasion" },
+    { k: "État", v: CONDITION_LABEL[product.condition] },
+    ...(product.packaging ? [{ k: "Emballage", v: PACKAGING_LABEL[product.packaging] }] : []),
     { k: "Compatibilité", v: compat.join(", ") },
     { k: "Disponibilité", v: STOCK_LABEL[product.stockStatus] },
   ];
 
   const infos = [
-    { icon: Truck, t: "Livraison ou retrait en boutique", d: "Livraison possible au Togo, Bénin, Ghana, Burkina Faso, Côte d'Ivoire, Niger et Mali. Retrait gratuit en boutique du lundi au samedi, de 10h à 20h. Frais et délais confirmés sur WhatsApp." },
-    { icon: ShieldCheck, t: "Garantie", d: "Tous nos produits sont testés et garantis. Conditions détaillées : [À COMPLÉTER]." },
-    { icon: Store, t: "Vente en gros", d: "Revendeur ou salle de jeux ? Demandez un devis : tarifs dégressifs selon les quantités, livraison multi-pays." },
+    { icon: Truck, t: "Livraison ou retrait en boutique", d: "Livraison possible au Togo et dans les pays de la sous-région : Bénin, Ghana, Burkina Faso, Côte d'Ivoire, Niger et Mali." },
+    ...(product.warranty === false ? [] : [{ icon: ShieldCheck, t: "Garantie", d: product.warrantyLabel ? `Produit testé et garanti ${product.warrantyLabel}.` : "Tous nos produits sont testés et garantis." }]),
+    ...(product.wholesale === false ? [] : [{ icon: Store, t: "Vente en gros", d: "Revendeur ou salle de jeux ? Demandez un devis : tarifs dégressifs selon les quantités, livraison au Togo et dans la sous-région." }]),
   ];
 
   return (
@@ -128,7 +129,7 @@ export default async function ProductPage({ params }: Props) {
               {[
                 { icon: ShieldCheck, t: "Garantie" },
                 { icon: Truck, t: "Livraison possible" },
-                { icon: isNew ? PackageCheck : PackageOpen, t: isNew ? "Produit neuf" : "Occasion" },
+                { icon: isNew ? PackageCheck : PackageOpen, t: isNew ? "Produit neuf" : product.condition === "reconditionne" ? "Reconditionné" : "Produit venant" },
               ].map(({ icon: Icon, t }) => (
                 <div key={t} className="flex flex-col items-center gap-2 px-2 text-center">
                   <Icon aria-hidden className="size-7 text-akua-ink" strokeWidth={1.4} />

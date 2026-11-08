@@ -6,7 +6,7 @@ import { getPacks, getProducts } from "@/lib/catalog";
 
 export const metadata: Metadata = {
   title: "Packs prêts à jouer",
-  description: "PS4 Slim et PS4 Pro complètes avec manettes, jeux et accessoires. Neuves et garanties.",
+  description: "PS4 Slim et PS4 Pro complètes avec manettes, jeux et accessoires. Testées et garanties.",
 };
 
 export default async function PacksPage() {

@@ -14,6 +14,7 @@ import { PLATFORM_LABELS } from "@/lib/catalog";
 import { getCategoryIcon, ICON_STROKE } from "@/lib/icons";
 import { PRICE_RANGES, SHOP_PLATFORMS, SORTS } from "@/lib/shop-params";
 import { cn } from "@/lib/utils";
+import { SearchSelect } from "@/components/ui/search-select";
 import type { Category, Product } from "@/types/catalog";
 
 const PER_PAGE = 12;
@@ -120,7 +121,8 @@ function Filters({ category }: { category: Category | null }) {
         <div className="mt-2 flex gap-2">
           {[
             { id: "neuf", label: "Neuf" },
-            { id: "occasion", label: "Occasion" },
+            { id: "occasion", label: "Venant" },
+            { id: "reconditionne", label: "Reconditionné" },
           ].map((e) => (
             <button
               key={e.id}
@@ -216,7 +218,7 @@ export function ShopView({ products, category, query }: { products: Product[]; c
             <div className="min-w-0 flex-1">
               <h1 className="text-[22px] font-bold tracking-[-0.01em] md:text-[28px]">{query ? `Résultats pour « ${query} »` : (category?.name ?? "Toute la boutique")}</h1>
               <p className="mt-0.5 text-[13.5px] text-akua-gray-500">
-                {products.length} produits · {category?.description ?? "Consoles, jeux, manettes et accessoires neufs, scellés et garantis."}
+                {products.length} produits · {category?.description ?? "Consoles, jeux, manettes et accessoires testés et garantis."}
               </p>
             </div>
             <form
@@ -260,21 +262,15 @@ export function ShopView({ products, category, query }: { products: Product[]; c
                 <button type="button" onClick={() => setSheet(true)} className="flex h-10 shrink-0 items-center gap-2 rounded-full border border-akua-gray-200 bg-akua-white px-4 text-[13.5px] font-medium lg:hidden">
                   <SlidersHorizontal aria-hidden className="size-4" /> Filtres{activeCount > 0 && <span className="grid size-5 place-items-center rounded-full bg-akua-blue text-[11px] text-akua-white">{activeCount}</span>}
                 </button>
-                <label className="relative min-w-0 flex-1 sm:flex-none">
-                  <span className="sr-only">Trier</span>
-                  <select
-                    value={sort}
-                    onChange={(e) => set("tri", e.target.value === "pertinence" ? null : e.target.value)}
-                    className="h-10 w-full appearance-none rounded-full border border-akua-gray-200 bg-akua-white pr-10 pl-4 text-[13.5px] font-medium outline-none hover:border-akua-ink"
-                  >
-                    {SORTS.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        Trier : {s.label}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown aria-hidden className="pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2" />
-                </label>
+                <SearchSelect
+                  value={sort}
+                  onChange={(v) => set("tri", v === "pertinence" ? null : v)}
+                  options={SORTS.map((x) => ({ value: x.id, label: x.label, display: `Trier : ${x.label}` }))}
+                  searchable={false}
+                  variant="pill"
+                  aria-label="Trier les produits"
+                  className="flex-1 sm:w-auto sm:flex-none"
+                />
               </div>
             </div>
 

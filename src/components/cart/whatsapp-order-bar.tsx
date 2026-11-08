@@ -4,10 +4,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { WhatsAppContactButton } from "@/components/shop/whatsapp-contact-dialog";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import { formatFCFA, pluralize } from "@/lib/format";
 import { useHydrated } from "@/lib/use-hydrated";
-import { waLink } from "@/lib/whatsapp";
 import { selectCount, selectTotal, useCart } from "@/store/cart";
 import { useUI } from "@/store/ui";
 
@@ -44,17 +44,14 @@ export function CartBar() {
   );
 }
 
-/** Desktop : logo WhatsApp officiel flottant. */
+/** Desktop : logo WhatsApp officiel flottant, qui ouvre la fenêtre de contact. */
 export function WhatsAppFab() {
   return (
-    <a
-      href={waLink("Bonjour AKUA Service, j'ai une question.")}
-      target="_blank"
-      rel="noopener"
-      aria-label="Discuter sur WhatsApp"
+    <WhatsAppContactButton
+      aria-label="Écrire sur WhatsApp"
       className="fixed right-6 bottom-6 z-40 hidden size-14 rounded-full shadow-[0_16px_32px_-12px_rgb(37_211_102/0.8)] transition-transform duration-300 hover:scale-110 lg:block"
     >
       <WhatsAppIcon size={56} variant="color" />
-    </a>
+    </WhatsAppContactButton>
   );
 }

@@ -97,7 +97,7 @@ export function LegalPage({ eyebrow, title, intro, updated, sections, related }:
               <MessageCircleMore aria-hidden className="mt-0.5 size-7 shrink-0 text-akua-blue" strokeWidth={1.4} />
               <div>
                 <p className="text-[16px] font-bold">Une question sur ce document ?</p>
-                <p className="mt-1 text-[14px] text-akua-gray-500">Notre équipe vous répond du lundi au samedi, de 10h à 20h.</p>
+                <p className="mt-1 text-[14px] text-akua-gray-500">Notre équipe vous répond rapidement sur WhatsApp.</p>
               </div>
             </div>
             <Link href="/contact" className="group inline-flex shrink-0 items-center gap-1.5 text-[14px] font-semibold text-akua-blue">
