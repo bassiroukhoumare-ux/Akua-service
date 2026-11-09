@@ -2,13 +2,13 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { type DealTiming, dealEnd } from "@/lib/deals";
 
 /** Secondes restantes avant minuit : le cycle de 24 h redémarre chaque jour, sans s'arrêter. */
-function secondsLeft() {
+function secondsLeft(timing?: DealTiming) {
   const now = new Date();
-  const end = new Date(now);
-  end.setHours(24, 0, 0, 0);
-  return Math.max(0, Math.floor((end.getTime() - now.getTime()) / 1000));
+  const end = dealEnd(timing ?? { mode: "midnight", hours: 24, startedAt: "", repeat: true }, now);
+  return end ? Math.max(0, Math.floor((end.getTime() - now.getTime()) / 1000)) : 0;
 }
 
 function Digit({ value }: { value: string }) {
@@ -24,14 +24,14 @@ function Digit({ value }: { value: string }) {
 }
 
 /** Compte à rebours : uniquement des chiffres qui défilent (HH:MM:SS). */
-export function PromoTimer() {
+export function PromoTimer({ timing }: { timing?: DealTiming }) {
   const [s, setS] = useState<number | null>(null);
   useEffect(() => {
-    const tick = () => setS(secondsLeft());
+    const tick = () => setS(secondsLeft(timing));
     tick();
     const id = window.setInterval(tick, 1000);
     return () => window.clearInterval(id);
-  }, []);
+  }, [timing]);
 
   const pad = (n: number) => String(n).padStart(2, "0");
   const parts = s == null ? ["--", "--", "--"] : [pad(Math.floor(s / 3600)), pad(Math.floor((s % 3600) / 60)), pad(s % 60)];

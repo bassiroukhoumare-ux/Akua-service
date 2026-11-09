@@ -2,7 +2,7 @@
 
 import { CheckCircle2, Mail, MapPin, MoreHorizontal, Phone, ShoppingBag, Trash2, XCircle } from "lucide-react";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import { DEMO_SAVED_CARTS, timeAgo } from "@/lib/admin/demo";
@@ -87,6 +87,7 @@ export function CartsView() {
   const real = useSavedCarts((s) => s.carts);
   const setStatus = useSavedCarts((s) => s.setStatus);
   const remove = useSavedCarts((s) => s.remove);
+  useEffect(() => void useSavedCarts.getState().load(), []);
   const [tab, setTab] = useState<Tab>("pending");
   const [toDelete, setToDelete] = useState<SavedCart | null>(null);
   // exemples : modifiables le temps de la visite, pour tester le fonctionnement

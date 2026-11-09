@@ -7,9 +7,10 @@ import { useEffect } from "react";
 import { OpenStatus } from "@/components/shop/open-status";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Logo } from "@/components/ui/logo";
-import { FacebookIcon, TikTokIcon } from "@/components/ui/social-icons";
-import { FACEBOOK_URL, TIKTOK_URL } from "@/config/site";
-import { categories } from "@/data/categories";
+import { useShopSettings } from "@/components/shop-settings-provider";
+import { SocialLinkIcon } from "@/components/ui/social-link-icon";
+import { summarizeHours } from "@/lib/shop-settings";
+import { useCatalog } from "@/components/catalog-provider";
 import { getCategoryIcon } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 import { useUI } from "@/store/ui";
@@ -26,6 +27,9 @@ const LINKS = [
 
 /** Menu latéral mobile (ouvert depuis l'onglet « Menu » de la barre du bas). */
 export function MobileMenu() {
+  const settings = useShopSettings();
+  const hours = summarizeHours(settings.hours);
+  const { categories } = useCatalog();
   const open = useUI((s) => s.menuOpen);
   const setOpen = useUI((s) => s.setMenuOpen);
   const path = usePathname();
@@ -91,16 +95,20 @@ export function MobileMenu() {
               <p className="text-[14px] font-bold whitespace-nowrap">Horaires d&apos;ouverture</p>
               <OpenStatus />
             </div>
-            <p className="mt-2 text-[13.5px]">Lundi – Samedi : 10h – 20h</p>
-            <p className="text-[13px] text-akua-gray-500">Dimanche : fermé</p>
+            {hours.map((h, i) => (
+              <p key={h.days} className={i ? "text-[13px] text-akua-gray-500" : "mt-2 text-[13.5px]"}>
+                {h.days} : {h.hours}
+              </p>
+            ))}
             <div className="mt-4 flex items-center gap-2">
               <span className="mr-1 text-[12.5px] font-medium text-akua-gray-500">Suivez-nous</span>
-              <a href={TIKTOK_URL} target="_blank" rel="noopener" aria-label="TikTok" className="grid size-9 place-items-center rounded-full bg-akua-ink text-akua-white">
-                <TikTokIcon className="size-4" />
-              </a>
-              <a href={FACEBOOK_URL} target="_blank" rel="noopener" aria-label="Facebook" className="grid size-9 place-items-center rounded-full bg-akua-ink text-akua-white">
-                <FacebookIcon className="size-4" />
-              </a>
+              {settings.socials
+                .filter((x) => /^https?:\/\//.test(x.url))
+                .map((x) => (
+                  <a key={x.id} href={x.url} target="_blank" rel="noopener" aria-label={x.label} className="grid size-9 place-items-center rounded-full bg-akua-ink text-akua-white">
+                    <SocialLinkIcon network={x.network} className="size-4" />
+                  </a>
+                ))}
             </div>
           </div>
         </div>

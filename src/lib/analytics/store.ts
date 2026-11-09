@@ -1,7 +1,5 @@
-// Registre des visites. En attendant la base de données, chaque visite est ajoutée à un fichier
-// (.data/visites.jsonl, ignoré par Git). Une fois la base branchée, seules ces deux fonctions changeront.
-import { promises as fs } from "node:fs";
-import path from "node:path";
+// Registre des visites, dans la base de données Neon (table visits).
+import { db } from "@/lib/db";
 import type { Device, SourceId } from "./sources";
 
 export interface Visit {
@@ -21,29 +19,15 @@ export interface Visit {
   e?: "order";
 }
 
-const FILE = path.join(process.cwd(), ".data", "visites.jsonl");
-
 export async function appendVisit(v: Visit) {
-  await fs.mkdir(path.dirname(FILE), { recursive: true });
-  await fs.appendFile(FILE, JSON.stringify(v) + "\n", "utf8");
+  await db()`insert into visits (t, v, s, p, src, c, d, e) values (${new Date(v.t).toISOString()}, ${v.v}, ${v.s}, ${v.p}, ${v.src}, ${v.c}, ${v.d}, ${v.e ?? null})`;
 }
 
 export async function readVisits(since: number): Promise<Visit[]> {
-  let raw = "";
   try {
-    raw = await fs.readFile(FILE, "utf8");
+    const rows = (await db()`select t, v, s, p, src, c, d, e from visits where t >= ${new Date(since).toISOString()}`) as (Omit<Visit, "t" | "e"> & { t: string | Date; e: "order" | null })[];
+    return rows.map((r) => ({ ...r, t: new Date(r.t).getTime(), e: r.e ?? undefined }));
   } catch {
     return [];
   }
-  const out: Visit[] = [];
-  for (const line of raw.split("\n")) {
-    if (!line) continue;
-    try {
-      const v = JSON.parse(line) as Visit;
-      if (v.t >= since) out.push(v);
-    } catch {
-      /* ligne abîmée : ignorée */
-    }
-  }
-  return out;
 }

@@ -21,7 +21,7 @@ const TABS = [
 ];
 
 /** Catalogue : onglets segmentés, grille 4 colonnes (desktop) / 2 (mobile). */
-export function ProductFeed({ products, initial = 8 }: { products: Product[]; initial?: number }) {
+export function ProductFeed({ products, initial = 8, eyebrow = "Catalogue", title = "Nos produits disponibles." }: { products: Product[]; initial?: number; eyebrow?: string; title?: string }) {
   const [tab, setTab] = useState("all");
   const [n, setN] = useState(initial);
   const list = useMemo(() => {
@@ -33,7 +33,7 @@ export function ProductFeed({ products, initial = 8 }: { products: Product[]; in
   return (
     <section aria-labelledby="catalogue" className="container-akua pt-14 md:pt-20">
       <Reveal>
-        <SectionHeading index="02" eyebrow="Catalogue" centerMobile title={<span id="catalogue">Nos produits disponibles.</span>}>
+        <SectionHeading index="02" eyebrow={eyebrow} centerMobile title={<span id="catalogue">{title}</span>}>
           <div role="tablist" aria-label="Filtrer le catalogue" className="no-scrollbar -mx-4 flex w-[calc(100%+32px)] overflow-x-auto px-4 md:mx-0 md:w-auto md:px-0">
             <div className="mx-auto flex shrink-0 rounded-full bg-akua-page p-1 md:mx-0">
               {TABS.map((t) => (

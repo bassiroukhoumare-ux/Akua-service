@@ -7,9 +7,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { ProductCard } from "@/components/product/product-card";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { categories } from "@/data/categories";
+import { useCatalog } from "@/components/catalog-provider";
 import { categoryImages } from "@/data/category-media";
-import { products as allProducts } from "@/data/products";
 import { PLATFORM_LABELS } from "@/lib/catalog";
 import { getCategoryIcon, ICON_STROKE } from "@/lib/icons";
 import { PRICE_RANGES, SHOP_PLATFORMS, SORTS } from "@/lib/shop-params";
@@ -61,6 +60,7 @@ function Group({ title, children, defaultOpen = true }: { title: string; childre
 }
 
 function Filters({ category }: { category: Category | null }) {
+  const { categories, products: allProducts } = useCatalog();
   const { sp, set, togglePlatform, reset } = useParamsUpdater();
   const platforms = (sp.get("plateforme") ?? "").split(",");
   const row = "flex w-full items-center gap-3 rounded-lg py-1.5 text-left text-[14px] text-akua-ink transition-colors hover:text-akua-blue";
@@ -169,6 +169,7 @@ function pageList(current: number, total: number): (number | "…")[] {
 }
 
 export function ShopView({ products, category, query }: { products: Product[]; category: Category | null; query?: string }) {
+  const { categories } = useCatalog();
   const { sp, set, pending } = useParamsUpdater();
   const [sheet, setSheet] = useState(false);
   const [page, setPage] = useState(1);

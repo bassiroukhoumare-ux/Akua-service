@@ -1,8 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { CatalogProvider } from "@/components/catalog-provider";
 import { SiteChrome } from "@/components/layout/site-chrome";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/config/site";
+import { ShopSettingsProvider } from "@/components/shop-settings-provider";
+import { loadCatalog, loadSettings } from "@/lib/catalog";
+import { setWhatsAppNumber } from "@/lib/whatsapp";
 import "./globals.css";
 
 // Inter auto-hébergée (variable 400–800) : aucune dépendance réseau au build.
@@ -31,12 +35,18 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const [{ products, categories }, settings] = await Promise.all([loadCatalog(), loadSettings()]);
+  setWhatsAppNumber(settings.whatsapp);
   return (
     <html lang="fr" className={`${inter.variable}`}>
       <body>
         <TooltipProvider>
-          <SiteChrome>{children}</SiteChrome>
+          <CatalogProvider value={{ products, categories: [...categories].sort((a, b) => a.order - b.order) }}>
+            <ShopSettingsProvider value={settings}>
+              <SiteChrome>{children}</SiteChrome>
+            </ShopSettingsProvider>
+          </CatalogProvider>
         </TooltipProvider>
       </body>
     </html>

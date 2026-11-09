@@ -2,9 +2,10 @@
 
 // Catalogue de l'espace administrateur (étape design).
 // En attendant la base de données, les modifications sont gardées dans ce navigateur
-// (localStorage) : elles ne sont pas encore visibles sur le site public.
+// (base de données Neon) : le site public les affiche.
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { serverStorage } from "@/lib/server-storage";
 import type { AdminModuleId } from "@/config/admin";
 import { categories as seedCategories } from "@/data/categories";
 import { products as seedProducts } from "@/data/products";
@@ -114,7 +115,7 @@ export const useAdminCatalog = create<AdminCatalog>()(
       },
       reset: () => set(initial()),
     }),
-    { name: "akua-admin-catalog", version: 1 },
+    { name: "akua-admin-catalog", version: 1, storage: serverStorage },
   ),
 );
 

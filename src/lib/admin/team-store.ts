@@ -1,9 +1,7 @@
-// Registre des équipiers (côté serveur). En attendant la base de données, il est gardé dans
-// .data/equipe.json (ignoré par Git). Les mots de passe ne sont jamais stockés en clair (scrypt + sel).
+// Registre des équipiers, dans la base de données Neon (table team_members). Les mots de passe ne sont jamais stockés en clair (scrypt + sel).
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import type { AdminModuleId } from "@/config/admin";
+import { db } from "@/lib/db";
 import type { MemberStatus } from "./demo";
 
 export interface StoredMember {
@@ -30,8 +28,6 @@ export function toPublic(m: StoredMember): PublicMember {
   return out as PublicMember;
 }
 
-const FILE = path.join(process.cwd(), ".data", "equipe.json");
-
 export function hashPassword(pw: string) {
   const salt = randomBytes(16).toString("hex");
   return `${salt}:${scryptSync(pw, salt, 32).toString("hex")}`;
@@ -46,50 +42,33 @@ export function verifyPassword(pw: string, secret?: string) {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-/** Premier lancement : un équipier de démonstration (mot de passe défini dans .env.local). */
-function seed(): StoredMember[] {
-  const pw = process.env.TEAM_DEMO_PASSWORD;
-  if (!pw) return [];
-  return [
-    {
-      id: "m1",
-      name: "Afi Lawson",
-      identifier: "+228 91 23 45 67",
-      modules: ["products", "categories", "deals"],
-      status: "active",
-      secret: hashPassword(pw),
-      mustChange: false,
-      createdAt: new Date(Date.now() - 30 * 864e5).toISOString(),
-    },
-  ];
+type Row = { id: string; name: string; identifier: string; modules: AdminModuleId[]; status: MemberStatus; secret: string | null; must_change: boolean; created_at: string | Date; last_seen: string | Date | null; password_changed_at: string | Date | null };
+const iso = (d: string | Date | null) => (d ? new Date(d).toISOString() : undefined);
+const fromRow = (r: Row): StoredMember => ({ id: r.id, name: r.name, identifier: r.identifier, modules: r.modules, status: r.status, secret: r.secret ?? undefined, mustChange: r.must_change, createdAt: iso(r.created_at)!, lastSeen: iso(r.last_seen), passwordChangedAt: iso(r.password_changed_at) });
+
+export async function readTeam(): Promise<StoredMember[]> {
+  const rows = (await db()`select * from team_members order by created_at`) as Row[];
+  return rows.map(fromRow);
+}
+
+async function upsert(m: StoredMember) {
+  await db()`insert into team_members (id, name, identifier, modules, status, secret, must_change, created_at, last_seen, password_changed_at)
+    values (${m.id}, ${m.name}, ${m.identifier}, ${JSON.stringify(m.modules)}, ${m.status}, ${m.secret ?? null}, ${m.mustChange}, ${m.createdAt}, ${m.lastSeen ?? null}, ${m.passwordChangedAt ?? null})
+    on conflict (id) do update set name = excluded.name, identifier = excluded.identifier, modules = excluded.modules, status = excluded.status,
+      secret = excluded.secret, must_change = excluded.must_change, last_seen = excluded.last_seen, password_changed_at = excluded.password_changed_at`;
 }
 
 let queue: Promise<unknown> = Promise.resolve();
 
-export async function readTeam(): Promise<StoredMember[]> {
-  try {
-    return JSON.parse(await fs.readFile(FILE, "utf8")) as StoredMember[];
-  } catch {
-    const list = seed();
-    // en ligne sans base de données, l'écriture est impossible : on garde la liste en mémoire
-    await writeTeam(list).catch(() => undefined);
-    return list;
-  }
-}
-
-async function writeTeam(list: StoredMember[]) {
-  await fs.mkdir(path.dirname(FILE), { recursive: true });
-  const tmp = `${FILE}.${process.pid}.tmp`;
-  await fs.writeFile(tmp, JSON.stringify(list, null, 2), "utf8");
-  await fs.rename(tmp, FILE);
-}
-
-/** Modification atomique (une seule écriture à la fois). */
+/** Modification de l'équipe : on lit, on applique, puis on enregistre ce qui a changé (une seule à la fois). */
 export function updateTeam<T>(fn: (list: StoredMember[]) => T | Promise<T>): Promise<T> {
   const run = queue.then(async () => {
     const list = await readTeam();
+    const before = new Map(list.map((m) => [m.id, JSON.stringify(m)]));
     const out = await fn(list);
-    await writeTeam(list);
+    const ids = new Set(list.map((m) => m.id));
+    for (const id of before.keys()) if (!ids.has(id)) await db()`delete from team_members where id = ${id}`;
+    for (const m of list) if (before.get(m.id) !== JSON.stringify(m)) await upsert(m);
     return out;
   });
   queue = run.catch(() => undefined);

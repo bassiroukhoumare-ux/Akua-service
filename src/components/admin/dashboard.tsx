@@ -3,7 +3,7 @@
 import { ArrowRight, Eye, Globe2, Heart, MessageCircle, Package, PanelsTopLeft, ShoppingBag, Star, TicketPercent, UserPlus, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Flag } from "@/components/ui/flag";
 import { ADMIN_BASE } from "@/config/admin";
 import { DEMO_REVIEW_ITEMS, DEMO_SAVED_CARTS, DEMO_TOP_FAVORITES, timeAgo } from "@/lib/admin/demo";
@@ -72,6 +72,10 @@ export function Dashboard() {
   const members = useTeamMembers();
   const realCarts = useSavedCarts((s) => s.carts);
   const realReviews = useReviews((s) => s.reviews);
+  useEffect(() => {
+    void useReviews.getState().load(true);
+    void useSavedCarts.getState().load();
+  }, []);
   const products = useAdminCatalog((s) => s.products);
 
   const { from, to } = periodBounds(period);

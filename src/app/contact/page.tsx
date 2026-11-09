@@ -5,21 +5,30 @@ import { OpenStatus } from "@/components/shop/open-status";
 import { WhatsAppContactButton } from "@/components/shop/whatsapp-contact-dialog";
 import { PageHero } from "@/components/ui/page-hero";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
-import { ADDRESS, FACEBOOK_URL, MAPS_DIRECTIONS_URL, MAPS_EMBED_URL, MAPS_URL, OPENING_SCHEDULE, SHOP_COORDS, SITE_NAME, SITE_URL, WHATSAPP_DISPLAY } from "@/config/site";
+import { SITE_NAME, SITE_URL } from "@/config/site";
+import { loadSettings } from "@/lib/catalog";
+import { mapsDirectionsUrl, mapsEmbedUrl, summarizeHours } from "@/lib/shop-settings";
 import { btn } from "@/lib/btn";
 
 export const metadata: Metadata = { title: "Contact", description: "Contactez AKUA Service sur WhatsApp : notre équipe vous répond rapidement." };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const s = await loadSettings();
+  const ADDRESS = s.address;
+  const MAPS_URL = s.mapsLink;
+  const WHATSAPP_DISPLAY = s.whatsapp;
+  const MAPS_EMBED_URL = mapsEmbedUrl(s.lat, s.lng);
+  const MAPS_DIRECTIONS_URL = mapsDirectionsUrl(s.lat, s.lng);
+  const OPENING_SCHEDULE = summarizeHours(s.hours);
   const org = {
     "@context": "https://schema.org",
     "@type": "Store",
     name: SITE_NAME,
     url: SITE_URL,
-    sameAs: [FACEBOOK_URL],
+    sameAs: s.socials.filter((x) => x.url).map((x) => x.url),
     openingHours: "Mo-Sa 10:00-20:00",
     hasMap: MAPS_URL,
-    geo: { "@type": "GeoCoordinates", latitude: SHOP_COORDS.lat, longitude: SHOP_COORDS.lng },
+    geo: { "@type": "GeoCoordinates", latitude: s.lat, longitude: s.lng },
   };
   return (
     <div className="pb-4">

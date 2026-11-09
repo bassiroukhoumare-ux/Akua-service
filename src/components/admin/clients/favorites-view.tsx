@@ -3,14 +3,13 @@
 import { BadgePercent, Heart, Info, Pencil } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DEMO_TOP_FAVORITES } from "@/lib/admin/demo";
 import { btn } from "@/lib/btn";
 import { discountPercent, formatFCFA } from "@/lib/format";
 import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
 import { useAdminCatalog } from "@/store/admin-catalog";
-import { useFavorites } from "@/store/favorites";
 import { useAdmin } from "../actor-context";
 import { DemoChip, DemoNotice, PageHeader } from "../ui";
 
@@ -25,18 +24,25 @@ const STOCK: Record<string, { label: string; tone: string }> = {
 export function FavoritesView() {
   const hydrated = useHydrated();
   const { base } = useAdmin();
-  const local = useFavorites((s) => s.ids);
   const products = useAdminCatalog((s) => s.products);
+  // nombre de visiteurs qui ont ajouté chaque produit à leurs favoris (base de données)
+  const [counted, setCounted] = useState<Record<string, number>>({});
+  useEffect(() => {
+    fetch(`${base}/api/clients/favoris`, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : {}))
+      .then(setCounted)
+      .catch(() => {});
+  }, [base]);
 
   const rows = useMemo(() => {
     const counts = new Map<string, { demo: number; local: number }>();
     for (const f of DEMO_TOP_FAVORITES) counts.set(f.product.id, { demo: f.count, local: 0 });
-    if (hydrated) for (const id of local) counts.set(id, { demo: counts.get(id)?.demo ?? 0, local: 1 });
+    for (const [id, n] of Object.entries(counted)) counts.set(id, { demo: counts.get(id)?.demo ?? 0, local: n });
     return [...counts.entries()]
       .map(([id, c]) => ({ product: products.find((p) => p.id === id), ...c, total: c.demo + c.local }))
       .filter((r): r is typeof r & { product: NonNullable<typeof r.product> } => !!r.product)
       .sort((a, b) => b.total - a.total);
-  }, [products, local, hydrated]);
+  }, [products, counted]);
 
   const total = rows.reduce((s, r) => s + r.total, 0);
   const max = Math.max(1, ...rows.map((r) => r.total));

@@ -1,4 +1,6 @@
-import { categories } from "@/data/categories";
+"use client";
+
+import { useCatalog } from "@/components/catalog-provider";
 import { getCategoryIcon, ICON_STROKE } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +20,7 @@ export function ProductImagePlaceholder({
   tone = "light",
   showName = true,
 }: ProductImagePlaceholderProps) {
+  const { categories } = useCatalog();
   const category = categories.find((c) => c.id === categoryId);
   const Icon = getCategoryIcon(category?.icon);
   const dark = tone === "dark";

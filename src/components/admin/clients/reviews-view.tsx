@@ -3,7 +3,7 @@
 import { Eye, EyeOff, Mail, MessageSquareText, Search, Star, Trash2, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { DEMO_REVIEW_ITEMS } from "@/lib/admin/demo";
 import { useHydrated } from "@/lib/use-hydrated";
@@ -33,6 +33,7 @@ export function ReviewsView() {
   const real = useReviews((s) => s.reviews);
   const setStatus = useReviews((s) => s.setStatus);
   const remove = useReviews((s) => s.removeReview);
+  useEffect(() => void useReviews.getState().load(true), []);
   const products = useAdminCatalog((s) => s.products);
   const [tab, setTab] = useState<Tab>("all");
   const [stars, setStars] = useState<number | null>(null);

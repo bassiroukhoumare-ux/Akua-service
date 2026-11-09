@@ -1,0 +1,14 @@
+import { clientsDelete, clientsGet, clientsPatch } from "@/lib/admin/clients-handler";
+
+export const dynamic = "force-dynamic";
+type Ctx = { params: Promise<{ kind: string }> };
+
+export async function GET(_req: Request, { params }: Ctx) {
+  return clientsGet("owner", (await params).kind);
+}
+export async function PATCH(req: Request, { params }: Ctx) {
+  return clientsPatch("owner", (await params).kind, req);
+}
+export async function DELETE(req: Request, { params }: Ctx) {
+  return clientsDelete("owner", (await params).kind, req);
+}

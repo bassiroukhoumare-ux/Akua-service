@@ -7,7 +7,8 @@ import { classifySource, type SourceId } from "@/lib/analytics/sources";
 const SESSION_IDLE = 30 * 60_000;
 const rid = () => Math.random().toString(36).slice(2, 12) + Date.now().toString(36);
 
-function visitorId() {
+/** Identifiant anonyme du visiteur (aléatoire, gardé dans ce navigateur). */
+export function visitorId() {
   try {
     let id = localStorage.getItem("akua-vid");
     if (!id || !/^[a-z0-9]{8,32}$/.test(id)) {

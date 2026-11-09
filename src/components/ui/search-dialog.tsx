@@ -6,8 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { categories } from "@/data/categories";
-import { products } from "@/data/products";
+import { useCatalog } from "@/components/catalog-provider";
 import { formatFCFA } from "@/lib/format";
 import { getCategoryIcon } from "@/lib/icons";
 import { cn } from "@/lib/utils";
@@ -38,6 +37,7 @@ const label = "text-[11px] font-bold tracking-[0.14em] text-akua-gray-500 upperc
  * Mobile : panneau compact en haut de l'écran. Ordinateur : panneau centré sous l'en-tête.
  */
 export function SearchDialog() {
+  const { products, categories } = useCatalog();
   const open = useUI((s) => s.searchOpen);
   const setOpen = useUI((s) => s.setSearchOpen);
   const [q, setQ] = useState("");
@@ -47,7 +47,7 @@ export function SearchDialog() {
     const n = norm(q.trim());
     if (!n) return [];
     return products.filter((p) => norm(`${p.name} ${p.shortDescription} ${p.platforms.join(" ")}`).includes(n));
-  }, [q]);
+  }, [q, products]);
   const shown = results.slice(0, 6);
 
   const close = () => {

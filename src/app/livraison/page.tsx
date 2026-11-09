@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { IconTile } from "@/components/ui/icon-tile";
 import { PageHero } from "@/components/ui/page-hero";
-import { DELIVERY_COUNTRIES } from "@/config/site";
+import { loadSettings } from "@/lib/catalog";
 
 export const metadata: Metadata = { title: "Livraison et garantie", description: "Livraison disponible au Togo et dans la sous-région. Produits testés et garantis." };
 
@@ -15,7 +15,8 @@ const FAQ = [
   { q: "Puis-je acheter en gros ?", a: "Oui, nous proposons des tarifs dégressifs aux revendeurs et salles de jeux. Utilisez le formulaire de la page Vente en gros." },
 ];
 
-export default function DeliveryPage() {
+export default async function DeliveryPage() {
+  const DELIVERY_COUNTRIES = (await loadSettings()).delivery.filter((c) => c.enabled);
   return (
     <div className="pb-16">
       <PageHero word="Livraison" icon={Truck} eyebrow="Livraison et garantie" title="Livraison au Togo et dans la sous-région" text="Commande confirmée sur WhatsApp, livraison rapide et produits garantis." />

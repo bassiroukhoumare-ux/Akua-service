@@ -8,15 +8,14 @@ import { ProductGallery, PurchaseBox } from "@/components/product/product-purcha
 import { ProductRating } from "@/components/product/rating-stars";
 import { ReviewsSection } from "@/components/product/reviews-section";
 import { SITE_NAME, SITE_URL } from "@/config/site";
-import { products as allProducts } from "@/data/products";
-import { getCategoryById, getProductBySlug, getRelatedProducts, PLATFORM_LABELS } from "@/lib/catalog";
+import { getCategoryById, getProductBySlug, getRelatedProducts, loadCatalog, PLATFORM_LABELS } from "@/lib/catalog";
 import { CONDITION_LABEL, discountPercent, formatFCFA, PACKAGING_LABEL } from "@/lib/format";
 import { getCategoryIcon } from "@/lib/icons";
 
 type Props = { params: Promise<{ slug: string }> };
 
-export function generateStaticParams() {
-  return allProducts.map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  return (await loadCatalog()).products.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -30,7 +29,7 @@ const STOCK_LABEL = { en_stock: "En stock", stock_faible: "Stock limité", ruptu
 export default async function ProductPage({ params }: Props) {
   const product = await getProductBySlug((await params).slug);
   if (!product) notFound();
-  const [category, related] = await Promise.all([getCategoryById(product.categoryId), getRelatedProducts(product)]);
+  const [category, related, { products: allProducts }] = await Promise.all([getCategoryById(product.categoryId), getRelatedProducts(product), loadCatalog()]);
   const pct = discountPercent(product.price, product.compareAtPrice);
   const CatIcon = getCategoryIcon(category?.icon);
   const isNew = product.condition === "neuf";

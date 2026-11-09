@@ -4,6 +4,8 @@
 // Comme le catalogue, ces réglages sont gardés dans ce navigateur en attendant la base de données.
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { serverStorage } from "@/lib/server-storage";
+import { dealEnd } from "@/lib/deals";
 import { HOME_BANNER, HOME_VISUAL } from "@/config/home-visual";
 import { PROMO_VIDEO_CARDS } from "@/config/promo-video";
 import { products } from "@/data/products";
@@ -156,24 +158,11 @@ export const useAdminHome = create<AdminHome>()(
         log(actor, "update", "deals", "Offre spéciale", detail);
       },
     }),
-    { name: "akua-admin-home", version: 1 },
+    { name: "akua-admin-home", version: 1, storage: serverStorage },
   ),
 );
 
 /* --------------------------------------------------------- compte à rebours */
 
 /** Date de fin de l'offre en cours (gère « minuit » et la relance automatique). */
-export function dealEnd(d: Pick<DealsConfig, "mode" | "hours" | "startedAt" | "repeat">, now = new Date()): Date | null {
-  if (d.mode === "midnight") {
-    const end = new Date(now);
-    end.setHours(24, 0, 0, 0);
-    return end;
-  }
-  const start = new Date(d.startedAt).getTime();
-  const len = Math.max(1, d.hours) * 3600_000;
-  if (Number.isNaN(start)) return null;
-  if (now.getTime() < start + len) return new Date(start + len);
-  if (!d.repeat) return null; // terminée
-  const cycles = Math.floor((now.getTime() - start) / len) + 1;
-  return new Date(start + cycles * len);
-}
+export { dealEnd };

@@ -29,7 +29,9 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { deliveryCountryOptions } from "@/components/ui/country-options";
 import { SearchSelect } from "@/components/ui/search-select";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
-import { ADDRESS, DELIVERY_COUNTRIES, MAPS_URL, OPENING_HOURS } from "@/config/site";
+import { DELIVERY_COUNTRIES } from "@/config/site";
+import { useShopSettings } from "@/components/shop-settings-provider";
+import { summarizeHours } from "@/lib/shop-settings";
 import { categories } from "@/data/categories";
 import { CITIES } from "@/data/cities";
 import { products } from "@/data/products";
@@ -178,6 +180,7 @@ function Line({ item }: { item: CartItem }) {
 /* --------------------------------------------------------------- main view */
 
 export function CheckoutView() {
+  const shop = useShopSettings();
   const hydrated = useHydrated();
   const items = useCart((s) => s.items);
   const count = useCart(selectCount);
@@ -200,7 +203,7 @@ export function CheckoutView() {
   const [cartSaved, setCartSaved] = useState(false);
 
   /** « Enregistrer mon panier » : nom + WhatsApp suffisent, l'équipe peut recontacter le client */
-  function saveForLater() {
+  async function saveForLater() {
     const e: Errors = {};
     if (draft.name.trim().length < 2) e.name = "Indiquez votre nom complet.";
     if (draft.phone.replace(/\D/g, "").length < 8) e.phone = "Numéro WhatsApp invalide (8 chiffres minimum).";
@@ -210,7 +213,7 @@ export function CheckoutView() {
       document.getElementById(`f-${Object.keys(e)[0]}`)?.focus();
       return;
     }
-    saveCart({
+    const ok = await saveCart({
       name: draft.name.trim(),
       phone: draft.phone.trim(),
       email: draft.email.trim() || undefined,
@@ -220,11 +223,12 @@ export function CheckoutView() {
       subtotal,
       promoCode: promo?.code,
     });
-    setCartSaved(true);
+    if (ok) setCartSaved(true);
+    else setErrors((x) => ({ ...x, phone: "Le panier n'a pas pu être enregistré. Vérifiez votre connexion et réessayez." }));
   }
   const [done, setDone] = useState<{ ref: string; link: string; mode: CheckoutDraft["mode"] } | null>(null);
 
-  // codes gérés depuis l'espace administrateur (pour l'instant : ceux enregistrés dans ce navigateur)
+  // codes gérés depuis l'espace administrateur (base de données)
   const promoCodes = useAdminPromos((s) => s.codes);
   const promo = useMemo(() => {
     const p = promoCodes.find((x) => x.code === draft.promoCode);
@@ -487,11 +491,11 @@ export function CheckoutView() {
                   <div className="flex items-start gap-3 rounded-2xl bg-akua-tile p-4 text-[13.5px]">
                     <Store aria-hidden className="mt-0.5 size-5 shrink-0 text-akua-blue" strokeWidth={1.75} />
                     <p>
-                      <span className="font-semibold text-akua-ink">AKUA Service</span> · {ADDRESS}
+                      <span className="font-semibold text-akua-ink">{shop.name}</span> · {shop.address}
                       <br />
-                      <span className="text-akua-gray-500">Horaires : {OPENING_HOURS}</span>
+                      <span className="text-akua-gray-500">Horaires : {summarizeHours(shop.hours).map((h) => `${h.days} : ${h.hours}`).join(" · ")}</span>
                       <br />
-                      <a href={MAPS_URL} target="_blank" rel="noopener" className="mt-1.5 inline-flex items-center gap-1.5 font-semibold text-akua-blue hover:underline">
+                      <a href={shop.mapsLink} target="_blank" rel="noopener" className="mt-1.5 inline-flex items-center gap-1.5 font-semibold text-akua-blue hover:underline">
                         <MapPin aria-hidden className="size-4" strokeWidth={1.8} /> Voir sur Google Maps
                       </a>
                     </p>

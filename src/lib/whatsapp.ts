@@ -38,8 +38,16 @@ export interface CheckoutOrder {
 
 const siteHost = SITE_URL.replace(/^https?:\/\//, "");
 
+// numéro réglé dans l'admin (Paramètres > WhatsApp), appliqué au chargement du site
+let number: string = WHATSAPP_NUMBER;
+export function setWhatsAppNumber(display: string) {
+  const d = display.replace(/\D/g, "");
+  if (d.length >= 8) number = d;
+}
+export const whatsAppNumber = () => number;
+
 export function waLink(text: string): string {
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+  return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
 }
 
 export function buildOrderMessage(cart: WhatsAppLine[], customer: WhatsAppCustomer = {}): string {

@@ -1,9 +1,10 @@
 "use client";
 
 import { Star } from "lucide-react";
+import { useEffect } from "react";
 import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
-import { summarize, useReviews } from "@/store/reviews";
+import { ensureReviews, summarize, useReviews } from "@/store/reviews";
 
 /** Étoiles (remplissage partiel) pour une note sur 5. */
 export function Stars({ value, size = "size-3.5", className }: { value: number; size?: string; className?: string }) {
@@ -28,6 +29,7 @@ export function Stars({ value, size = "size-3.5", className }: { value: number; 
 export function ProductRating({ productId, className, size = "size-3.5" }: { productId: string; className?: string; size?: string }) {
   const hydrated = useHydrated();
   const reviews = useReviews((s) => s.reviews);
+  useEffect(() => ensureReviews(), []);
   const { average, count } = summarize(hydrated ? reviews : [], productId);
   return (
     <span className={cn("inline-flex items-center gap-1.5 text-[12.5px] text-akua-gray-500", className)} aria-label={count ? `Note ${average.toFixed(1)} sur 5, ${count} avis` : "Aucun avis pour le moment"}>

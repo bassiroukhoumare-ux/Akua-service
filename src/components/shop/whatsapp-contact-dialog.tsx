@@ -6,7 +6,7 @@ import { allCountryOptions } from "@/components/ui/country-options";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { SearchSelect } from "@/components/ui/search-select";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
-import { WHATSAPP_DISPLAY } from "@/config/site";
+import { useShopSettings } from "@/components/shop-settings-provider";
 import { btn } from "@/lib/btn";
 import { cn } from "@/lib/utils";
 import { buildContactLink } from "@/lib/whatsapp";
@@ -68,6 +68,7 @@ export function WhatsAppContactButton({
   "aria-label"?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const { whatsapp } = useShopSettings();
   const [f, setF] = useState<Form>(EMPTY);
   const [errors, setErrors] = useState<Errors>({});
 
@@ -128,7 +129,7 @@ export function WhatsAppContactButton({
             </span>
             <div className="min-w-0 flex-1 pr-8">
               <DialogTitle className="text-[19px] leading-tight font-extrabold tracking-[-0.02em] sm:text-[21px]">Écrivez-nous sur WhatsApp</DialogTitle>
-              <DialogDescription className="mt-1 text-[13.5px] text-akua-white/85">Votre message sera envoyé au {WHATSAPP_DISPLAY}. Nous vous répondons dans les meilleurs délais.</DialogDescription>
+              <DialogDescription className="mt-1 text-[13.5px] text-akua-white/85">Votre message sera envoyé au {whatsapp}. Nous vous répondons dans les meilleurs délais.</DialogDescription>
             </div>
             <button
               type="button"

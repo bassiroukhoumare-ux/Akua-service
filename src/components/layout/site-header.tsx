@@ -9,8 +9,7 @@ import { useEffect, useState } from "react";
 import { Logo } from "@/components/ui/logo";
 import { primeKeyboard } from "@/components/ui/search-dialog";
 import { TopBanner } from "./top-banner";
-import { categories } from "@/data/categories";
-import { products } from "@/data/products";
+import { useCatalog } from "@/components/catalog-provider";
 import { btn } from "@/lib/btn";
 import { discountPercent, formatFCFA } from "@/lib/format";
 import { getCategoryIcon } from "@/lib/icons";
@@ -69,6 +68,7 @@ function MenuFooter({ href, label, onClose }: { href: string; label: string; onC
 }
 
 function MegaMenu({ onClose }: { onClose: () => void }) {
+  const { products, categories } = useCatalog();
   const quick = [
     { href: "/boutique?tri=nouveautes", icon: Newspaper, t: "Nouveautés" },
     { href: "/boutique/promos", icon: Percent, t: "Promotions" },
@@ -134,6 +134,7 @@ function MegaMenu({ onClose }: { onClose: () => void }) {
 }
 
 function OffersMenu({ onClose }: { onClose: () => void }) {
+  const { products } = useCatalog();
   const promos = products.filter((p) => p.compareAtPrice).slice(0, 4);
   const best = Math.max(0, ...products.map((p) => discountPercent(p.price, p.compareAtPrice) ?? 0));
   const offers = [

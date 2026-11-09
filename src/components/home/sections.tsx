@@ -18,6 +18,7 @@ import { WhatsAppContactButton } from "@/components/shop/whatsapp-contact-dialog
 import { PromoVideo } from "./promo-video";
 import { PROMO_VIDEO_CARDS } from "@/config/promo-video";
 import { PromoTimer } from "./promo-timer";
+import { dealEnd, type DealTiming } from "@/lib/deals";
 import { SectionHeading } from "./section-heading";
 
 export { SectionHeading };
@@ -47,7 +48,26 @@ export function PlatformMarquee() {
 
 /* ------------------------------------------------------------------ rayons */
 
-export function CategoryRail({ categories }: { categories: Category[]; products?: Product[] }) {
+/** Visuel de l'accueil (affiche ou bannière) choisi dans l'admin. */
+export interface HomeSlot {
+  src: string;
+  alt: string;
+  href: string | null;
+}
+
+function SlotLink({ slot, className, style, children, label }: { slot: HomeSlot; className: string; style?: React.CSSProperties; children: React.ReactNode; label?: string }) {
+  if (!slot.href) return <div className={className} style={style}>{children}</div>;
+  const external = /^https?:\/\//.test(slot.href);
+  return (
+    <Link href={slot.href} aria-label={label} style={style} className={className} {...(external ? { target: "_blank", rel: "noopener" } : {})}>
+      {children}
+    </Link>
+  );
+}
+
+export function CategoryRail({ categories, poster, banner }: { categories: Category[]; products?: Product[]; poster?: HomeSlot | null; banner?: HomeSlot | null }) {
+  const p = poster ?? { src: HOME_VISUAL.src, alt: HOME_VISUAL.alt, href: HOME_VISUAL.href };
+  const b = banner ?? { src: HOME_BANNER.src, alt: HOME_BANNER.alt, href: HOME_BANNER.href };
   return (
     <section id="categories" aria-labelledby="rayons" className="container-akua scroll-mt-[120px] pt-5 md:scroll-mt-28 md:pt-10">
       <div className="flex items-end justify-between gap-4">
@@ -85,35 +105,35 @@ export function CategoryRail({ categories }: { categories: Category[]; products?
           </ul>
         </nav>
 
-        <Link
-          href={HOME_VISUAL.href}
+        <SlotLink
+          slot={p}
           style={{ aspectRatio: `${HOME_VISUAL.width} / ${HOME_VISUAL.height}` }}
           className="group relative order-3 block overflow-hidden rounded-[24px] bg-akua-page md:order-none md:col-start-2 md:row-start-1 lg:row-span-2"
         >
           <Image
-            src={HOME_VISUAL.src}
-            alt={HOME_VISUAL.alt}
+            src={p.src}
+            alt={p.alt}
             fill
             priority
             sizes="(min-width:1024px) 340px, (min-width:768px) 260px, 100vw"
             className="object-contain transition-transform duration-700 ease-akua group-hover:scale-[1.03]"
           />
-        </Link>
+        </SlotLink>
 
-        <Link
-          href={HOME_BANNER.href}
-          aria-label={HOME_BANNER.alt}
+        <SlotLink
+          slot={b}
+          label={b.alt}
           className="group relative order-2 block aspect-[3/1] overflow-hidden rounded-[24px] bg-akua-page md:order-none md:col-span-2 md:row-start-2 lg:col-span-1 lg:col-start-1 lg:aspect-auto"
         >
           <Image
-            src={HOME_BANNER.src}
-            alt={HOME_BANNER.alt}
+            src={b.src}
+            alt={b.alt}
             fill
             sizes="(min-width:1024px) 900px, 100vw"
             priority
             className="object-cover transition-transform duration-700 ease-akua group-hover:scale-[1.02]"
           />
-        </Link>
+        </SlotLink>
       </div>
     </section>
   );
@@ -121,7 +141,18 @@ export function CategoryRail({ categories }: { categories: Category[]; products?
 
 /* --------------------------------------------------------------- offre spéciale */
 
-export function DealsSection({ deals }: { deals: Product[] }) {
+/** Textes, durée et vidéos de l'offre spéciale réglés dans l'admin. */
+export interface DealsSettings extends DealTiming {
+  enabled: boolean;
+  title: string;
+  highlight: string;
+  text: string;
+  videos: [string[], string[]];
+}
+
+export function DealsSection({ deals, config }: { deals: Product[]; config?: DealsSettings | null }) {
+  if (config && (!config.enabled || !dealEnd(config))) return null;
+  const videoCards = config ? config.videos.filter((v) => v.length) : PROMO_VIDEO_CARDS;
   // les 4 dernières promotions ajoutées
   const promo = deals
     .filter((p) => p.compareAtPrice)
@@ -134,18 +165,18 @@ export function DealsSection({ deals }: { deals: Product[] }) {
         <div className="flex flex-col items-center gap-5 text-center md:flex-row md:items-end md:justify-between md:gap-6 md:text-left">
           <div>
             <h2 id="promo" className="text-[34px] leading-[1.02] font-extrabold tracking-[-0.04em] md:text-[54px]">
-              Offre spéciale
+              {config?.title ?? "Offre spéciale"}
               <br />
-              <span className="text-akua-blue">jusqu&apos;à minuit</span>
+              <span className="text-akua-blue">{config?.highlight ?? "jusqu'à minuit"}</span>
             </h2>
-            <p className="mx-auto mt-3 max-w-md text-[14.5px] text-akua-gray-500 md:mx-0">Promotions exclusives, en quantité limitée. Les prix reviennent à la normale à la fin du compte à rebours.</p>
+            <p className="mx-auto mt-3 max-w-md text-[14.5px] text-akua-gray-500 md:mx-0">{config?.text ?? "Promotions exclusives, en quantité limitée. Les prix reviennent à la normale à la fin du compte à rebours."}</p>
           </div>
-          <PromoTimer />
+          <PromoTimer timing={config ? { mode: config.mode, hours: config.hours, startedAt: config.startedAt, repeat: config.repeat } : undefined} />
         </div>
         {/* Mobile et tablette : les 2 vidéos côte à côte, puis 2 × 2 produits.
             Ordinateur : 5 colonnes égales, vidéo | 3 produits | vidéo (même hauteur que les cartes). */}
         <div className="mt-8 grid grid-cols-2 gap-2.5 md:gap-4 lg:grid-cols-5">
-          {PROMO_VIDEO_CARDS.map((videos, i) => (
+          {videoCards.map((videos, i) => (
             <PromoVideo
               key={i}
               videos={videos}
@@ -211,11 +242,11 @@ export function PackCard({ product, featured }: { product: Product; featured?: b
   );
 }
 
-export function PacksSection({ packs }: { packs: Product[] }) {
+export function PacksSection({ packs, eyebrow = "Consoles complètes", title = "Packs prêts à jouer" }: { packs: Product[]; eyebrow?: string; title?: string }) {
   return (
     <section aria-labelledby="packs" className="pt-14 md:pt-20">
       <Reveal className="container-akua">
-        <SectionHeading index="03" eyebrow="Consoles complètes" centerMobile title={<span id="packs">Packs prêts à jouer</span>}>
+        <SectionHeading index="03" eyebrow={eyebrow} centerMobile title={<span id="packs">{title}</span>}>
           <Link href="/packs" className={btn({ variant: "outline", size: "md" })}>
             Tous les packs <ArrowRight aria-hidden className="size-4" />
           </Link>
@@ -285,13 +316,13 @@ const FAQ = [
   { q: "Livrez-vous hors du Togo ?", a: "Oui, nous livrons dans les pays de la sous-région : Bénin, Ghana, Burkina Faso, Côte d'Ivoire, Niger et Mali. Les frais sont confirmés sur WhatsApp." },
 ];
 
-export function FaqCta() {
+export function FaqCta({ eyebrow = "Questions fréquentes", title = "On vous répond." }: { eyebrow?: string; title?: string }) {
   return (
     <section aria-labelledby="faq" className="container-akua pt-14 md:pt-20">
       <div className="grid gap-4 lg:grid-cols-[1.25fr_1fr]">
         <Reveal>
           <div className="h-full rounded-[30px] border border-akua-gray-200 p-6 md:p-9">
-            <SectionHeading index="04" eyebrow="Questions fréquentes" title={<span id="faq">On vous répond.</span>} />
+            <SectionHeading index="04" eyebrow={eyebrow} title={<span id="faq">{title}</span>} />
             <Accordion type="single" collapsible className="mt-5">
               {FAQ.map((f, i) => (
                 <AccordionItem key={f.q} value={`f${i}`}>

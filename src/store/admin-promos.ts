@@ -5,6 +5,7 @@
 // navigateur accepte déjà ces codes, et la bannière s'affiche sur le site.
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { serverStorage } from "@/lib/server-storage";
 import { type PromoCode, promoCodes as seed } from "@/data/promo-codes";
 import { formatFCFA } from "@/lib/format";
 import { type Actor, type StoredActivity, useAdminCatalog } from "./admin-catalog";
@@ -85,7 +86,7 @@ export const useAdminPromos = create<AdminPromos>()(
         log(actor, a.enabled ? "publish" : "update", "Bannière d'annonce", a.enabled ? "affichée" : "masquée");
       },
     }),
-    { name: "akua-admin-promos", version: 1 },
+    { name: "akua-admin-promos", version: 1, storage: serverStorage },
   ),
 );
 

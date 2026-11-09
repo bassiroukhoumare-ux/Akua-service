@@ -2,13 +2,13 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, MessageSquarePlus, Star } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { allCountryOptions } from "@/components/ui/country-options";
 import { SearchSelect } from "@/components/ui/search-select";
 import { btn } from "@/lib/btn";
 import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
-import { summarize, useReviews } from "@/store/reviews";
+import { ensureReviews, summarize, useReviews } from "@/store/reviews";
 import type { Review } from "@/types/catalog";
 import { Stars } from "./rating-stars";
 
@@ -72,13 +72,16 @@ export function ReviewsSection({ productId, productName }: { productId: string; 
   const [open, setOpen] = useState(false);
   const [done, setDone] = useState(false);
   const [hover, setHover] = useState(0);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState("");
+  useEffect(() => ensureReviews(), []);
 
   const up = (k: keyof Form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm((f) => ({ ...f, [k]: e.target.value }));
     if (errors[k]) setErrors((x) => ({ ...x, [k]: undefined }));
   };
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     const errs = validate(form);
     setErrors(errs);
@@ -87,7 +90,10 @@ export function ReviewsSection({ productId, productName }: { productId: string; 
       document.getElementById(`rv-${first}`)?.focus();
       return;
     }
-    addReview({
+    setSending(true);
+    setSendError("");
+    try {
+      await addReview({
       productId,
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
@@ -95,7 +101,13 @@ export function ReviewsSection({ productId, productName }: { productId: string; 
       email: form.email.trim(),
       rating: form.rating as Review["rating"],
       comment: form.comment.trim(),
-    });
+      });
+    } catch {
+      setSending(false);
+      setSendError("Votre avis n'a pas pu être envoyé. Vérifiez votre connexion et réessayez.");
+      return;
+    }
+    setSending(false);
     setForm(EMPTY);
     setOpen(false);
     setDone(true);
@@ -240,9 +252,14 @@ export function ReviewsSection({ productId, productName }: { productId: string; 
                       {errors.comment && <span className="mt-1 block text-[12.5px] font-medium text-akua-red">{errors.comment}</span>}
                     </label>
                   </div>
+                  {sendError && (
+                    <p role="alert" className="mt-4 rounded-2xl bg-akua-red/8 px-4 py-3 text-[13.5px] font-medium text-akua-red">
+                      {sendError}
+                    </p>
+                  )}
                   <div className="mt-5 flex flex-wrap gap-2.5">
-                    <button type="submit" className={btn({ variant: "primary", size: "lg" })}>
-                      Publier mon avis
+                    <button type="submit" disabled={sending} className={btn({ variant: "primary", size: "lg" })}>
+                      {sending ? "Envoi…" : "Publier mon avis"}
                     </button>
                     <button type="button" onClick={() => setOpen(false)} className={btn({ variant: "outline", size: "lg" })}>
                       Annuler

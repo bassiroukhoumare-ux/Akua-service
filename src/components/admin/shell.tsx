@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, ChevronDown, KeyRound, LogOut, Menu, X } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, Check, ChevronDown, KeyRound, Loader2, LogOut, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import type { Actor } from "@/store/admin-catalog";
 import { AdminProvider } from "./actor-context";
 import { PageTransition } from "./page-transition";
+import { useSaveState, useStoresReady } from "./use-stores-ready";
 
 const TODAY = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" });
 
@@ -141,6 +142,31 @@ function UserMenu({ kind, user, compact }: { kind: PortalKind; user: ShellUser; 
   );
 }
 
+/** Indique que les modifications sont bien enregistrées dans la base. */
+function SaveIndicator({ state }: { state: "idle" | "saving" | "error" }) {
+  const [shown, setShown] = useState<"saving" | "saved" | "error" | null>(null);
+  useEffect(() => {
+    if (state === "saving") return setShown("saving");
+    if (state === "error") return setShown("error");
+    setShown((s) => (s === "saving" ? "saved" : s));
+    const t = window.setTimeout(() => setShown((s) => (s === "saved" ? null : s)), 2200);
+    return () => window.clearTimeout(t);
+  }, [state]);
+  if (!shown) return null;
+  return (
+    <span
+      role="status"
+      className={cn(
+        "inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-[12.5px] font-semibold whitespace-nowrap",
+        shown === "error" ? "bg-akua-red/10 text-akua-red" : shown === "saved" ? "bg-akua-whatsapp/12 text-[#128c4a]" : "bg-akua-page text-akua-gray-500",
+      )}
+    >
+      {shown === "saving" ? <Loader2 aria-hidden className="size-3.5 animate-spin" /> : shown === "saved" ? <Check aria-hidden className="size-3.5" strokeWidth={2.6} /> : <AlertTriangle aria-hidden className="size-3.5" />}
+      <span className={cn(shown !== "error" && "hidden sm:inline")}>{shown === "saving" ? "Enregistrement…" : shown === "saved" ? "Enregistré" : "Non enregistré : vérifiez la connexion"}</span>
+    </span>
+  );
+}
+
 /** Cadre de l'espace administrateur : menu latéral (ordinateur), tiroir (mobile), barre du haut. */
 export function AdminShell({ kind, user, actor, allowed, children }: { kind: PortalKind; user: ShellUser; actor: Actor; allowed?: AdminModuleId[]; children: React.ReactNode }) {
   const base = PORTAL_BASE[kind];
@@ -153,7 +179,10 @@ export function AdminShell({ kind, user, actor, allowed, children }: { kind: Por
   const tag = kind === "team" ? "Équipe" : "Admin";
   // l'espace admin (privé) est dessiné dans le navigateur : catalogue local et dates d'exemple
   // ne peuvent pas différer entre le serveur et l'écran
-  const hydrated = useHydrated();
+  const mounted = useHydrated();
+  const storesReady = useStoresReady();
+  const hydrated = mounted && storesReady;
+  const save = useSaveState();
   useEffect(() => setDrawer(false), [path]);
 
   return (
@@ -208,6 +237,7 @@ export function AdminShell({ kind, user, actor, allowed, children }: { kind: Por
               </p>
               <p className="truncate text-[16px] font-bold tracking-[-0.01em] sm:text-[15px]">{current?.label ?? (path.endsWith("/mot-de-passe") ? "Mon mot de passe" : "Tableau de bord")}</p>
             </div>
+            <SaveIndicator state={save} />
             <Link
               href="/"
               target="_blank"

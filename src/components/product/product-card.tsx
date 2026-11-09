@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import { categories } from "@/data/categories";
+import { useCatalog } from "@/components/catalog-provider";
 import { discountPercent, formatFCFA } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/catalog";
@@ -45,6 +47,7 @@ export function CardBadges({ product, className }: { product: Product; className
  * nom, plateformes, note, prix mis en avant et ajout rapide.
  */
 export function ProductCard({ product, className, priority, exclusive, sizes = "(min-width:1024px) 23vw, (min-width:768px) 31vw, 48vw" }: ProductCardProps) {
+  const { categories } = useCatalog();
   const href = `/produit/${product.slug}`;
   const category = categories.find((c) => c.id === product.categoryId);
 

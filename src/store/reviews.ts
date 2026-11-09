@@ -1,35 +1,60 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { seedReviews } from "@/data/reviews";
+import { portal } from "@/lib/server-storage";
 import type { Review } from "@/types/catalog";
 
-// Stockage provisoire des avis (navigateur du visiteur).
-// À remplacer par des appels Supabase : addReview → insert, lecture → select where status = 'publie'.
+// Avis des clients, enregistrés dans la base Neon.
+// Site public : avis publiés uniquement. Espace admin : tous les avis, avec modération.
 interface ReviewsState {
   reviews: Review[];
-  addReview: (r: Omit<Review, "id" | "createdAt" | "status">) => Review;
+  loaded: boolean;
+  load: (force?: boolean) => Promise<void>;
+  addReview: (r: Omit<Review, "id" | "createdAt" | "status">) => Promise<Review>;
   /** modération depuis l'espace administrateur */
-  setStatus: (id: string, status: Review["status"]) => void;
-  removeReview: (id: string) => void;
+  setStatus: (id: string, status: Review["status"]) => Promise<void>;
+  removeReview: (id: string) => Promise<void>;
 }
 
-export const useReviews = create<ReviewsState>()(
-  persist(
-    (set) => ({
-      reviews: seedReviews,
-      addReview: (r) => {
-        const review: Review = { ...r, id: `rev-${Date.now().toString(36)}`, createdAt: new Date().toISOString(), status: "publie" };
-        set((s) => ({ reviews: [review, ...s.reviews] }));
-        return review;
-      },
-      setStatus: (id, status) => set((s) => ({ reviews: s.reviews.map((r) => (r.id === id ? { ...r, status } : r)) })),
-      removeReview: (id) => set((s) => ({ reviews: s.reviews.filter((r) => r.id !== id) })),
-    }),
-    { name: "akua-reviews" },
-  ),
-);
+let loading: Promise<void> | null = null;
+
+export const useReviews = create<ReviewsState>()((set, get) => ({
+  reviews: [],
+  loaded: false,
+  load: (force) => {
+    if (loading && !force) return loading;
+    if (get().loaded && !force) return Promise.resolve();
+    const base = portal();
+    loading = fetch(base ? `${base}/api/clients/avis` : "/api/avis", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((reviews: Review[]) => set({ reviews, loaded: true }))
+      .catch(() => set({ loaded: true }))
+      .finally(() => {
+        loading = null;
+      });
+    return loading;
+  },
+  addReview: async (r) => {
+    const res = await fetch("/api/avis", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(r) });
+    if (!res.ok) throw new Error(((await res.json().catch(() => null)) as { error?: string } | null)?.error ?? "Envoi impossible");
+    const review = (await res.json()) as Review;
+    set((s) => ({ reviews: [review, ...s.reviews] }));
+    return review;
+  },
+  setStatus: async (id, status) => {
+    set((s) => ({ reviews: s.reviews.map((r) => (r.id === id ? { ...r, status } : r)) }));
+    await fetch(`${portal()}/api/clients/avis`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status }) });
+  },
+  removeReview: async (id) => {
+    set((s) => ({ reviews: s.reviews.filter((r) => r.id !== id) }));
+    await fetch(`${portal()}/api/clients/avis?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+  },
+}));
+
+/** Charge les avis une fois (à appeler dans les composants qui les affichent). */
+export function ensureReviews() {
+  if (typeof window !== "undefined") void useReviews.getState().load();
+}
 
 export function summarize(reviews: Review[], productId: string) {
   const list = reviews.filter((r) => r.productId === productId && r.status === "publie");

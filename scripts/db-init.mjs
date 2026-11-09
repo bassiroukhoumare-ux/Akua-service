@@ -17,7 +17,7 @@ await sql`create table if not exists app_state (
 await sql`create table if not exists images (
   id text primary key,
   mime text not null,
-  data bytea not null,
+  b64 text not null,
   created_at timestamptz not null default now()
 )`;
 await sql`create table if not exists team_members (
