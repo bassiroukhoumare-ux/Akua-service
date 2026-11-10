@@ -6,6 +6,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import { ADMIN_GROUPS, ADMIN_MODULES, type AdminModuleId, TEAM_BASE } from "@/config/admin";
+import { allActions, modulesOf, PERMISSIONS, type Perms } from "@/config/permissions";
 import { type MemberStatus, timeAgo } from "@/lib/admin/demo";
 import type { PublicMember } from "@/lib/admin/team-store";
 import { btn } from "@/lib/btn";
@@ -13,18 +14,96 @@ import { cn } from "@/lib/utils";
 import { PageHeader, Panel } from "./ui";
 
 type TeamMember = PublicMember & { owner?: boolean };
-const OWNER_ROW: TeamMember = { id: "owner", name: "Propriétaire AKUA Service", identifier: "Connexion par mot de passe seul", owner: true, modules: [], status: "active", mustChange: false, createdAt: "" };
+const OWNER_ROW: TeamMember = { id: "owner", name: "Propriétaire AKUA Service", identifier: "Connexion par mot de passe seul", owner: true, modules: [], perms: {}, status: "active", mustChange: false, createdAt: "" };
 
 // le tableau de bord est ouvert à tous les équipiers ; l'équipe et l'activité restent réservées au propriétaire
-const RIGHTS = ADMIN_GROUPS.map((g) => ({ ...g, modules: g.modules.filter((m) => m.id !== "dashboard" && !m.ownerOnly) })).filter((g) => g.modules.length);
+const RIGHTS = ADMIN_GROUPS.map((g) => ({ ...g, modules: g.modules.filter((m) => m.id !== "dashboard" && !m.ownerOnly && PERMISSIONS[m.id]) })).filter((g) => g.modules.length);
 const ALL: AdminModuleId[] = RIGHTS.flatMap((g) => g.modules.map((m) => m.id));
+const full = (ms: AdminModuleId[]): Perms => Object.fromEntries(ms.map((m) => [m, allActions(m)]));
 
-const PRESETS: { label: string; modules: AdminModuleId[] }[] = [
-  { label: "Catalogue", modules: ["products", "categories"] },
-  { label: "Vitrine et promos", modules: ["home", "deals", "promos"] },
-  { label: "Service client", modules: ["reviews", "favorites", "carts"] },
-  { label: "Accès complet", modules: ALL },
+const PRESETS: { label: string; perms: Perms }[] = [
+  { label: "Catalogue", perms: full(["products", "categories"]) },
+  { label: "Vitrine et promos", perms: full(["home", "deals", "promos"]) },
+  { label: "Service client", perms: full(["reviews", "favorites", "carts"]) },
+  { label: "Lecture seule", perms: Object.fromEntries(ALL.map((m) => [m, ["view"]])) },
+  { label: "Accès complet", perms: full(ALL) },
 ];
+
+const samePerms = (a: Perms, b: Perms) => {
+  const ka = modulesOf(a);
+  return ka.length === modulesOf(b).length && ka.every((m) => (a[m] ?? []).length === (b[m] ?? []).length && (a[m] ?? []).every((x) => b[m]?.includes(x)));
+};
+
+/** Résumé lisible des droits d'un module : « Tout », « Lecture seule » ou la liste. */
+function rightsSummary(m: AdminModuleId, list: string[]) {
+  const defs = PERMISSIONS[m] ?? [];
+  if (list.length === defs.length && defs.length > 1) return "tout";
+  if (list.length === 1 && list[0] === "view") return defs.length > 1 ? "lecture seule" : "";
+  return defs
+    .filter((d) => d.id !== "view" && list.includes(d.id))
+    .map((d) => d.label.split(" ")[0].toLowerCase())
+    .join(", ");
+}
+
+/** Un module et ses droits : accès (voir) puis actions permises. */
+function ModuleRights({ m, value, onChange }: { m: (typeof ADMIN_MODULES)[number]; value?: string[]; onChange: (v: string[] | undefined) => void }) {
+  const defs = PERMISSIONS[m.id] ?? [];
+  const on = !!value;
+  const actions = defs.filter((d) => d.id !== "view");
+  const toggleAction = (id: string) => {
+    const cur = value ?? ["view"];
+    onChange(cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]);
+  };
+  return (
+    <div className={cn("rounded-[18px] border transition-colors", on ? "border-akua-blue/50 bg-akua-blue-100/30" : "border-akua-gray-200")}>
+      <label className="flex cursor-pointer items-start gap-3 p-3.5">
+        <input type="checkbox" checked={on} onChange={() => onChange(on ? undefined : ["view"])} className="peer sr-only" />
+        <span aria-hidden className={cn("mt-0.5 grid size-5 shrink-0 place-items-center rounded-md border transition-colors peer-focus-visible:ring-4 peer-focus-visible:ring-akua-blue/20", on ? "border-akua-blue bg-akua-blue text-akua-white" : "border-akua-gray-200 bg-akua-white")}>
+          {on && <Check className="size-3.5" strokeWidth={3} />}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="flex items-center gap-1.5 text-[14px] font-semibold">
+            <m.icon aria-hidden className="size-4 text-akua-gray-500" strokeWidth={1.8} /> {m.label}
+          </span>
+          <span className="mt-0.5 block text-[12.5px] leading-snug text-akua-gray-500">{on ? defs[0]?.label : m.description}</span>
+        </span>
+        {on && actions.length > 0 && (
+          <span className="flex shrink-0 gap-1">
+            <button type="button" onClick={(e) => (e.preventDefault(), onChange(allActions(m.id)))} className="h-7 rounded-full bg-akua-white px-2.5 text-[11.5px] font-semibold ring-1 ring-akua-gray-200 hover:ring-akua-ink">
+              Tout
+            </button>
+            <button type="button" onClick={(e) => (e.preventDefault(), onChange(["view"]))} className="h-7 rounded-full bg-akua-white px-2.5 text-[11.5px] font-semibold ring-1 ring-akua-gray-200 hover:ring-akua-ink">
+              Voir seulement
+            </button>
+          </span>
+        )}
+      </label>
+      {on && actions.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 border-t border-akua-blue/15 px-3.5 py-3">
+          {actions.map((a) => {
+            const yes = value.includes(a.id);
+            return (
+              <button
+                key={a.id}
+                type="button"
+                role="switch"
+                aria-checked={yes}
+                onClick={() => toggleAction(a.id)}
+                className={cn(
+                  "inline-flex min-h-8 items-center gap-1.5 rounded-full px-3 py-1 text-left text-[12.5px] font-semibold transition-colors",
+                  yes ? "bg-akua-ink text-akua-white" : "bg-akua-white text-akua-gray-500 ring-1 ring-akua-gray-200 hover:text-akua-ink hover:ring-akua-ink/40",
+                )}
+              >
+                {yes ? <Check aria-hidden className="size-3.5 shrink-0" strokeWidth={3} /> : <X aria-hidden className="size-3.5 shrink-0" strokeWidth={2.4} />}
+                {a.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const STATUS: Record<MemberStatus, { label: string; tone: string }> = {
   active: { label: "Actif", tone: "bg-akua-whatsapp/12 text-[#128c4a]" },
@@ -46,7 +125,7 @@ const moduleLabel = (id: AdminModuleId) => ADMIN_MODULES.find((m) => m.id === id
 
 /* ------------------------------------------------------------ formulaire */
 
-type Draft = { name: string; identifier: string; modules: AdminModuleId[] };
+type Draft = { name: string; identifier: string; perms: Perms };
 type FormErrors = Partial<Record<"name" | "identifier" | "modules", string>>;
 
 function MemberDialog({
@@ -61,27 +140,31 @@ function MemberDialog({
   onSave: (d: Draft) => Promise<string | null>;
 }) {
   const [busy, setBusy] = useState(false);
-  const [d, setD] = useState<Draft>({ name: "", identifier: "", modules: [] });
+  const [d, setD] = useState<Draft>({ name: "", identifier: "", perms: {} });
   const [errors, setErrors] = useState<FormErrors>({});
   useEffect(() => {
     if (open) {
-      setD(initial ? { name: initial.name, identifier: initial.identifier, modules: initial.modules } : { name: "", identifier: "", modules: [] });
+      setD(initial ? { name: initial.name, identifier: initial.identifier, perms: initial.perms } : { name: "", identifier: "", perms: {} });
       setErrors({});
     }
   }, [open, initial]);
 
-  const toggle = (id: AdminModuleId) => {
-    setD((x) => ({ ...x, modules: x.modules.includes(id) ? x.modules.filter((m) => m !== id) : [...x.modules, id] }));
+  const setModule = (id: AdminModuleId, v: string[] | undefined) => {
+    setD((x) => {
+      const perms = { ...x.perms };
+      if (v) perms[id] = v.includes("view") ? v : ["view", ...v];
+      else delete perms[id];
+      return { ...x, perms };
+    });
     setErrors((e) => ({ ...e, modules: undefined }));
   };
-  const same = (a: AdminModuleId[], b: AdminModuleId[]) => a.length === b.length && a.every((m) => b.includes(m));
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     const er: FormErrors = {};
     if (d.name.trim().length < 2) er.name = "Indiquez le nom de l'équipier.";
     if (d.identifier.trim().length < 3) er.identifier = "Indiquez un identifiant (numéro WhatsApp conseillé).";
-    if (!d.modules.length) er.modules = "Choisissez au moins un module.";
+    if (!modulesOf(d.perms).length) er.modules = "Choisissez au moins un module.";
     setErrors(er);
     if (Object.keys(er).length) return;
     setBusy(true);
@@ -136,8 +219,8 @@ function MemberDialog({
 
             <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="text-[15px] font-bold">Ce qu&apos;il peut gérer</p>
-                <p className="text-[12.5px] text-akua-gray-500">Il ne verra que ces modules. L&apos;équipe et l&apos;activité restent réservées au propriétaire.</p>
+                <p className="text-[15px] font-bold">Rôle et droits</p>
+                <p className="text-[12.5px] text-akua-gray-500">Cochez un module pour qu&apos;il le voie, puis choisissez ce qu&apos;il peut y faire. L&apos;équipe et l&apos;activité restent réservées au propriétaire.</p>
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {PRESETS.map((p) => (
@@ -145,12 +228,12 @@ function MemberDialog({
                     key={p.label}
                     type="button"
                     onClick={() => {
-                      setD((x) => ({ ...x, modules: p.modules }));
+                      setD((x) => ({ ...x, perms: p.perms }));
                       setErrors((e) => ({ ...e, modules: undefined }));
                     }}
                     className={cn(
                       "h-8 rounded-full px-3 text-[12.5px] font-semibold transition-colors",
-                      same(d.modules, p.modules) ? "bg-akua-ink text-akua-white" : "bg-akua-page text-akua-ink hover:bg-akua-gray-200/70",
+                      samePerms(d.perms, p.perms) ? "bg-akua-ink text-akua-white" : "bg-akua-page text-akua-ink hover:bg-akua-gray-200/70",
                     )}
                   >
                     {p.label}
@@ -163,36 +246,10 @@ function MemberDialog({
               {RIGHTS.map((g) => (
                 <fieldset key={g.label}>
                   <legend className="mb-2 text-[11px] font-bold tracking-[0.12em] text-akua-gray-500 uppercase">{g.label}</legend>
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {g.modules.map((m) => {
-                      const on = d.modules.includes(m.id);
-                      return (
-                        <label
-                          key={m.id}
-                          className={cn(
-                            "flex cursor-pointer items-start gap-3 rounded-[16px] border p-3 transition-colors",
-                            on ? "border-akua-blue bg-akua-blue-100/50" : "border-akua-gray-200 hover:border-akua-gray-500/40",
-                          )}
-                        >
-                          <input type="checkbox" checked={on} onChange={() => toggle(m.id)} className="peer sr-only" />
-                          <span
-                            aria-hidden
-                            className={cn(
-                              "mt-0.5 grid size-5 shrink-0 place-items-center rounded-md border transition-colors peer-focus-visible:ring-4 peer-focus-visible:ring-akua-blue/20",
-                              on ? "border-akua-blue bg-akua-blue text-akua-white" : "border-akua-gray-200 bg-akua-white",
-                            )}
-                          >
-                            {on && <Check className="size-3.5" strokeWidth={3} />}
-                          </span>
-                          <span className="min-w-0">
-                            <span className="flex items-center gap-1.5 text-[14px] font-semibold">
-                              <m.icon aria-hidden className="size-4 text-akua-gray-500" strokeWidth={1.8} /> {m.label}
-                            </span>
-                            <span className="mt-0.5 block text-[12.5px] leading-snug text-akua-gray-500">{m.description}</span>
-                          </span>
-                        </label>
-                      );
-                    })}
+                  <div className="flex flex-col gap-2">
+                    {g.modules.map((m) => (
+                      <ModuleRights key={m.id} m={m} value={d.perms[m.id]} onChange={(v) => setModule(m.id, v)} />
+                    ))}
                   </div>
                 </fieldset>
               ))}
@@ -233,6 +290,12 @@ function CredentialsDialog({ member, password, onClose }: { member: TeamMember |
     `Mot de passe provisoire : ${password}`,
     "",
     "À votre première connexion, vous choisirez votre propre mot de passe.",
+    "",
+    "Important : cette adresse et vos identifiants sont strictement privés et réservés à vous seul. Il est interdit de les partager avec quiconque, y compris avec d'autres membres de l'équipe.",
+    "",
+    "Pour vous connecter à votre espace, rendez-vous à chaque fois sur cette adresse, puis saisissez votre numéro et votre mot de passe.",
+    "",
+    "Pensez à enregistrer ce message ou l'adresse dans vos favoris pour la retrouver facilement.",
   ].join("\n");
   const digits = member.identifier.replace(/\D/g, "");
   const wa = digits.length >= 8 ? `https://wa.me/${digits}?text=${encodeURIComponent(message)}` : `https://wa.me/?text=${encodeURIComponent(message)}`;
@@ -469,16 +532,22 @@ export function TeamView() {
               <div className="flex min-w-0 flex-wrap gap-1.5 md:w-[38%] md:justify-start">
                 {m.owner ? (
                   <span className="rounded-full bg-akua-page px-2.5 py-1 text-[12px] font-semibold">Accès complet</span>
-                ) : m.modules.length === ALL.length ? (
+                ) : samePerms(m.perms, full(ALL)) ? (
                   <span className="rounded-full bg-akua-page px-2.5 py-1 text-[12px] font-semibold">Accès complet</span>
                 ) : (
                   <>
-                    {m.modules.slice(0, 3).map((id) => (
-                      <span key={id} className="rounded-full bg-akua-page px-2.5 py-1 text-[12px] font-medium">
-                        {moduleLabel(id)}
-                      </span>
-                    ))}
-                    {m.modules.length > 3 && <span className="rounded-full bg-akua-page px-2.5 py-1 text-[12px] font-semibold text-akua-gray-500">+{m.modules.length - 3}</span>}
+                    {modulesOf(m.perms)
+                      .slice(0, 4)
+                      .map((id) => {
+                        const sum = rightsSummary(id, m.perms[id] ?? []);
+                        return (
+                          <span key={id} className="rounded-full bg-akua-page px-2.5 py-1 text-[12px] font-medium">
+                            {moduleLabel(id)}
+                            {sum && <span className="text-akua-gray-500"> · {sum}</span>}
+                          </span>
+                        );
+                      })}
+                    {modulesOf(m.perms).length > 4 && <span className="rounded-full bg-akua-page px-2.5 py-1 text-[12px] font-semibold text-akua-gray-500">+{modulesOf(m.perms).length - 4}</span>}
                   </>
                 )}
               </div>

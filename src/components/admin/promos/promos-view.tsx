@@ -1,6 +1,7 @@
 "use client";
 
-import { Check, Copy, Megaphone, MoreHorizontal, Pencil, Plus, Power, Shuffle, TicketPercent, Trash2, X } from "lucide-react";
+import { Check, Copy, Megaphone, MoreHorizontal, Pencil, Plus, Power, Receipt, Shuffle, TicketPercent, Trash2, X } from "lucide-react";
+import { usePromoUsage, UsageDialog } from "./promo-usage";
 import { useEffect, useMemo, useState } from "react";
 import { AnnouncementView } from "@/components/layout/announcement-bar";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -13,9 +14,10 @@ import { computeDiscount } from "@/lib/promo";
 import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
 import { type Announcement, type AnnouncementTheme, newPromoId, promoLabel, promoStatus, type PromoStatus, useAdminPromos } from "@/store/admin-promos";
-import { useAdmin } from "../actor-context";
+import { useAdmin, useCan } from "../actor-context";
+import { ReadOnlyNotice } from "../read-only";
 import { Field, inputCls, PriceInput, Segmented, Toggle } from "../form";
-import { DemoNotice, PageHeader } from "../ui";
+import { PageHeader } from "../ui";
 
 const STATUS: Record<PromoStatus, { label: string; tone: string }> = {
   active: { label: "Actif", tone: "bg-akua-whatsapp/12 text-[#128c4a]" },
@@ -132,7 +134,9 @@ function CodeDialog({ open, onOpenChange, initial }: { open: boolean; onOpenChan
         <div className="flex items-start justify-between gap-4 border-b border-akua-gray-200 px-5 py-5 sm:px-7">
           <div>
             <DialogTitle className="text-[20px] font-extrabold tracking-[-0.02em]">{initial ? "Modifier le code" : "Nouveau code promo"}</DialogTitle>
-            <DialogDescription className="mt-1 text-[13.5px] text-akua-gray-500">Le client le saisit dans son panier : la réduction s&apos;applique au total et figure dans la commande WhatsApp.</DialogDescription>
+            <DialogDescription className="mt-1 text-[13.5px] text-akua-gray-500">
+              Le client le saisit dans son panier : la réduction s&apos;applique au total et figure dans la commande WhatsApp.
+            </DialogDescription>
           </div>
           <button type="button" onClick={() => onOpenChange(false)} aria-label="Fermer" className="grid size-9 shrink-0 place-items-center rounded-full hover:bg-akua-page">
             <X aria-hidden className="size-[18px]" />
@@ -150,7 +154,13 @@ function CodeDialog({ open, onOpenChange, initial }: { open: boolean; onOpenChan
                   autoComplete="off"
                   className={cn(inputCls(errors.code), "font-mono text-[17px] font-bold tracking-[0.08em] uppercase")}
                 />
-                <button type="button" onClick={() => setCode(randomCode())} title="Générer un code" aria-label="Générer un code" className={btn({ variant: "outline", size: "icon", className: "size-12 rounded-2xl" })}>
+                <button
+                  type="button"
+                  onClick={() => setCode(randomCode())}
+                  title="Générer un code"
+                  aria-label="Générer un code"
+                  className={btn({ variant: "outline", size: "icon", className: "size-12 rounded-2xl" })}
+                >
                   <Shuffle aria-hidden className="size-[18px]" />
                 </button>
               </div>
@@ -231,7 +241,13 @@ function CodeDialog({ open, onOpenChange, initial }: { open: boolean; onOpenChan
                 <p className="font-semibold">{promoLabel(draft)}</p>
                 <p className="mt-1 text-akua-gray-500">
                   Exemple : sur un panier de {formatFCFA(example)},{" "}
-                  {hasMin && minTotal && example < minTotal ? "le code ne s'applique pas encore." : <>le client paie <span className="font-bold text-akua-ink">{formatFCFA(example - computeDiscount(draft, example))}</span> au lieu de {formatFCFA(example)}.</>}
+                  {hasMin && minTotal && example < minTotal ? (
+                    "le code ne s'applique pas encore."
+                  ) : (
+                    <>
+                      le client paie <span className="font-bold text-akua-ink">{formatFCFA(example - computeDiscount(draft, example))}</span> au lieu de {formatFCFA(example)}.
+                    </>
+                  )}
                 </p>
               </div>
             )}
@@ -252,7 +268,12 @@ function CodeDialog({ open, onOpenChange, initial }: { open: boolean; onOpenChan
 
 /* ----------------------------------------------------- bannière d'annonce */
 
-const TEMPLATES = ["Utilisez le code {CODE} et profitez de {REMISE}", "{REMISE} avec le code {CODE}, jusqu'à demain seulement", "Code {CODE} : {REMISE} sur toute la boutique", "Livraison au Togo et dans la sous-région, commandez sur WhatsApp"];
+const TEMPLATES = [
+  "Utilisez le code {CODE} et profitez de {REMISE}",
+  "{REMISE} avec le code {CODE}, jusqu'à demain seulement",
+  "Code {CODE} : {REMISE} sur toute la boutique",
+  "Livraison au Togo et dans la sous-région, commandez sur WhatsApp",
+];
 
 function AnnouncementPanel() {
   const { actor } = useAdmin();
@@ -314,7 +335,12 @@ function AnnouncementPanel() {
         </Field>
         <div className="-mt-1 flex flex-wrap gap-1.5">
           {TEMPLATES.map((tpl) => (
-            <button key={tpl} type="button" onClick={() => set("message", tpl)} className="h-8 rounded-full border border-dashed border-akua-gray-200 px-3 text-[12.5px] font-medium text-akua-gray-500 hover:border-akua-blue hover:text-akua-blue">
+            <button
+              key={tpl}
+              type="button"
+              onClick={() => set("message", tpl)}
+              className="h-8 rounded-full border border-dashed border-akua-gray-200 px-3 text-[12.5px] font-medium text-akua-gray-500 hover:border-akua-blue hover:text-akua-blue"
+            >
               {tpl.replace("{CODE}", "CODE").replace("{REMISE}", "-20 %")}
             </button>
           ))}
@@ -331,7 +357,12 @@ function AnnouncementPanel() {
               ]}
             />
           </Field>
-          <Toggle checked={a.countdown} onChange={(v) => set("countdown", v)} label="Afficher le temps restant" description={code?.endsAt ? "Compte à rebours jusqu'à la fin du code." : "Disponible pour un code avec une date de fin."} />
+          <Toggle
+            checked={a.countdown}
+            onChange={(v) => set("countdown", v)}
+            label="Afficher le temps restant"
+            description={code?.endsAt ? "Compte à rebours jusqu'à la fin du code." : "Disponible pour un code avec une date de fin."}
+          />
         </div>
         <div className="flex items-center justify-end gap-3">
           {ok && !dirty && (
@@ -365,32 +396,48 @@ function AnnouncementPanel() {
 
 function CodeMenu({ c, onEdit, onDelete }: { c: PromoCode; onEdit: () => void; onDelete: () => void }) {
   const { actor } = useAdmin();
+  const can = useCan();
   const toggle = useAdminPromos((s) => s.toggleCode);
   const [open, setOpen] = useState(false);
   const item = "flex h-10 w-full items-center gap-2.5 rounded-xl px-3 text-left text-[14px] font-medium hover:bg-akua-page";
+  if (!can("promos", "edit") && !can("promos", "toggle") && !can("promos", "delete")) return null;
   const run = (fn: () => void) => () => {
     setOpen(false);
     fn();
   };
   return (
     <div className="relative">
-      <button type="button" onClick={() => setOpen((o) => !o)} aria-label={`Actions pour ${c.code}`} aria-expanded={open} className="grid size-9 place-items-center rounded-full text-akua-gray-500 hover:bg-akua-page hover:text-akua-ink">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-label={`Actions pour ${c.code}`}
+        aria-expanded={open}
+        className="grid size-9 place-items-center rounded-full text-akua-gray-500 hover:bg-akua-page hover:text-akua-ink"
+      >
         <MoreHorizontal aria-hidden className="size-5" />
       </button>
       {open && (
         <>
           <button type="button" aria-label="Fermer" className="fixed inset-0 z-30 cursor-default" onClick={() => setOpen(false)} />
           <div role="menu" className="absolute top-full right-0 z-40 mt-1 w-52 rounded-[18px] border border-akua-gray-200 bg-akua-white p-1.5 shadow-[0_24px_60px_-24px_rgb(11_16_32/0.35)]">
-            <button role="menuitem" type="button" className={item} onClick={run(onEdit)}>
-              <Pencil aria-hidden className="size-4 text-akua-gray-500" /> Modifier
-            </button>
-            <button role="menuitem" type="button" className={item} onClick={run(() => toggle(c.id!, actor))}>
-              <Power aria-hidden className="size-4 text-akua-gray-500" /> {c.active === false ? "Activer" : "Désactiver"}
-            </button>
-            <div className="my-1 h-px bg-akua-gray-200" />
-            <button role="menuitem" type="button" className={cn(item, "text-akua-red hover:bg-akua-red/5")} onClick={run(onDelete)}>
-              <Trash2 aria-hidden className="size-4" /> Supprimer
-            </button>
+            {can("promos", "edit") && (
+              <button role="menuitem" type="button" className={item} onClick={run(onEdit)}>
+                <Pencil aria-hidden className="size-4 text-akua-gray-500" /> Modifier
+              </button>
+            )}
+            {can("promos", "toggle") && (
+              <button role="menuitem" type="button" className={item} onClick={run(() => toggle(c.id!, actor))}>
+                <Power aria-hidden className="size-4 text-akua-gray-500" /> {c.active === false ? "Activer" : "Désactiver"}
+              </button>
+            )}
+            {can("promos", "delete") && (
+              <>
+                <div className="my-1 h-px bg-akua-gray-200" />
+                <button role="menuitem" type="button" className={cn(item, "text-akua-red hover:bg-akua-red/5")} onClick={run(onDelete)}>
+                  <Trash2 aria-hidden className="size-4" /> Supprimer
+                </button>
+              </>
+            )}
           </div>
         </>
       )}
@@ -427,6 +474,11 @@ export function PromosView() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<PromoCode | undefined>();
   const [toDelete, setToDelete] = useState<PromoCode | null>(null);
+  const [usageOf, setUsageOf] = useState<string | null>(null);
+  const toggle = useAdminPromos((s) => s.toggleCode);
+  const can = useCan();
+  const { usage } = usePromoUsage();
+  const totalUses = Object.values(usage).reduce((a, u) => a + u.uses, 0);
   const sorted = useMemo(() => {
     const rank: Record<PromoStatus, number> = { active: 0, scheduled: 1, disabled: 2, expired: 3 };
     return [...codes].sort((a, b) => rank[promoStatus(a)] - rank[promoStatus(b)]);
@@ -440,25 +492,30 @@ export function PromosView() {
         title="Codes promo"
         description="Créez des codes de réduction à communiquer à vos clients, et annoncez-les en haut du site."
         actions={
-          <button
-            type="button"
-            onClick={() => {
-              setEditing(undefined);
-              setOpen(true);
-            }}
-            className={btn({ variant: "primary", size: "md" })}
-          >
-            <Plus aria-hidden className="size-[18px]" /> Créer un code
-          </button>
+          can("promos", "create") && (
+            <button
+              type="button"
+              onClick={() => {
+                setEditing(undefined);
+                setOpen(true);
+              }}
+              className={btn({ variant: "primary", size: "md" })}
+            >
+              <Plus aria-hidden className="size-[18px]" /> Créer un code
+            </button>
+          )
         }
       />
-      <DemoNotice>Codes et bannière sont gardés dans ce navigateur : vous pouvez déjà les tester dans le panier du site sur cet appareil. Ils marcheront pour tous vos clients dès que la base de données sera branchée.</DemoNotice>
+      <ReadOnlyNotice module="promos" />
 
       <section className="overflow-hidden rounded-[24px] border border-akua-gray-200 bg-akua-white">
         <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-4 md:px-6">
           <h2 className="text-[16.5px] font-bold">
             {codes.length} code{codes.length > 1 ? "s" : ""}
           </h2>
+          <p className="text-[13px] text-akua-gray-500">
+            {totalUses} utilisation{totalUses > 1 ? "s" : ""} au total
+          </p>
         </div>
         {sorted.length === 0 ? (
           <div className="flex flex-col items-center border-t border-akua-gray-200 px-6 py-14 text-center">
@@ -470,8 +527,16 @@ export function PromosView() {
           <ul className="divide-y divide-akua-gray-200 border-t border-akua-gray-200">
             {sorted.map((c) => {
               const st = promoStatus(c);
+              const u = usage[c.code];
               return (
-                <li key={c.id} className={cn("flex flex-col gap-3 px-5 py-4 md:flex-row md:items-center md:gap-5 md:px-6", (st === "expired" || st === "disabled") && "opacity-60")}>
+                <li
+                  key={c.id}
+                  id={`code-${c.id}`}
+                  className={cn(
+                    "flex scroll-mt-28 flex-col gap-3 px-5 py-4 transition-colors target:bg-akua-blue-100/60 md:flex-row md:items-center md:gap-5 md:px-6",
+                    (st === "expired" || st === "disabled") && "opacity-60",
+                  )}
+                >
                   <div className="flex min-w-0 flex-1 items-center gap-3.5">
                     <CopyChip code={c.code} />
                     <div className="min-w-0">
@@ -482,8 +547,52 @@ export function PromosView() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between gap-3 md:justify-end">
-                    <span className={cn("rounded-full px-2.5 py-1 text-[12px] font-semibold", STATUS[st].tone)}>{STATUS[st].label}</span>
+                  <button
+                    type="button"
+                    onClick={() => setUsageOf(c.code)}
+                    className="group flex shrink-0 items-center gap-3 rounded-[16px] bg-akua-page px-3.5 py-2 text-left transition-colors hover:bg-akua-blue-100 md:w-[220px]"
+                  >
+                    <Receipt aria-hidden className="size-5 shrink-0 text-akua-gray-500 group-hover:text-akua-blue" strokeWidth={1.7} />
+                    <span className="min-w-0">
+                      <span className="block text-[13.5px] font-bold tabular-nums">Utilisé {u?.uses ?? 0} fois</span>
+                      <span className="block truncate text-[12px] text-akua-gray-500 group-hover:text-akua-blue">
+                        {u?.uses ? `-${formatFCFA(u.discount)} accordés · voir les commandes` : "Voir les commandes"}
+                      </span>
+                    </span>
+                  </button>
+                  <div className="flex items-center justify-between gap-2 md:justify-end">
+                    <span className={cn("rounded-full px-2.5 py-1 text-[12px] font-semibold whitespace-nowrap", STATUS[st].tone)}>{STATUS[st].label}</span>
+                    {can("promos", "edit") && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditing(c);
+                          setOpen(true);
+                        }}
+                        className="inline-flex h-9 items-center gap-1.5 rounded-full border border-akua-gray-200 px-3.5 text-[13px] font-semibold transition-colors hover:border-akua-ink"
+                      >
+                        <Pencil aria-hidden className="size-3.5" /> Modifier
+                      </button>
+                    )}
+                    <label className={cn("flex cursor-pointer items-center", !can("promos", "toggle") && "hidden")} title={c.active === false ? "Activer" : "Désactiver"}>
+                      <input
+                        type="checkbox"
+                        role="switch"
+                        aria-label={c.active === false ? `Activer ${c.code}` : `Désactiver ${c.code}`}
+                        checked={c.active !== false}
+                        onChange={() => toggle(c.id!, actor)}
+                        className="peer sr-only"
+                      />
+                      <span
+                        aria-hidden
+                        className={cn(
+                          "relative h-7 w-12 rounded-full transition-colors peer-focus-visible:ring-4 peer-focus-visible:ring-akua-blue/25",
+                          c.active !== false ? "bg-akua-blue" : "bg-akua-gray-200",
+                        )}
+                      >
+                        <span className={cn("absolute top-1 left-1 size-5 rounded-full bg-akua-white shadow transition-transform", c.active !== false && "translate-x-5")} />
+                      </span>
+                    </label>
                     <CodeMenu
                       c={c}
                       onEdit={() => {
@@ -500,9 +609,10 @@ export function PromosView() {
         )}
       </section>
 
-      <AnnouncementPanel />
+      {can("promos", "announcement") && <AnnouncementPanel />}
 
       <CodeDialog open={open} onOpenChange={setOpen} initial={editing} />
+      <UsageDialog code={usageOf} onClose={() => setUsageOf(null)} />
       <ConfirmDialog
         open={!!toDelete}
         onOpenChange={(o) => !o && setToDelete(null)}

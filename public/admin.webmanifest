@@ -1,0 +1,22 @@
+{
+  "name": "AKUA Service · Admin",
+  "short_name": "AKUA Admin",
+  "description": "Espace administrateur AKUA Service : commandes, avis, paniers et notifications.",
+  "id": "/spaceakua",
+  "start_url": "/spaceakua",
+  "scope": "/spaceakua",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "lang": "fr",
+  "icons": [
+    { "src": "/icons/akua-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/akua-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/akua-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Commandes", "url": "/spaceakua/commandes", "icons": [{ "src": "/icons/akua-192.png", "sizes": "192x192" }] },
+    { "name": "Avis", "url": "/spaceakua/avis", "icons": [{ "src": "/icons/akua-192.png", "sizes": "192x192" }] }
+  ]
+}

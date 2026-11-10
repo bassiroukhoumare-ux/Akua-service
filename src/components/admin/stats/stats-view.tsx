@@ -1,47 +1,21 @@
 "use client";
 
-import { Check, Copy, Eye, FileText, Ghost, Globe, Globe2, Layers, Monitor, MousePointer2, Package, Radio, RefreshCw, Search, ShieldCheck, Smartphone, Tablet, Users } from "lucide-react";
+import { CalendarRange, Check, Copy, Eye, FileText, Globe2, Monitor, MousePointer2, Package, RefreshCw, Repeat, ShieldCheck, ShoppingBag, Smartphone, Tablet, UserPlus, Users } from "lucide-react";
 import { useState } from "react";
 import { DemoNotice, formatNumber, PageHeader, Panel, StatTile } from "@/components/admin/ui";
-import { FacebookIcon, InstagramIcon, TikTokIcon, XIcon, YouTubeIcon } from "@/components/ui/social-icons";
 import { Flag } from "@/components/ui/flag";
-import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import { SITE_URL } from "@/config/site";
 import type { SourceId } from "@/lib/analytics/sources";
 import { cn } from "@/lib/utils";
 import { type PeriodValue, PeriodFilter, PRESETS, periodHint, rangeDays, rangeLabel } from "../period-filter";
 import { useStats } from "./use-stats";
+import { SourceIcon } from "./source-icon";
+import { LivePanel } from "./live-panel";
 import { VisitsChart } from "../visits-chart";
 
 const FLAGS = new Set(["TG", "BJ", "GH", "BF", "CI", "NE", "ML"]);
 const fRange = new Intl.DateTimeFormat("fr-FR", { timeZone: "UTC", day: "numeric", month: "long", year: "numeric" });
 
-function SourceIcon({ id }: { id: SourceId }) {
-  const c = "size-4 shrink-0";
-  switch (id) {
-    case "whatsapp":
-      return <WhatsAppIcon size={16} variant="color" />;
-    case "tiktok":
-      return <TikTokIcon className={c} />;
-    case "facebook":
-      return <FacebookIcon className={cn(c, "text-[#1877f2]")} />;
-    case "instagram":
-      return <InstagramIcon className={cn(c, "text-[#d62976]")} />;
-    case "youtube":
-      return <YouTubeIcon className={cn(c, "text-[#ff0000]")} />;
-    case "x":
-      return <XIcon className={c} />;
-    case "snapchat":
-      return <Ghost aria-hidden className={cn(c, "text-akua-ink")} strokeWidth={1.8} />;
-    case "google":
-    case "search":
-      return <Search aria-hidden className={cn(c, "text-akua-ink")} strokeWidth={1.9} />;
-    case "other":
-      return <Globe aria-hidden className={cn(c, "text-akua-gray-500")} strokeWidth={1.8} />;
-    default:
-      return <MousePointer2 aria-hidden className={cn(c, "text-akua-gray-500")} strokeWidth={1.8} />;
-  }
-}
 
 /** Ligne : libellé, nombre, part et barre (une seule couleur). */
 function Row({ label, value, share, max }: { label: React.ReactNode; value: string; share: number; max: number }) {
@@ -119,6 +93,66 @@ function Skeleton({ className }: { className?: string }) {
   return <div className={cn("animate-pulse rounded-[24px] bg-akua-white ring-1 ring-akua-gray-200", className)} />;
 }
 
+/** Barres par heure : la plus fréquentée est mise en avant. */
+function HoursChart({ hours }: { hours: number[] }) {
+  const max = Math.max(1, ...hours);
+  const peak = hours.indexOf(Math.max(...hours));
+  const total = hours.reduce((a, b) => a + b, 0);
+  if (!total) return <Empty>Aucune visite sur cette période.</Empty>;
+  return (
+    <div>
+      <p className="text-[13.5px]">
+        Pic d&apos;affluence : <span className="font-bold">{peak}h – {peak + 1}h</span>
+      </p>
+      <div className="mt-4 flex h-[150px] items-end gap-1" role="img" aria-label={`Pic d'affluence entre ${peak}h et ${peak + 1}h`}>
+        {hours.map((v, h) => (
+          <div key={h} className="group relative flex h-full min-w-0 flex-1 items-end">
+            <div className={cn("w-full rounded-t-[4px] transition-colors", h === peak ? "bg-akua-blue" : "bg-akua-blue/25 group-hover:bg-akua-blue/50")} style={{ height: `${Math.max(3, (v / max) * 100)}%` }} />
+            <span className="pointer-events-none absolute -top-7 left-1/2 hidden -translate-x-1/2 rounded-md bg-akua-ink px-1.5 py-0.5 text-[11px] whitespace-nowrap text-akua-white group-hover:block">
+              {h}h · {formatNumber(v)}
+            </span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-2 flex justify-between text-[11px] text-akua-gray-500 tabular-nums">
+        {[0, 6, 12, 18, 23].map((h) => (
+          <span key={h}>{h}h</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Audience({ fresh, returning, depth }: { fresh: number; returning: number; depth: number }) {
+  const total = fresh + returning;
+  const pf = total ? Math.round((fresh / total) * 100) : 0;
+  return (
+    <div>
+      <div className="flex h-3 overflow-hidden rounded-full bg-akua-page" aria-hidden>
+        <div className="h-full bg-akua-blue" style={{ width: `${pf}%` }} />
+        <div className="h-full bg-akua-ink" style={{ width: `${total ? 100 - pf : 0}%` }} />
+      </div>
+      <ul className="mt-5 flex flex-col gap-3 text-[13.5px]">
+        <li className="flex items-center gap-3">
+          <span className="size-2.5 shrink-0 rounded-full bg-akua-blue" />
+          <UserPlus aria-hidden className="size-4 shrink-0 text-akua-gray-500" strokeWidth={1.8} />
+          <span className="flex-1 font-medium">Nouveaux visiteurs</span>
+          <span className="font-semibold tabular-nums">{formatNumber(fresh)}</span>
+        </li>
+        <li className="flex items-center gap-3">
+          <span className="size-2.5 shrink-0 rounded-full bg-akua-ink" />
+          <Repeat aria-hidden className="size-4 shrink-0 text-akua-gray-500" strokeWidth={1.8} />
+          <span className="flex-1 font-medium">Habitués</span>
+          <span className="font-semibold tabular-nums">{formatNumber(returning)}</span>
+        </li>
+      </ul>
+      <p className="mt-5 rounded-[16px] bg-akua-page px-4 py-3 text-[13px] text-akua-gray-500">
+        En moyenne, un visiteur consulte <span className="font-bold text-akua-ink">{depth.toLocaleString("fr-FR")} page{depth >= 2 ? "s" : ""}</span> par visite.
+      </p>
+    </div>
+  );
+}
+
 export function StatsView() {
   const [period, setPeriod] = useState<PeriodValue>({ kind: "preset", id: "semaine" });
   const [metric, setMetric] = useState<"visitors" | "pageviews">("visitors");
@@ -150,30 +184,18 @@ export function StatsView() {
         </div>
       )}
 
+      <LivePanel />
+
       {d?.demo && (
         <DemoNotice>
           Aucune visite n&apos;a encore été enregistrée : voici un exemple. Le compteur est déjà actif sur le site, les vrais chiffres remplaceront l&apos;exemple automatiquement.
         </DemoNotice>
       )}
-      {d && !d.demo && (
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-[18px] bg-akua-white px-4 py-3 text-[13.5px] ring-1 ring-akua-gray-200">
-          <span className="inline-flex items-center gap-2 font-semibold">
-            <span className="relative flex size-2.5">
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-akua-whatsapp opacity-60" />
-              <span className="relative inline-flex size-2.5 rounded-full bg-akua-whatsapp" />
-            </span>
-            Mesure en direct
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-akua-gray-500">
-            <Radio aria-hidden className="size-4" strokeWidth={1.8} />
-            <span>
-              <span className="font-semibold text-akua-ink tabular-nums">{d.live}</span> {d.live > 1 ? "visiteurs" : "visiteur"} en ce moment
-            </span>
-          </span>
-          <span className="text-akua-gray-500 sm:ml-auto">
-            {rangeText} · {period.kind === "range" ? rangeLabel(period.from, period.to) : `du ${fRange.format(d.from)} au ${fRange.format(d.to - 1)}`}
-          </span>
-        </div>
+      {d && (
+        <p className="-mt-1 flex items-center gap-2 text-[13px] text-akua-gray-500">
+          <CalendarRange aria-hidden className="size-4" strokeWidth={1.8} />
+          Analyse : {rangeText} · {period.kind === "range" ? rangeLabel(period.from, period.to) : `du ${fRange.format(d.from)} au ${fRange.format(d.to - 1)}`}
+        </p>
       )}
 
       {!d ? (
@@ -191,7 +213,7 @@ export function StatsView() {
             <StatTile icon={Users} label="Visiteurs" value={formatNumber(d.totals.visitors)} delta={dl(d.delta.visitors)} hint={hint} />
             <StatTile icon={MousePointer2} label="Visites" value={formatNumber(d.totals.sessions)} delta={dl(d.delta.sessions)} hint={hint} />
             <StatTile icon={Eye} label="Pages vues" value={formatNumber(d.totals.pageviews)} delta={dl(d.delta.pageviews)} hint={hint} />
-            <StatTile icon={Layers} label="Pages par visite" value={d.totals.depth.toLocaleString("fr-FR")} delta={dl(d.delta.depth)} hint={hint} />
+            <StatTile icon={ShoppingBag} label="Taux de commande" value={`${d.conversion.toLocaleString("fr-FR")} %`} hint={`${formatNumber(d.totals.orders)} commande${d.totals.orders > 1 ? "s" : ""} WhatsApp`} />
           </div>
 
           <Panel
@@ -275,7 +297,16 @@ export function StatsView() {
             </Panel>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] [&>*]:min-w-0">
+            <Panel title="Heures d'affluence" description="Pages vues selon l'heure de la journée (heure de Lomé)">
+              <HoursChart hours={d.hours} />
+            </Panel>
+            <Panel title="Fidélité" description="Premiers passages et visiteurs qui reviennent">
+              <Audience fresh={d.audience.fresh} returning={d.audience.returning} depth={d.totals.depth} />
+            </Panel>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] [&>*]:min-w-0">
             <Panel title="Pages les plus vues" description={`Top ${Math.min(8, d.pages.length) || 8} sur la période`} bodyClassName="px-3 pb-3 pt-3 md:px-4">
               {d.pages.length ? (
                 <ol className="flex flex-col">

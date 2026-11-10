@@ -67,6 +67,49 @@ await sql`create table if not exists favorites (
   created_at timestamptz not null default now(),
   primary key (visitor, product_id)
 )`;
+await sql`create table if not exists media (
+  id text primary key,
+  mime text not null,
+  size bigint not null,
+  chunks int not null default 0,
+  complete boolean not null default false,
+  created_at timestamptz not null default now()
+)`;
+await sql`create table if not exists media_chunks (
+  media_id text not null,
+  idx int not null,
+  b64 text not null,
+  primary key (media_id, idx)
+)`;
+await sql`create table if not exists orders (
+  id text primary key,
+  ref text not null,
+  promo_code text,
+  data jsonb not null,
+  created_at timestamptz not null default now()
+)`;
+await sql`create index if not exists orders_promo on orders (promo_code)`;
+await sql`alter table team_members add column if not exists perms jsonb`;
+await sql`alter table orders add column if not exists status text not null default 'pending'`;
+await sql`alter table orders add column if not exists status_by text`;
+await sql`alter table orders add column if not exists status_at timestamptz`;
+await sql`create index if not exists orders_status on orders (status)`;
+await sql`create sequence if not exists order_number_seq`;
+await sql`create table if not exists admin_seen (
+  user_key text not null,
+  module text not null,
+  seen_at timestamptz not null default now(),
+  primary key (user_key, module)
+)`;
+await sql`create table if not exists push_subscriptions (
+  endpoint text primary key,
+  user_key text not null,
+  keys jsonb not null,
+  prefs jsonb not null default '{}',
+  user_agent text,
+  created_at timestamptz not null default now(),
+  last_ok timestamptz
+)`;
 console.log("Tables prêtes.");
 
 // --- reprise des données locales (.data/) si les tables sont vides

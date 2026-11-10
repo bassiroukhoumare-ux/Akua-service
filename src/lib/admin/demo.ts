@@ -131,6 +131,8 @@ export type ActivityAction = "create" | "update" | "delete" | "publish" | "reply
 
 export interface ActivityEntry {
   id: string;
+  /** identifiant de l'élément concerné (produit, catégorie, code promo…), pour y accéder en un clic */
+  targetId?: string;
   memberId: string;
   action: ActivityAction;
   module: AdminModuleId;

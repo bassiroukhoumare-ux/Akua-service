@@ -1,6 +1,7 @@
 "use client";
 
 import { trackOrder } from "@/components/analytics/visit-tracker";
+import { REF_TOKEN } from "@/lib/order-ref";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -254,7 +255,7 @@ export function CheckoutView() {
     } else setPromoState({ loading: false, error: r.error });
   }
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     const errs = validate(draft);
     setErrors(errs);
@@ -264,26 +265,57 @@ export function CheckoutView() {
       return;
     }
     setSending(true);
-    const ref = `AKUA-${Date.now().toString(36).slice(-5).toUpperCase()}`;
-    const message = buildCheckoutMessage({
-      reference: ref,
-      lines: items.map((i) => ({ name: i.name, price: i.price, quantity: i.quantity })),
-      subtotal,
-      promo: promo ? { code: promo.code, discount: promo.discount } : undefined,
-      total,
-      customer: { name: draft.name.trim(), phone: draft.phone.trim(), email: draft.email.trim() || undefined },
-      mode: draft.mode,
-      delivery: draft.mode === "livraison" ? { country: draft.country, city: draft.city.trim(), address: draft.address.trim() } : undefined,
-      pickup:
-        draft.mode === "retrait"
-          ? { date: draft.pickupDate, time: draft.pickupTime, deposit: depositPct ? { label: depositPct === 100 ? "paiement total" : `${depositPct} %`, amount: depositAmount } : undefined }
-          : undefined,
-      note: draft.note.trim() || undefined,
-    });
-    const link = waLink(message);
+    // onglet WhatsApp ouvert tout de suite : après l'attente du numéro, le navigateur le bloquerait
+    const win = window.open("", "_blank");
+    const build = (reference: string) =>
+      buildCheckoutMessage({
+        reference,
+        lines: items.map((i) => ({ name: i.name, price: i.price, quantity: i.quantity })),
+        subtotal,
+        promo: promo ? { code: promo.code, discount: promo.discount } : undefined,
+        total,
+        customer: { name: draft.name.trim(), phone: draft.phone.trim(), email: draft.email.trim() || undefined },
+        mode: draft.mode,
+        delivery: draft.mode === "livraison" ? { country: draft.country, city: draft.city.trim(), address: draft.address.trim() } : undefined,
+        pickup:
+          draft.mode === "retrait"
+            ? { date: draft.pickupDate, time: draft.pickupTime, deposit: depositPct ? { label: depositPct === 100 ? "paiement total" : `${depositPct} %`, amount: depositAmount } : undefined }
+            : undefined,
+        note: draft.note.trim() || undefined,
+      });
+    // la commande est enregistrée (« en attente ») et reçoit son numéro CMD-AKUA-0001…
+    let ref = "";
+    try {
+      const ctrl = new AbortController();
+      const timer = window.setTimeout(() => ctrl.abort(), 8000);
+      const res = await fetch("/api/commandes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: ctrl.signal,
+        body: JSON.stringify({
+          customer: { name: draft.name.trim(), phone: draft.phone.trim(), email: draft.email.trim() || undefined },
+          mode: draft.mode,
+          delivery: draft.mode === "livraison" ? { country: draft.country, city: draft.city.trim(), address: draft.address.trim(), landmark: draft.landmark.trim() || undefined } : undefined,
+          pickup: draft.mode === "retrait" ? { date: draft.pickupDate, time: draft.pickupTime, deposit: depositAmount || undefined, depositLabel: depositPct ? (depositPct === 100 ? "paiement total" : `acompte ${depositPct} %`) : undefined } : undefined,
+          items: items.map((i) => ({ productId: i.productId, slug: i.slug, image: i.image, name: i.name, price: i.price, quantity: i.quantity })),
+          subtotal,
+          promo: promo ? { code: promo.code, discount: promo.discount } : undefined,
+          total,
+          note: draft.note.trim() || undefined,
+          message: build(REF_TOKEN),
+        }),
+      });
+      window.clearTimeout(timer);
+      ref = ((await res.json()) as { ref?: string }).ref ?? "";
+    } catch {
+      /* hors ligne : la commande part quand même sur WhatsApp */
+    }
+    if (!ref) ref = `CMD-AKUA-${Date.now().toString(36).slice(-4).toUpperCase()}`;
+    const link = waLink(build(ref));
     markOrdered(draft.phone);
     trackOrder();
-    window.open(link, "_blank", "noopener");
+    if (win && !win.closed) win.location.href = link;
+    else window.location.href = link;
     window.setTimeout(() => {
       setDone({ ref, link, mode: draft.mode });
       clear();
@@ -300,7 +332,10 @@ export function CheckoutView() {
           <motion.span initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 300, damping: 14, delay: 0.15 }} className="mx-auto block w-fit">
             <CheckCircle2 aria-hidden className="size-20 text-akua-blue" strokeWidth={1.2} />
           </motion.span>
-          <p className="mt-6 text-[13px] font-medium text-akua-blue">Commande {done.ref}</p>
+          <div className="mx-auto mt-6 inline-flex flex-col items-center rounded-[18px] bg-akua-blue-100/60 px-5 py-2.5">
+            <span className="text-[11px] font-bold tracking-[0.14em] text-akua-blue uppercase">Numéro de commande</span>
+            <span className="mt-0.5 text-[20px] font-extrabold tracking-[0.02em] tabular-nums">{done.ref}</span>
+          </div>
           <h1 className="mt-1 font-display text-[30px] leading-tight font-semibold md:text-[38px]">Votre commande est prête !</h1>
           <p className="mx-auto mt-3 max-w-md text-[15px] text-akua-gray-500">
             Envoyez le message WhatsApp qui vient de s&apos;ouvrir. Notre équipe vous répond avec le lien de paiement

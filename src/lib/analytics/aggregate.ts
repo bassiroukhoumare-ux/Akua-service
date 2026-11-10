@@ -45,6 +45,12 @@ export interface StatsResult {
   pages: { path: string; label: string; kind: "produit" | "page"; views: number }[];
   /** visiteurs actifs ces 5 dernières minutes */
   live: number;
+  /** pages vues selon l'heure de la journée (0 h → 23 h, heure de Lomé) */
+  hours: number[];
+  /** visiteurs de la période : premiers passages et habitués (déjà venus avant) */
+  audience: { fresh: number; returning: number };
+  /** taux de commande : commandes / visites (%) */
+  conversion: number;
   from: number;
   to: number;
 }
@@ -131,7 +137,7 @@ export function periodRange(period: StatsPeriod, now: number) {
   return { from, to, prevFrom: from - (to - from) };
 }
 
-function pageLabel(p: string): { label: string; kind: "produit" | "page" } {
+export function pageLabel(p: string): { label: string; kind: "produit" | "page" } {
   const prod = p.match(/^\/produit\/([^/]+)/);
   if (prod) {
     const found = products.find((x) => x.slug === prod[1]);
@@ -216,7 +222,19 @@ export function aggregate(all: Visit[], period: StatsPeriod | StatsRange, now: n
     .slice(0, 8)
     .map(([path, views]) => ({ path, views, ...pageLabel(path) }));
 
+  // heures d'affluence et visiteurs fidèles
+  const hours = Array.from({ length: 24 }, () => 0);
+  for (const v of cur) hours[new Date(v.t).getUTCHours()]++;
+  const firstSeen = new Map<string, number>();
+  for (const v of all) if (!v.e && (!firstSeen.has(v.v) || v.t < firstSeen.get(v.v)!)) firstSeen.set(v.v, v.t);
+  const curVisitors = new Set(cur.map((v) => v.v));
+  let returning = 0;
+  for (const id of curVisitors) if ((firstSeen.get(id) ?? from) < from) returning++;
+
   return {
+    hours,
+    audience: { fresh: curVisitors.size - returning, returning },
+    conversion: t.sessions ? Math.round((t.orders / t.sessions) * 1000) / 10 : 0,
     period: custom ? "perso" : period,
     unit,
     demo,
@@ -284,4 +302,52 @@ export function demoVisits(now: number): Visit[] {
     }
   }
   return out;
+}
+
+/* ------------------------------------------------------------- en direct */
+
+export interface LiveResult {
+  demo: boolean;
+  now: number;
+  /** visiteurs actifs ces 5 dernières minutes */
+  online: number;
+  /** visiteurs actifs ces 30 dernières minutes */
+  last30: number;
+  /** visiteurs uniques par minute, 30 dernières minutes (de la plus ancienne à maintenant) */
+  perMinute: number[];
+  /** pages consultées en ce moment (5 dernières minutes) */
+  pages: { path: string; label: string; kind: "produit" | "page"; visitors: number }[];
+  /** dernières pages vues */
+  recent: { t: number; path: string; label: string; kind: "produit" | "page"; country: string; countryName: string; src: SourceId; d: Device }[];
+  /** commandes envoyées dans la dernière heure */
+  ordersHour: number;
+}
+
+/** Ce qui se passe sur le site en ce moment. */
+export function liveView(all: Visit[], now: number, demo: boolean): LiveResult {
+  const recentAll = all.filter((v) => v.t >= now - 60 * 60_000 && v.t <= now);
+  const views = recentAll.filter((v) => !v.e && v.t >= now - 30 * 60_000);
+  const online = views.filter((v) => v.t >= now - 5 * 60_000);
+  const perMinute = Array.from({ length: 30 }, (_, i) => {
+    const a = now - (30 - i) * 60_000;
+    return new Set(views.filter((v) => v.t >= a && v.t < a + 60_000).map((v) => v.v)).size;
+  });
+  const byPage = new Map<string, Set<string>>();
+  for (const v of online) (byPage.get(v.p) ?? byPage.set(v.p, new Set()).get(v.p)!).add(v.v);
+  return {
+    demo,
+    now,
+    online: new Set(online.map((v) => v.v)).size,
+    last30: new Set(views.map((v) => v.v)).size,
+    perMinute,
+    pages: [...byPage.entries()]
+      .sort((a, z) => z[1].size - a[1].size)
+      .slice(0, 5)
+      .map(([path, s]) => ({ path, visitors: s.size, ...pageLabel(path) })),
+    recent: [...views]
+      .sort((a, z) => z.t - a.t)
+      .slice(0, 8)
+      .map((v) => ({ t: v.t, path: v.p, ...pageLabel(v.p), country: v.c, countryName: v.c ? (regions.of(v.c) ?? v.c) : "Pays inconnu", src: v.src, d: v.d })),
+    ordersHour: recentAll.filter((v) => v.e === "order").length,
+  };
 }

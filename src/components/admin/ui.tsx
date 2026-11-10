@@ -77,3 +77,18 @@ export function StatTile({ icon: Icon, label, value, delta, hint, invert }: { ic
     </div>
   );
 }
+
+/**
+ * Téléphone : boutons d'action principaux fixés en bas de l'écran (au-dessus de la barre de navigation
+ * de l'espace équipe), pour les atteindre au pouce. Sur ordinateur, ils restent dans l'en-tête.
+ */
+export function MobileActions({ children }: { children: React.ReactNode; team?: boolean }) {
+  return (
+    <>
+      <div aria-hidden className="h-20 lg:hidden" />
+      <div className={cn("fixed inset-x-0 z-30 border-t border-akua-gray-200 bg-akua-white/95 px-4 pt-3 pb-3 backdrop-blur-xl lg:hidden", "bottom-[calc(62px+env(safe-area-inset-bottom))]")}>
+        <div className="mx-auto flex max-w-[560px] gap-2.5 [&>*]:flex-1">{children}</div>
+      </div>
+    </>
+  );
+}

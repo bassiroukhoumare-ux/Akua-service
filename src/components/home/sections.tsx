@@ -1,5 +1,4 @@
 import { ArrowRight, BadgeCheck, Check, MessageCircleMore, PackageCheck, ShieldCheck, Store, TrendingUp, Truck } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { HOME_BANNER, HOME_VISUAL } from "@/config/home-visual";
 import { BuyNowButton } from "@/components/product/add-to-cart-button";
@@ -16,6 +15,7 @@ import { MobileSlider } from "@/components/ui/mobile-slider";
 import { PLATFORM_LOGOS } from "./platform-logos";
 import { WhatsAppContactButton } from "@/components/shop/whatsapp-contact-dialog";
 import { PromoVideo } from "./promo-video";
+import { HomeMedia } from "@/components/ui/home-media";
 import { PROMO_VIDEO_CARDS } from "@/config/promo-video";
 import { PromoTimer } from "./promo-timer";
 import { dealEnd, type DealTiming } from "@/lib/deals";
@@ -53,6 +53,7 @@ export interface HomeSlot {
   src: string;
   alt: string;
   href: string | null;
+  media?: "image" | "video";
 }
 
 function SlotLink({ slot, className, style, children, label }: { slot: HomeSlot; className: string; style?: React.CSSProperties; children: React.ReactNode; label?: string }) {
@@ -110,13 +111,14 @@ export function CategoryRail({ categories, poster, banner }: { categories: Categ
           style={{ aspectRatio: `${HOME_VISUAL.width} / ${HOME_VISUAL.height}` }}
           className="group relative order-3 block overflow-hidden rounded-[24px] bg-akua-page md:order-none md:col-start-2 md:row-start-1 lg:row-span-2"
         >
-          <Image
+          <HomeMedia
             src={p.src}
             alt={p.alt}
-            fill
+            media={p.media}
+            fit={p.media === "video" ? "cover" : "contain"}
             priority
             sizes="(min-width:1024px) 340px, (min-width:768px) 260px, 100vw"
-            className="object-contain transition-transform duration-700 ease-akua group-hover:scale-[1.03]"
+            className="transition-transform duration-700 ease-akua group-hover:scale-[1.03]"
           />
         </SlotLink>
 
@@ -125,14 +127,7 @@ export function CategoryRail({ categories, poster, banner }: { categories: Categ
           label={b.alt}
           className="group relative order-2 block aspect-[3/1] overflow-hidden rounded-[24px] bg-akua-page md:order-none md:col-span-2 md:row-start-2 lg:col-span-1 lg:col-start-1 lg:aspect-auto"
         >
-          <Image
-            src={b.src}
-            alt={b.alt}
-            fill
-            sizes="(min-width:1024px) 900px, 100vw"
-            priority
-            className="object-cover transition-transform duration-700 ease-akua group-hover:scale-[1.02]"
-          />
+          <HomeMedia src={b.src} alt={b.alt} media={b.media} sizes="(min-width:1024px) 900px, 100vw" priority className="transition-transform duration-700 ease-akua group-hover:scale-[1.02]" />
         </SlotLink>
       </div>
     </section>

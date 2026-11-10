@@ -3,8 +3,8 @@ import { type NextRequest, NextResponse } from "next/server";
 import type { PortalKind } from "@/config/admin-base";
 import { readSession, SESSION } from "@/lib/admin/session";
 import { findMember } from "@/lib/admin/team-auth";
-import { aggregate, demoVisits, periodRange, STATS_PERIODS, type StatsPeriod, type StatsRange } from "./aggregate";
-import { readVisits } from "./store";
+import { aggregate, demoVisits, liveView, periodRange, STATS_PERIODS, type StatsPeriod, type StatsRange } from "./aggregate";
+import { hasVisits, readVisits } from "./store";
 
 // exemple recalculé une fois par heure au plus
 let demoCache: { hour: number; list: ReturnType<typeof demoVisits> } | null = null;
@@ -40,4 +40,15 @@ export async function statsHandler(req: NextRequest, kind: PortalKind) {
   const sel = range ?? period;
   const result = real.length ? aggregate(real, sel, now, false) : aggregate(demo(now), sel, now, true);
   return NextResponse.json(result, { headers: { "Cache-Control": "no-store" } });
+}
+
+/** En direct : visiteurs présents sur le site maintenant (actualisé toutes les 10 s par l'admin). */
+export async function liveHandler(kind: PortalKind) {
+  const user = await readSession(kind, (await cookies()).get(SESSION[kind].cookie)?.value);
+  const allowed = kind === "owner" ? !!user : !!user && !!(await findMember(user))?.modules.includes("stats");
+  if (!allowed) return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+  const now = Date.now();
+  const real = await readVisits(now - 60 * 60_000);
+  const anyReal = real.length > 0 || (await hasVisits());
+  return NextResponse.json(anyReal ? liveView(real, now, false) : liveView(demo(now), now, true), { headers: { "Cache-Control": "no-store" } });
 }

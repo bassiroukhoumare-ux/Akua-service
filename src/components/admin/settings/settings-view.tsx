@@ -21,9 +21,11 @@ import {
   useAdminSettings,
   WEEK_ORDER,
 } from "@/store/admin-settings";
-import { useAdmin } from "../actor-context";
+import { useAdmin, useCan } from "../actor-context";
 import { Field, inputCls, Toggle } from "../form";
-import { DemoNotice, PageHeader } from "../ui";
+import { PageHeader } from "../ui";
+import { ReadOnlyNotice } from "../read-only";
+import { PushPanel } from "../push-panel";
 
 const NETWORKS: Record<SocialNetwork, { label: string; icon: React.ComponentType<{ className?: string }>; placeholder: string }> = {
   facebook: { label: "Facebook", icon: FacebookIcon, placeholder: "https://www.facebook.com/…" },
@@ -90,7 +92,8 @@ export function SettingsView() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated]);
 
-  const dirty = JSON.stringify(s) !== JSON.stringify(saved);
+  const canEdit = useCan()("settings", "edit");
+  const dirty = canEdit && JSON.stringify(s) !== JSON.stringify(saved);
   const set = <K extends keyof ShopSettings>(k: K, v: ShopSettings[K]) => setS((x) => ({ ...x, [k]: v }));
   const summary = useMemo(() => summarizeHours(s.hours), [s.hours]);
   const [now, setNow] = useState(() => new Date());
@@ -177,10 +180,11 @@ export function SettingsView() {
   return (
     <div className="flex flex-col gap-5 pb-24 md:gap-6">
       <PageHeader title="Paramètres" description="Coordonnées, horaires, localisation, réseaux sociaux et pays de livraison de la boutique." />
-      <DemoNotice>Vos réglages sont gardés dans ce navigateur pour tester le design. Ils s&apos;appliqueront à tout le site (en-tête, pied de page, contact, commandes) dès que la base de données sera branchée.</DemoNotice>
+      <ReadOnlyNotice module="settings" />
+      {actor.kind === "owner" && <PushPanel />}
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="flex flex-col gap-4">
+        <fieldset disabled={!canEdit} className="m-0 flex min-w-0 flex-col gap-4 border-0 p-0">
           {/* boutique */}
           <Section icon={Store} title="Boutique">
             <div className="grid gap-4 sm:grid-cols-2">
@@ -354,7 +358,7 @@ export function SettingsView() {
               <Toggle checked={s.deliveryOthers} onChange={(v) => set("deliveryOthers", v)} label="Afficher « et autres pays »" description="Pour indiquer que vous livrez aussi d'autres pays sur demande." />
             </div>
           </Section>
-        </div>
+        </fieldset>
 
         {/* aperçu */}
         <aside className="flex flex-col gap-4 xl:sticky xl:top-[96px]">
@@ -409,7 +413,7 @@ export function SettingsView() {
       </div>
 
       {/* barre d'enregistrement */}
-      <div className={cn("fixed inset-x-0 bottom-0 z-30 border-t border-akua-gray-200 bg-akua-white/95 backdrop-blur transition-transform duration-300 lg:left-[272px]", dirty ? "translate-y-0" : "translate-y-full")}>
+      <div className={cn("fixed inset-x-0 bottom-0 z-30 border-t border-akua-gray-200 bg-akua-white/95 backdrop-blur transition-transform duration-300 lg:left-[272px]", dirty ? "translate-y-0" : "translate-y-full", "bottom-[calc(62px+env(safe-area-inset-bottom))] lg:bottom-0", !dirty && "invisible")}>
         <div className="mx-auto flex max-w-[1320px] items-center justify-between gap-3 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] md:px-8">
           <p className="text-[13.5px] font-medium text-akua-gray-500">Modifications non enregistrées</p>
           <div className="flex gap-2">

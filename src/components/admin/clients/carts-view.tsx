@@ -10,8 +10,9 @@ import { formatFCFA } from "@/lib/format";
 import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
 import { type SavedCart, type SavedCartStatus, useSavedCarts } from "@/store/saved-carts";
-import { useAdmin } from "../actor-context";
-import { DemoChip, DemoNotice, PageHeader } from "../ui";
+import { useAdmin, useCan } from "../actor-context";
+import { DemoChip, PageHeader } from "../ui";
+import { ReadOnlyNotice } from "../read-only";
 
 const STATUS: Record<SavedCartStatus, { label: string; tone: string }> = {
   pending: { label: "À relancer", tone: "bg-akua-red/10 text-akua-red" },
@@ -39,11 +40,15 @@ function relanceLink(c: SavedCart) {
 
 function CartMenu({ c, onStatus, onDelete }: { c: SavedCart; onStatus: (s: SavedCartStatus) => void; onDelete: () => void }) {
   const [open, setOpen] = useState(false);
+  const can = useCan();
+  const manage = can("carts", "manage");
+  const del = can("carts", "delete");
   const item = "flex h-10 w-full items-center gap-2.5 rounded-xl px-3 text-left text-[14px] font-medium hover:bg-akua-page";
   const run = (fn: () => void) => () => {
     setOpen(false);
     fn();
   };
+  if (!manage && !del) return null;
   return (
     <div className="relative">
       <button type="button" onClick={() => setOpen((o) => !o)} aria-label={`Actions pour le panier de ${c.name}`} aria-expanded={open} className="grid size-10 place-items-center rounded-full border border-akua-gray-200 text-akua-gray-500 hover:border-akua-ink hover:text-akua-ink">
@@ -53,25 +58,29 @@ function CartMenu({ c, onStatus, onDelete }: { c: SavedCart; onStatus: (s: Saved
         <>
           <button type="button" aria-label="Fermer" className="fixed inset-0 z-30 cursor-default" onClick={() => setOpen(false)} />
           <div role="menu" className="absolute right-0 bottom-full z-40 mb-1 w-56 rounded-[18px] border border-akua-gray-200 bg-akua-white p-1.5 shadow-[0_24px_60px_-24px_rgb(11_16_32/0.35)] sm:top-full sm:bottom-auto sm:mt-1 sm:mb-0">
-            {c.status !== "ordered" && (
+            {manage && c.status !== "ordered" && (
               <button role="menuitem" type="button" className={item} onClick={run(() => onStatus("ordered"))}>
                 <CheckCircle2 aria-hidden className="size-4 text-[#128c4a]" /> Marquer « Commandé »
               </button>
             )}
-            {c.status !== "lost" && (
+            {manage && c.status !== "lost" && (
               <button role="menuitem" type="button" className={item} onClick={run(() => onStatus("lost"))}>
                 <XCircle aria-hidden className="size-4 text-akua-gray-500" /> Marquer « Sans suite »
               </button>
             )}
-            {c.status !== "pending" && (
+            {manage && c.status !== "pending" && (
               <button role="menuitem" type="button" className={item} onClick={run(() => onStatus("pending"))}>
                 <ShoppingBag aria-hidden className="size-4 text-akua-gray-500" /> Remettre « À relancer »
               </button>
             )}
-            <div className="my-1 h-px bg-akua-gray-200" />
-            <button role="menuitem" type="button" className={cn(item, "text-akua-red hover:bg-akua-red/5")} onClick={run(onDelete)}>
-              <Trash2 aria-hidden className="size-4" /> Supprimer
-            </button>
+            {del && (
+              <>
+                {manage && <div className="my-1 h-px bg-akua-gray-200" />}
+                <button role="menuitem" type="button" className={cn(item, "text-akua-red hover:bg-akua-red/5")} onClick={run(onDelete)}>
+                  <Trash2 aria-hidden className="size-4" /> Supprimer
+                </button>
+              </>
+            )}
           </div>
         </>
       )}
@@ -86,6 +95,7 @@ export function CartsView() {
   const { actor } = useAdmin();
   const real = useSavedCarts((s) => s.carts);
   const setStatus = useSavedCarts((s) => s.setStatus);
+  const can = useCan();
   const remove = useSavedCarts((s) => s.remove);
   useEffect(() => void useSavedCarts.getState().load(), []);
   const [tab, setTab] = useState<Tab>("pending");
@@ -109,7 +119,7 @@ export function CartsView() {
   return (
     <div className="flex flex-col gap-5 md:gap-6">
       <PageHeader title="Paniers" description="Les clients qui ont enregistré leur panier sans envoyer la commande. Relancez-les sur WhatsApp en un clic." />
-      <DemoNotice>Les paniers marqués « Exemple » montrent le design. Les vrais paniers enregistrés sur le site (dans ce navigateur pour l&apos;instant) apparaissent en plus.</DemoNotice>
+      <ReadOnlyNotice module="carts" />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {[
@@ -213,7 +223,7 @@ export function CartsView() {
               </div>
 
               <div className="mt-4 flex items-center justify-end gap-2 border-t border-akua-gray-200 pt-4">
-                {c.status !== "ordered" && (
+                {c.status !== "ordered" && can("carts", "manage") && (
                   <a
                     href={relanceLink(c)}
                     target="_blank"

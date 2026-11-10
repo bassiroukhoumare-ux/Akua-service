@@ -35,9 +35,9 @@ interface AdminPromos {
 const uid = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 export const newPromoId = () => `promo-${uid()}`;
 
-function log(actor: Actor, action: StoredActivity["action"], target: string, detail?: string) {
+function log(actor: Actor, action: StoredActivity["action"], target: string, detail?: string, targetId?: string) {
   if (actor.kind !== "team") return;
-  const e: StoredActivity = { id: uid(), memberId: actor.id, memberName: actor.name, action, module: "promos", target, detail, at: new Date().toISOString() };
+  const e: StoredActivity = { id: uid(), memberId: actor.id, memberName: actor.name, action, module: "promos", target, targetId, detail, at: new Date().toISOString() };
   useAdminCatalog.setState((s) => ({ activity: [e, ...s.activity] }));
 }
 
@@ -65,7 +65,7 @@ export const useAdminPromos = create<AdminPromos>()(
       saveCode: (c, actor) => {
         const exists = get().codes.some((x) => x.id === c.id);
         set((s) => ({ codes: exists ? s.codes.map((x) => (x.id === c.id ? c : x)) : [c, ...s.codes] }));
-        log(actor, exists ? "update" : "create", `Code ${c.code}`, promoLabel(c));
+        log(actor, exists ? "update" : "create", `Code ${c.code}`, promoLabel(c), c.id);
       },
       deleteCode: (id, actor) => {
         const c = get().codes.find((x) => x.id === id);
@@ -74,12 +74,12 @@ export const useAdminPromos = create<AdminPromos>()(
           // la bannière liée à ce code redevient un simple message
           announcement: s.announcement.codeId === id ? { ...s.announcement, codeId: null, enabled: false } : s.announcement,
         }));
-        if (c) log(actor, "delete", `Code ${c.code}`);
+        if (c) log(actor, "delete", `Code ${c.code}`, undefined, c.id);
       },
       toggleCode: (id, actor) => {
         const c = get().codes.find((x) => x.id === id);
         set((s) => ({ codes: s.codes.map((x) => (x.id === id ? { ...x, active: x.active === false } : x)) }));
-        if (c) log(actor, "update", `Code ${c.code}`, c.active === false ? "activé" : "désactivé");
+        if (c) log(actor, "update", `Code ${c.code}`, c.active === false ? "activé" : "désactivé", c.id);
       },
       saveAnnouncement: (a, actor) => {
         set({ announcement: a });

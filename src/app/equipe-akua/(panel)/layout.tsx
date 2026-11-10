@@ -16,6 +16,7 @@ export default async function TeamPanelLayout({ children }: { children: React.Re
       }}
       actor={{ id: member.id, name: member.name, kind: "team" }}
       allowed={member.modules}
+      perms={member.perms}
     >
       {member.mustChange ? <FirstPassword name={member.name} /> : children}
     </AdminShell>

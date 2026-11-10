@@ -31,3 +31,12 @@ export async function readVisits(since: number): Promise<Visit[]> {
     return [];
   }
 }
+
+/** Au moins une vraie visite enregistrée ? (requête légère) */
+export async function hasVisits(): Promise<boolean> {
+  try {
+    return ((await db()`select 1 from visits limit 1`) as unknown[]).length > 0;
+  } catch {
+    return false;
+  }
+}

@@ -25,7 +25,7 @@ export async function loadSettings(): Promise<ShopSettings> {
 
 /** Réglages de l'accueil et de l'offre spéciale enregistrés dans l'admin (null : réglages d'origine). */
 export async function loadHome() {
-  const v = await readState<{ slides?: Record<"poster" | "banner", { id: string; image: string; alt: string; linkKind: string; link: string; active: boolean }[]>; sections?: { id: string; visible: boolean; eyebrow?: string; title?: string }[]; deals?: { enabled: boolean; mode: "midnight" | "duration"; hours: number; startedAt: string; repeat: boolean; title: string; highlight: string; text: string; productIds: string[]; videos: [string[], string[]] } }>("akua-admin-home");
+  const v = await readState<{ slides?: Record<"poster" | "banner", { id: string; image: string; alt: string; linkKind: string; link: string; active: boolean; media?: "image" | "video" }[]>; sections?: { id: string; visible: boolean; eyebrow?: string; title?: string }[]; deals?: { enabled: boolean; mode: "midnight" | "duration"; hours: number; startedAt: string; repeat: boolean; title: string; highlight: string; text: string; productIds: string[]; videos: [string[], string[]] } }>("akua-admin-home");
   return v?.state ?? null;
 }
 

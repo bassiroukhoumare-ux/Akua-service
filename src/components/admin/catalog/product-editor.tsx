@@ -31,7 +31,8 @@ import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
 import { newProductId, slugify, useAdminCatalog } from "@/store/admin-catalog";
 import type { Condition, Packaging, Platform, Product, ProductBadgeType, StockStatus } from "@/types/catalog";
-import { useAdmin } from "../actor-context";
+import { useAdmin, useCan } from "../actor-context";
+import { ReadOnlyNotice } from "../read-only";
 import { Field, inputCls, PriceInput, Segmented, TagInput, Toggle } from "../form";
 import { ImageUploader } from "./image-uploader";
 
@@ -121,6 +122,7 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
   const hydrated = useHydrated();
   const router = useRouter();
   const { actor, base } = useAdmin();
+  const can = useCan();
   const products = useAdminCatalog((s) => s.products);
   const categories = useAdminCatalog((s) => s.categories);
   const saveProduct = useAdminCatalog((s) => s.saveProduct);
@@ -244,8 +246,23 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
     );
   }
 
+  // droits de l'équipier : enregistrer = modifier (fiche existante) ou ajouter (nouvelle fiche)
+  const canSave = existing ? can("products", "edit") : can("products", "create");
+  const canDelete = !!existing && can("products", "delete");
+  if (!existing && !canSave) {
+    return (
+      <div className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-10 text-center">
+        <p className="text-[18px] font-bold">Ajout réservé au responsable</p>
+        <p className="mt-1 text-[14px] text-akua-gray-500">Vous n&apos;avez pas le droit d&apos;ajouter des produits ou des packs.</p>
+        <Link href={listHref} className={btn({ variant: "outline", size: "md", className: "mt-5" })}>
+          Retour aux produits
+        </Link>
+      </div>
+    );
+  }
+
   const preview = build();
-  const title = existing ? `Modifier ${existing.isPack ? "le pack" : "le produit"}` : d.isPack ? "Nouveau pack" : "Nouveau produit";
+  const title = existing ? `${canSave ? "Modifier" : "Fiche"} ${existing.isPack ? "le pack" : "le produit"}`.replace("Fiche le", "Fiche du").replace("Fiche du produit", "Fiche du produit") : d.isPack ? "Nouveau pack" : "Nouveau produit";
   const checklist = [
     { ok: d.images.length > 0, t: "Au moins une photo" },
     { ok: d.name.trim().length >= 3, t: "Nom du produit" },
@@ -272,22 +289,29 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
           )}
         </div>
         <div className="hidden gap-2 lg:flex">
-          {existing && (
+          {canDelete && (
             <button type="button" onClick={() => setConfirmDelete(true)} className={btn({ variant: "outline", size: "md", className: "text-akua-red hover:border-akua-red" })}>
               <Trash2 aria-hidden className="size-4" /> Supprimer
             </button>
           )}
           <Link href={listHref} className={btn({ variant: "outline", size: "md" })}>
-            Annuler
+            {canSave ? "Annuler" : "Retour"}
           </Link>
-          <button type="submit" className={btn({ variant: "primary", size: "md" })}>
-            <Check aria-hidden className="size-4" /> {existing ? "Enregistrer" : d.isPack ? "Créer le pack" : "Créer le produit"}
-          </button>
+          {canSave && (
+            <button type="submit" className={btn({ variant: "primary", size: "md" })}>
+              <Check aria-hidden className="size-4" /> {existing ? "Enregistrer" : d.isPack ? "Créer le pack" : "Créer le produit"}
+            </button>
+          )}
         </div>
       </div>
 
+      {!canSave && (
+        <div className="mt-5">
+          <ReadOnlyNotice module="products" />
+        </div>
+      )}
       <div className="mt-6 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="flex flex-col gap-4">
+        <fieldset disabled={!canSave} className="m-0 flex min-w-0 flex-col gap-4 border-0 p-0 disabled:[&_*]:cursor-not-allowed">
           {!existing && (
             <Section n={1} title="Type" description="Un pack regroupe plusieurs articles vendus ensemble (console, manettes, jeux…).">
               <Segmented
@@ -482,10 +506,11 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
               <Toggle checked={d.featured} onChange={(v) => set("featured", v)} label="Mettre en avant" description="Apparaît en priorité dans les suggestions." icon={BadgeCheck} />
             </div>
           </Section>
-        </div>
+        </fieldset>
 
         {/* aperçu */}
-        <aside className="flex flex-col gap-4 lg:sticky lg:top-[96px]">
+        <aside className="lg:sticky lg:top-[96px]">
+          <fieldset disabled={!canSave} className="m-0 flex min-w-0 flex-col gap-4 border-0 p-0">
           <div className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5">
             <p className="text-[11px] font-bold tracking-[0.12em] text-akua-gray-500 uppercase">Aperçu sur le site</p>
             <div className="pointer-events-none mx-auto mt-3 max-w-[260px] select-none" aria-hidden>
@@ -514,12 +539,13 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
             <Info aria-hidden className="mt-0.5 size-4 shrink-0" />
             Démonstration : le produit est enregistré dans ce navigateur. Il apparaîtra sur le site dès que la base de données sera branchée.
           </p>
+          </fieldset>
         </aside>
       </div>
 
       {/* barre d'enregistrement mobile */}
-      <div className="fixed inset-x-0 bottom-0 z-30 flex gap-2 border-t border-akua-gray-200 bg-akua-white/95 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
-        {existing && (
+      <div className={cn("fixed inset-x-0 z-30 flex gap-2 border-t border-akua-gray-200 bg-akua-white/95 px-4 pt-3 backdrop-blur lg:hidden", "bottom-[calc(62px+env(safe-area-inset-bottom))] pb-3")}>
+        {canDelete && (
           <button type="button" onClick={() => setConfirmDelete(true)} aria-label="Supprimer" className={btn({ variant: "outline", size: "icon", className: "text-akua-red" })}>
             <Trash2 aria-hidden className="size-[18px]" />
           </button>
@@ -527,9 +553,11 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
         <Link href={listHref} className={btn({ variant: "outline", size: "md", className: "flex-1" })}>
           Annuler
         </Link>
-        <button type="submit" className={btn({ variant: "primary", size: "md", className: "flex-[2]" })}>
-          <Check aria-hidden className="size-4" /> {existing ? "Enregistrer" : "Créer"}
-        </button>
+        {canSave && (
+          <button type="submit" className={btn({ variant: "primary", size: "md", className: "flex-[2]" })}>
+            <Check aria-hidden className="size-4" /> {existing ? "Enregistrer" : "Créer"}
+          </button>
+        )}
       </div>
 
       <ConfirmDialog

@@ -8,6 +8,7 @@ import {
   MessageSquareText,
   Package,
   PanelsTopLeft,
+  Receipt,
   Settings,
   ShoppingBag,
   TicketPercent,
@@ -28,6 +29,7 @@ export type AdminModuleId =
   | "home"
   | "deals"
   | "promos"
+  | "orders"
   | "reviews"
   | "favorites"
   | "carts"
@@ -82,6 +84,7 @@ export const ADMIN_GROUPS: AdminGroup[] = [
   {
     label: "Clients",
     modules: [
+      { id: "orders", label: "Commandes", description: "Commandes reçues depuis le site, à marquer vendues ou non", href: `${ADMIN_BASE}/commandes`, slug: "commandes", icon: Receipt, step: 1 },
       { id: "reviews", label: "Avis", description: "Avis laissés sur les produits", href: `${ADMIN_BASE}/avis`, slug: "avis", icon: MessageSquareText, step: 5 },
       { id: "favorites", label: "Favoris", description: "Produits ajoutés aux favoris", href: `${ADMIN_BASE}/favoris`, slug: "favoris", icon: Heart, step: 5 },
       { id: "carts", label: "Paniers", description: "Paniers enregistrés et non finalisés", href: `${ADMIN_BASE}/paniers`, slug: "paniers", icon: ShoppingBag, step: 5 },

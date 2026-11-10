@@ -2,7 +2,8 @@ import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import type { PortalKind } from "@/config/admin-base";
 import { CONTENT_TAG, isContentKey, readStateRaw, writeState } from "@/lib/content";
-import { portalUser } from "./portal-user";
+import { checkChange } from "./perm-guard";
+import { portalMember, portalUser } from "./portal-user";
 import { saveImage } from "./images";
 
 const deny = () => NextResponse.json({ error: "Accès refusé" }, { status: 403 });
@@ -16,8 +17,9 @@ export async function getState(kind: PortalKind, key: string) {
 const DATA_URL = /"data:image\/[a-z+.-]+;base64,[A-Za-z0-9+/=]+"/g;
 
 export async function putState(kind: PortalKind, key: string, req: Request) {
-  const who = await portalUser(kind);
-  if (!who) return deny();
+  const me = await portalMember(kind);
+  if (!me) return deny();
+  const who = me.name;
   if (!isContentKey(key)) return NextResponse.json({ error: "Inconnu" }, { status: 404 });
   let text = await req.text();
   // sécurité : une image restée en texte est rangée à part, le contenu reste léger
@@ -30,6 +32,9 @@ export async function putState(kind: PortalKind, key: string, req: Request) {
     return NextResponse.json({ error: "Contenu illisible" }, { status: 400 });
   }
   if (!value || typeof value !== "object" || !("state" in value)) return NextResponse.json({ error: "Contenu illisible" }, { status: 400 });
+  // équipier : chaque changement doit correspondre à un droit qu'il possède
+  const refused = checkChange(key, await readStateRaw<Record<string, unknown>>(key), value as { state?: Record<string, unknown> }, me.perms);
+  if (refused) return NextResponse.json({ error: refused }, { status: 403 });
   await writeState(key, value, who);
   revalidateTag(CONTENT_TAG);
   return NextResponse.json({ ok: true });

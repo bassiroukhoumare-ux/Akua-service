@@ -1,27 +1,27 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { ADMIN_MODULES, type AdminModuleId } from "@/config/admin";
+import { cleanPerms, modulesOf } from "@/config/permissions";
 import { readSession, SESSION } from "@/lib/admin/session";
 import { hashPassword, readTeam, sameIdentifier, type StoredMember, tempPassword, toPublic, updateTeam } from "@/lib/admin/team-store";
 
 // Gestion des équipiers : réservée au propriétaire.
 export const dynamic = "force-dynamic";
 
-const ASSIGNABLE = new Set<string>(ADMIN_MODULES.filter((m) => m.id !== "dashboard" && !m.ownerOnly).map((m) => m.id));
 const fail = (error: string, status = 400) => NextResponse.json({ error }, { status });
 
 async function owner() {
   return !!(await readSession("owner", (await cookies()).get(SESSION.owner.cookie)?.value));
 }
 
-function clean(b: { name?: unknown; identifier?: unknown; modules?: unknown }) {
+function clean(b: { name?: unknown; identifier?: unknown; perms?: unknown }) {
   const name = typeof b.name === "string" ? b.name.trim().slice(0, 80) : "";
   const identifier = typeof b.identifier === "string" ? b.identifier.trim().slice(0, 40) : "";
-  const modules = Array.isArray(b.modules) ? (b.modules.filter((m) => typeof m === "string" && ASSIGNABLE.has(m)) as AdminModuleId[]) : [];
+  const perms = cleanPerms(b.perms);
+  const modules = modulesOf(perms);
   if (name.length < 2) return { error: "Indiquez le nom de l'équipier." };
   if (identifier.replace(/\D/g, "").length < 8 && identifier.length < 3) return { error: "Indiquez son numéro WhatsApp." };
   if (!modules.length) return { error: "Choisissez au moins un module." };
-  return { name, identifier, modules: [...new Set(modules)] };
+  return { name, identifier, modules, perms };
 }
 
 export async function GET() {

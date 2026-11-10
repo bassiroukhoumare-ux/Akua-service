@@ -16,7 +16,6 @@ export function LoginForm({ kind }: { kind: PortalKind }) {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
-  const [remember, setRemember] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -31,7 +30,7 @@ export function LoginForm({ kind }: { kind: PortalKind }) {
     const res = await fetch(`${base}/api/session`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ identifier: team ? identifier : "", password, remember }),
+      body: JSON.stringify({ identifier: team ? identifier : "", password, remember: true }),
     }).catch(() => null);
     if (!res?.ok) {
       const data = (await res?.json().catch(() => null)) as { error?: string } | null;
@@ -102,10 +101,6 @@ export function LoginForm({ kind }: { kind: PortalKind }) {
           </button>
         </div>
       </div>
-      <label className="flex cursor-pointer items-center gap-2.5 text-[13.5px] select-none">
-        <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="size-4 rounded accent-[var(--akua-blue)]" />
-        Rester connecté 7 jours sur cet appareil
-      </label>
       <button type="submit" disabled={busy} className={btn({ variant: "primary", size: "lg", className: "mt-2 h-[54px] w-full rounded-[18px] text-[15.5px] shadow-[0_18px_36px_-16px_rgb(31_91_255/0.75)]" })}>
         {busy ? "Connexion…" : "Se connecter"} {!busy && <ArrowRight aria-hidden className="size-4" />}
       </button>

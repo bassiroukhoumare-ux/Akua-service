@@ -158,3 +158,61 @@ export function buildContactLink(req: ContactRequest): string {
     ].join("\n"),
   );
 }
+
+/* ------------------------------------------------- suivi d'une commande reçue */
+
+export interface FollowUpOrder {
+  ref: string;
+  customer: { name: string };
+  mode: "livraison" | "retrait";
+  delivery?: { country: string; city: string; address: string; landmark?: string };
+  pickup?: { date: string; time: string; deposit?: number; depositLabel?: string };
+  items: { name: string; price: number; quantity: number }[];
+  subtotal: number;
+  promo?: { code: string; discount: number };
+  total: number;
+  note?: string;
+}
+
+const fPickup = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+
+/**
+ * Message envoyé au client pour confirmer sa commande : rappel complet (produits, prix, livraison ou
+ * retrait) puis demande de confirmation. Texte brut, sans emoji.
+ */
+export function buildOrderFollowUp(o: FollowUpOrder): string {
+  const first = o.customer.name.trim().split(/\s+/)[0] || "";
+  const lines: string[] = [];
+  lines.push(`Bonjour ${first},`.replace(" ,", ","), "");
+  lines.push(`Ici AKUA Service. Nous avons bien reçu votre commande n° ${o.ref} passée sur notre site, et nous vous remercions pour votre confiance.`, "");
+  lines.push("Voici le récapitulatif de votre commande :");
+  for (const i of o.items) lines.push(`- ${i.quantity} x ${i.name} : ${formatFCFA(i.price * i.quantity)}`);
+  if (o.promo) {
+    lines.push(`Sous-total : ${formatFCFA(o.subtotal)}`);
+    lines.push(`Code promo ${o.promo.code} : -${formatFCFA(o.promo.discount)}`);
+  }
+  lines.push(`Total : ${formatFCFA(o.total)}`, "");
+  if (o.mode === "livraison") {
+    const d = o.delivery;
+    const place = [d?.address, d?.city, d?.country].filter(Boolean).join(", ");
+    lines.push(`Vous avez choisi la livraison${place ? ` à l'adresse suivante : ${place}` : ""}.`);
+    if (d?.landmark) lines.push(`Point de repère : ${d.landmark}.`);
+  } else {
+    const p = o.pickup;
+    const day = p?.date ? fPickup.format(new Date(`${p.date}T12:00:00`)) : "";
+    lines.push(`Vous avez choisi de récupérer votre commande en boutique${day ? ` le ${day}` : ""}${p?.time ? ` à ${p.time.replace(":", "h")}` : ""}.`);
+    if (p?.deposit) lines.push(`${p.depositLabel ? p.depositLabel.charAt(0).toUpperCase() + p.depositLabel.slice(1) : "Acompte"} prévu : ${formatFCFA(p.deposit)}.`);
+  }
+  if (o.note) lines.push(`Votre précision : « ${o.note} »`);
+  lines.push("");
+  lines.push("Pouvez-vous nous confirmer que ces informations sont exactes et que vous maintenez votre commande ?");
+  lines.push("Dès votre confirmation, nous vous indiquons la suite (paiement et " + (o.mode === "livraison" ? "livraison" : "retrait") + ").", "");
+  lines.push("Si vous avez la moindre question, n'hésitez pas à nous l'écrire ici.", "");
+  lines.push(`Merci et à très bientôt,`, SITE_NAME);
+  return lines.join("\n");
+}
+
+/** Lien WhatsApp vers le client avec le message de confirmation pré-rempli. */
+export function followUpLink(phone: string, o: FollowUpOrder) {
+  return `https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(buildOrderFollowUp(o))}`;
+}

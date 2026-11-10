@@ -26,6 +26,8 @@ export interface StoredActivity {
   action: ActivityAction;
   module: AdminModuleId;
   target: string;
+  /** élément concerné (produit, catégorie…), pour y accéder depuis le journal */
+  targetId?: string;
   detail?: string;
   at: string;
 }
@@ -55,9 +57,9 @@ export const slugify = (s: string) =>
     .slice(0, 80);
 
 /** seules les actions des équipiers sont journalisées (le propriétaire voit tout) */
-function log(actor: Actor, action: ActivityAction, module: AdminModuleId, target: string, detail?: string): StoredActivity[] {
+function log(actor: Actor, action: ActivityAction, module: AdminModuleId, target: string, detail?: string, targetId?: string): StoredActivity[] {
   if (actor.kind !== "team") return [];
-  return [{ id: uid(), memberId: actor.id, memberName: actor.name, action, module, target, detail, at: new Date().toISOString() }];
+  return [{ id: uid(), memberId: actor.id, memberName: actor.name, action, module, target, targetId, detail, at: new Date().toISOString() }];
 }
 
 const initial = () => ({ products: seedProducts, categories: seedCategories, activity: [] as StoredActivity[] });
@@ -74,12 +76,12 @@ export const useAdminCatalog = create<AdminCatalog>()(
           : { ...p, createdBy: actor.name, createdAt: now.slice(0, 10), updatedAt: now };
         set((s) => ({
           products: exists ? s.products.map((x) => (x.id === p.id ? product : x)) : [product, ...s.products],
-          activity: [...log(actor, exists ? "update" : "create", "products", p.name, detail), ...s.activity],
+          activity: [...log(actor, exists ? "update" : "create", "products", p.name, detail, p.id), ...s.activity],
         }));
       },
       deleteProduct: (id, actor) => {
         const p = get().products.find((x) => x.id === id);
-        set((s) => ({ products: s.products.filter((x) => x.id !== id), activity: [...log(actor, "delete", "products", p?.name ?? "Produit"), ...s.activity] }));
+        set((s) => ({ products: s.products.filter((x) => x.id !== id), activity: [...log(actor, "delete", "products", p?.name ?? "Produit", undefined, id), ...s.activity] }));
       },
       togglePublished: (id, actor) => {
         const p = get().products.find((x) => x.id === id);
@@ -87,14 +89,14 @@ export const useAdminCatalog = create<AdminCatalog>()(
         const published = p.published === false;
         set((s) => ({
           products: s.products.map((x) => (x.id === id ? { ...x, published, updatedBy: actor.name, updatedAt: new Date().toISOString() } : x)),
-          activity: [...log(actor, "update", "products", p.name, published ? "rendu visible sur le site" : "masqué du site"), ...s.activity],
+          activity: [...log(actor, "update", "products", p.name, published ? "rendu visible sur le site" : "masqué du site", p.id), ...s.activity],
         }));
       },
       saveCategory: (c, actor) => {
         const exists = get().categories.some((x) => x.id === c.id);
         set((s) => ({
           categories: exists ? s.categories.map((x) => (x.id === c.id ? c : x)) : [...s.categories, { ...c, order: s.categories.length + 1 }],
-          activity: [...log(actor, exists ? "update" : "create", "categories", c.name), ...s.activity],
+          activity: [...log(actor, exists ? "update" : "create", "categories", c.name, undefined, c.id), ...s.activity],
         }));
       },
       deleteCategory: (id, moveTo, actor) => {
@@ -102,7 +104,7 @@ export const useAdminCatalog = create<AdminCatalog>()(
         set((s) => ({
           categories: s.categories.filter((x) => x.id !== id).map((x, i) => ({ ...x, order: i + 1 })),
           products: moveTo ? s.products.map((p) => (p.categoryId === id ? { ...p, categoryId: moveTo } : p)) : s.products,
-          activity: [...log(actor, "delete", "categories", c?.name ?? "Catégorie"), ...s.activity],
+          activity: [...log(actor, "delete", "categories", c?.name ?? "Catégorie", undefined, id), ...s.activity],
         }));
       },
       moveCategory: (id, dir) => {

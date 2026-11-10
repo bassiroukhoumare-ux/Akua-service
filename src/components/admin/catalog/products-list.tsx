@@ -13,8 +13,9 @@ import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
 import { newProductId, useAdminCatalog } from "@/store/admin-catalog";
 import type { Product } from "@/types/catalog";
-import { useAdmin } from "../actor-context";
-import { DemoNotice, PageHeader } from "../ui";
+import { useAdmin, useCan } from "../actor-context";
+import { ReadOnlyNotice } from "../read-only";
+import { MobileActions, PageHeader } from "../ui";
 
 type Tab = "all" | "simple" | "pack" | "promo" | "hidden" | "out";
 const TABS: { id: Tab; label: string; test: (p: Product) => boolean }[] = [
@@ -32,13 +33,21 @@ const STOCK: Record<Product["stockStatus"], { label: string; tone: string }> = {
   rupture: { label: "Rupture", tone: "text-akua-red" },
 };
 
-const norm = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+const norm = (s: string) =>
+  s
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase();
 
 function Thumb({ p, size = 56 }: { p: Product; size?: number }) {
   const src = p.images[0];
   return (
     <span className="relative shrink-0 overflow-hidden rounded-[14px] bg-akua-tile" style={{ width: size, height: size }}>
-      {src ? <Image src={src} alt="" fill sizes={`${size}px`} className="object-contain p-1" unoptimized={src.startsWith("data:")} /> : <PackageOpen aria-hidden className="absolute inset-0 m-auto size-5 text-akua-gray-500" />}
+      {src ? (
+        <Image src={src} alt="" fill sizes={`${size}px`} className="object-contain p-1" unoptimized={src.startsWith("data:")} />
+      ) : (
+        <PackageOpen aria-hidden className="absolute inset-0 m-auto size-5 text-akua-gray-500" />
+      )}
     </span>
   );
 }
@@ -60,6 +69,7 @@ function Price({ p }: { p: Product }) {
 
 function RowMenu({ p, onDelete }: { p: Product; onDelete: () => void }) {
   const { actor, base } = useAdmin();
+  const can = useCan();
   const router = useRouter();
   const toggle = useAdminCatalog((s) => s.togglePublished);
   const save = useAdminCatalog((s) => s.saveProduct);
@@ -67,7 +77,13 @@ function RowMenu({ p, onDelete }: { p: Product; onDelete: () => void }) {
   const item = "flex h-10 w-full items-center gap-2.5 rounded-xl px-3 text-left text-[14px] font-medium hover:bg-akua-page";
   return (
     <div className="relative">
-      <button type="button" onClick={() => setOpen((o) => !o)} aria-label={`Actions pour ${p.name}`} aria-expanded={open} className="grid size-9 place-items-center rounded-full text-akua-gray-500 hover:bg-akua-page hover:text-akua-ink">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-label={`Actions pour ${p.name}`}
+        aria-expanded={open}
+        className="grid size-9 place-items-center rounded-full text-akua-gray-500 hover:bg-akua-page hover:text-akua-ink"
+      >
         <MoreHorizontal aria-hidden className="size-5" />
       </button>
       {open && (
@@ -75,45 +91,54 @@ function RowMenu({ p, onDelete }: { p: Product; onDelete: () => void }) {
           <button type="button" aria-label="Fermer" className="fixed inset-0 z-30 cursor-default" onClick={() => setOpen(false)} />
           <div role="menu" className="absolute top-full right-0 z-40 mt-1 w-56 rounded-[18px] border border-akua-gray-200 bg-akua-white p-1.5 shadow-[0_24px_60px_-24px_rgb(11_16_32/0.35)]">
             <Link role="menuitem" href={`${base}/produits/${p.id}`} className={item}>
-              <Pencil aria-hidden className="size-4 text-akua-gray-500" /> Modifier
+              {can("products", "edit") ? <Pencil aria-hidden className="size-4 text-akua-gray-500" /> : <Eye aria-hidden className="size-4 text-akua-gray-500" />}{" "}
+              {can("products", "edit") ? "Modifier" : "Voir la fiche"}
             </Link>
-            <button
-              role="menuitem"
-              type="button"
-              className={item}
-              onClick={() => {
-                setOpen(false);
-                const id = newProductId();
-                save({ ...p, id, slug: `${p.slug}-copie`, name: `${p.name} (copie)`, published: false, createdBy: undefined, updatedBy: undefined }, actor, "copie masquée");
-                router.push(`${base}/produits/${id}`);
-              }}
-            >
-              <Copy aria-hidden className="size-4 text-akua-gray-500" /> Dupliquer
-            </button>
-            <button
-              role="menuitem"
-              type="button"
-              className={item}
-              onClick={() => {
-                setOpen(false);
-                toggle(p.id, actor);
-              }}
-            >
-              {p.published === false ? <Eye aria-hidden className="size-4 text-akua-gray-500" /> : <EyeOff aria-hidden className="size-4 text-akua-gray-500" />}
-              {p.published === false ? "Rendre visible" : "Masquer du site"}
-            </button>
-            <div className="my-1 h-px bg-akua-gray-200" />
-            <button
-              role="menuitem"
-              type="button"
-              className={cn(item, "text-akua-red hover:bg-akua-red/5")}
-              onClick={() => {
-                setOpen(false);
-                onDelete();
-              }}
-            >
-              <Trash2 aria-hidden className="size-4" /> Supprimer
-            </button>
+            {can("products", "create") && (
+              <button
+                role="menuitem"
+                type="button"
+                className={item}
+                onClick={() => {
+                  setOpen(false);
+                  const id = newProductId();
+                  save({ ...p, id, slug: `${p.slug}-copie`, name: `${p.name} (copie)`, published: false, createdBy: undefined, updatedBy: undefined }, actor, "copie masquée");
+                  router.push(`${base}/produits/${id}`);
+                }}
+              >
+                <Copy aria-hidden className="size-4 text-akua-gray-500" /> Dupliquer
+              </button>
+            )}
+            {can("products", "edit") && (
+              <button
+                role="menuitem"
+                type="button"
+                className={item}
+                onClick={() => {
+                  setOpen(false);
+                  toggle(p.id, actor);
+                }}
+              >
+                {p.published === false ? <Eye aria-hidden className="size-4 text-akua-gray-500" /> : <EyeOff aria-hidden className="size-4 text-akua-gray-500" />}
+                {p.published === false ? "Rendre visible" : "Masquer du site"}
+              </button>
+            )}
+            {can("products", "delete") && (
+              <>
+                <div className="my-1 h-px bg-akua-gray-200" />
+                <button
+                  role="menuitem"
+                  type="button"
+                  className={cn(item, "text-akua-red hover:bg-akua-red/5")}
+                  onClick={() => {
+                    setOpen(false);
+                    onDelete();
+                  }}
+                >
+                  <Trash2 aria-hidden className="size-4" /> Supprimer
+                </button>
+              </>
+            )}
           </div>
         </>
       )}
@@ -126,6 +151,7 @@ const OK_MSG: Record<string, string> = { ajoute: "Produit ajouté.", modifie: "M
 export function ProductsList() {
   const hydrated = useHydrated();
   const { actor, base } = useAdmin();
+  const can = useCan();
   const sp = useSearchParams();
   const router = useRouter();
   const products = useAdminCatalog((s) => s.products);
@@ -161,17 +187,19 @@ export function ProductsList() {
         title="Produits"
         description="Ajoutez, modifiez ou masquez les produits et les packs de la boutique."
         actions={
-          <>
-            <Link href={`${base}/produits/nouveau?type=pack`} className={btn({ variant: "outline", size: "md" })}>
-              <PackageOpen aria-hidden className="size-[18px]" /> Créer un pack
-            </Link>
-            <Link href={`${base}/produits/nouveau`} className={btn({ variant: "primary", size: "md" })}>
-              <Plus aria-hidden className="size-[18px]" /> Ajouter un produit
-            </Link>
-          </>
+          can("products", "create") && (
+            <div className="hidden gap-2 lg:flex">
+              <Link href={`${base}/produits/nouveau?type=pack`} className={btn({ variant: "outline", size: "md" })}>
+                <PackageOpen aria-hidden className="size-[18px]" /> Créer un pack
+              </Link>
+              <Link href={`${base}/produits/nouveau`} className={btn({ variant: "primary", size: "md" })}>
+                <Plus aria-hidden className="size-[18px]" /> Ajouter un produit
+              </Link>
+            </div>
+          )
         }
       />
-      <DemoNotice>Vos ajouts et modifications sont gardés dans ce navigateur pour tester le design. Ils apparaîtront sur le site public dès que la base de données sera branchée.</DemoNotice>
+      <ReadOnlyNotice module="products" />
 
       {/* filtres */}
       <div className="flex flex-col gap-3">
@@ -204,7 +232,12 @@ export function ProductsList() {
               className="h-12 w-full rounded-2xl border border-akua-gray-200 bg-akua-white pr-10 pl-11 text-[16px] outline-none focus:border-akua-blue focus:ring-4 focus:ring-akua-blue/10 sm:text-[15px]"
             />
             {q && (
-              <button type="button" onClick={() => setQ("")} aria-label="Effacer" className="absolute top-1/2 right-3 grid size-7 -translate-y-1/2 place-items-center rounded-full text-akua-gray-500 hover:bg-akua-page">
+              <button
+                type="button"
+                onClick={() => setQ("")}
+                aria-label="Effacer"
+                className="absolute top-1/2 right-3 grid size-7 -translate-y-1/2 place-items-center rounded-full text-akua-gray-500 hover:bg-akua-page"
+              >
                 <X aria-hidden className="size-4" />
               </button>
             )}
@@ -270,7 +303,12 @@ export function ProductsList() {
                     {p.updatedBy && p.updatedBy !== p.createdBy && <span className="block text-[12px] text-akua-gray-500">modifié par {p.updatedBy}</span>}
                   </td>
                   <td className="py-3">
-                    <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold", p.published === false ? "bg-akua-page text-akua-gray-500" : "bg-akua-whatsapp/12 text-[#128c4a]")}>
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold",
+                        p.published === false ? "bg-akua-page text-akua-gray-500" : "bg-akua-whatsapp/12 text-[#128c4a]",
+                      )}
+                    >
                       <span className={cn("size-1.5 rounded-full", p.published === false ? "bg-akua-gray-500" : "bg-akua-whatsapp")} />
                       {p.published === false ? "Masqué" : "Visible"}
                     </span>
@@ -322,9 +360,22 @@ export function ProductsList() {
       />
 
       {toast && (
-        <div role="status" className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2.5 rounded-full bg-akua-ink px-5 py-3 text-[14px] font-semibold text-akua-white shadow-[0_20px_40px_-16px_rgb(7_8_12/0.6)]">
+        <div
+          role="status"
+          className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2.5 rounded-full bg-akua-ink px-5 py-3 text-[14px] font-semibold text-akua-white shadow-[0_20px_40px_-16px_rgb(7_8_12/0.6)]"
+        >
           <CheckCircle2 aria-hidden className="size-[18px] text-akua-whatsapp" /> {toast}
         </div>
+      )}
+      {can("products", "create") && (
+        <MobileActions team={actor.kind === "team"}>
+          <Link href={`${base}/produits/nouveau?type=pack`} className={btn({ variant: "outline", size: "lg", className: "px-3" })}>
+            <PackageOpen aria-hidden className="size-[18px]" /> Créer un pack
+          </Link>
+          <Link href={`${base}/produits/nouveau`} className={btn({ variant: "primary", size: "lg", className: "px-3" })}>
+            <Plus aria-hidden className="size-[18px]" /> Ajouter un produit
+          </Link>
+        </MobileActions>
       )}
     </div>
   );

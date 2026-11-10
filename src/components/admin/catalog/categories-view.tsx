@@ -11,11 +11,16 @@ import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
 import { newCategoryId, slugify, useAdminCatalog } from "@/store/admin-catalog";
 import type { Category } from "@/types/catalog";
-import { useAdmin } from "../actor-context";
+import { useAdmin, useCan } from "../actor-context";
 import { Field, inputCls } from "../form";
-import { DemoNotice, PageHeader } from "../ui";
+import { MobileActions, PageHeader } from "../ui";
+import { ReadOnlyNotice } from "../read-only";
 
-const norm = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+const norm = (s: string) =>
+  s
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase();
 
 function CategoryDialog({ open, onOpenChange, initial }: { open: boolean; onOpenChange: (o: boolean) => void; initial?: Category }) {
   const { actor } = useAdmin();
@@ -56,7 +61,10 @@ function CategoryDialog({ open, onOpenChange, initial }: { open: boolean; onOpen
     e.preventDefault();
     if (name.trim().length < 2) return setError("Indiquez le nom de la catégorie.");
     if (categories.some((c) => c.id !== initial?.id && slugify(c.name) === slug)) return setError("Une catégorie porte déjà ce nom.");
-    save({ id: initial?.id ?? newCategoryId(), slug: initial?.slug ?? slug, name: name.trim(), icon: icon || "console", description: description.trim() || undefined, order: initial?.order ?? 0 }, actor);
+    save(
+      { id: initial?.id ?? newCategoryId(), slug: initial?.slug ?? slug, name: name.trim(), icon: icon || "console", description: description.trim() || undefined, order: initial?.order ?? 0 },
+      actor,
+    );
     onOpenChange(false);
   }
 
@@ -112,7 +120,12 @@ function CategoryDialog({ open, onOpenChange, initial }: { open: boolean; onOpen
               </div>
               <div className="relative mb-3">
                 <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-akua-gray-500" />
-                <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher une icône (casque, câble, montre…)" className="h-11 w-full rounded-xl bg-akua-page pr-3 pl-10 text-[16px] outline-none focus:ring-2 focus:ring-akua-blue/25 sm:text-[14px]" />
+                <input
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder="Rechercher une icône (casque, câble, montre…)"
+                  className="h-11 w-full rounded-xl bg-akua-page pr-3 pl-10 text-[16px] outline-none focus:ring-2 focus:ring-akua-blue/25 sm:text-[14px]"
+                />
               </div>
               <div role="radiogroup" aria-label="Icône de la catégorie" className="grid grid-cols-4 gap-2 sm:grid-cols-6">
                 {icons.map(([key, def]) => {
@@ -182,7 +195,13 @@ function DeleteDialog({ category, onClose }: { category: Category | null; onClos
         </DialogDescription>
         {count > 0 && (
           <div className="mt-4">
-            <SearchSelect value={moveTo} onChange={setMoveTo} options={others.map((c) => ({ value: c.id, label: c.name }))} placeholder="Déplacer les produits vers…" aria-label="Catégorie de destination" />
+            <SearchSelect
+              value={moveTo}
+              onChange={setMoveTo}
+              options={others.map((c) => ({ value: c.id, label: c.name }))}
+              placeholder="Déplacer les produits vers…"
+              aria-label="Catégorie de destination"
+            />
           </div>
         )}
         <div className="mt-6 grid grid-cols-2 gap-2.5">
@@ -211,6 +230,8 @@ export function CategoriesView() {
   const categories = useAdminCatalog((s) => s.categories);
   const products = useAdminCatalog((s) => s.products);
   const move = useAdminCatalog((s) => s.moveCategory);
+  const can = useCan();
+  const { actor } = useAdmin();
   const [editing, setEditing] = useState<Category | undefined>();
   const [open, setOpen] = useState(false);
   const [toDelete, setToDelete] = useState<Category | null>(null);
@@ -222,19 +243,21 @@ export function CategoriesView() {
         title="Catégories"
         description="Les rayons de la boutique, dans l'ordre où ils apparaissent sur le site."
         actions={
-          <button
-            type="button"
-            onClick={() => {
-              setEditing(undefined);
-              setOpen(true);
-            }}
-            className={btn({ variant: "primary", size: "md" })}
-          >
-            <Plus aria-hidden className="size-[18px]" /> Nouvelle catégorie
-          </button>
+          can("categories", "create") && (
+            <button
+              type="button"
+              onClick={() => {
+                setEditing(undefined);
+                setOpen(true);
+              }}
+              className={btn({ variant: "primary", size: "md", className: "hidden lg:inline-flex" })}
+            >
+              <Plus aria-hidden className="size-[18px]" /> Nouvelle catégorie
+            </button>
+          )
         }
       />
-      <DemoNotice>Vos modifications sont gardées dans ce navigateur pour tester le design. Elles s&apos;appliqueront au site dès que la base de données sera branchée.</DemoNotice>
+      <ReadOnlyNotice module="categories" />
 
       {!hydrated ? (
         <div className="h-80 animate-pulse rounded-[24px] bg-akua-white" />
@@ -244,7 +267,11 @@ export function CategoriesView() {
             const Icon = getCategoryIcon(c.icon);
             const n = products.filter((p) => p.categoryId === c.id).length;
             return (
-              <li key={c.id} className="group flex flex-col rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 transition-colors hover:border-akua-gray-500/40">
+              <li
+                key={c.id}
+                id={`cat-${c.id}`}
+                className="group flex scroll-mt-28 flex-col rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 transition-colors target:border-akua-blue target:ring-4 target:ring-akua-blue/15 hover:border-akua-gray-500/40"
+              >
                 <div className="flex items-start gap-4">
                   <span className="grid size-14 shrink-0 place-items-center rounded-[18px] bg-akua-page transition-colors group-hover:bg-akua-blue-100">
                     <Icon aria-hidden className="size-7 text-akua-ink transition-colors group-hover:text-akua-blue" strokeWidth={1.4} />
@@ -261,32 +288,58 @@ export function CategoriesView() {
                 </div>
                 {c.description && <p className="mt-3 line-clamp-2 text-[13.5px] text-akua-gray-500">{c.description}</p>}
                 <div className="mt-auto flex items-center justify-between gap-2 pt-4">
-                  <div className="flex gap-1">
-                    <button type="button" onClick={() => move(c.id, -1)} disabled={i === 0} aria-label={`Monter ${c.name}`} className="grid size-9 place-items-center rounded-full border border-akua-gray-200 hover:border-akua-ink disabled:opacity-30">
+                  <div className={cn("flex gap-1", !can("categories", "edit") && "invisible")}>
+                    <button
+                      type="button"
+                      onClick={() => move(c.id, -1)}
+                      disabled={i === 0}
+                      aria-label={`Monter ${c.name}`}
+                      className="grid size-9 place-items-center rounded-full border border-akua-gray-200 hover:border-akua-ink disabled:opacity-30"
+                    >
                       <ArrowUp aria-hidden className="size-4" />
                     </button>
-                    <button type="button" onClick={() => move(c.id, 1)} disabled={i === sorted.length - 1} aria-label={`Descendre ${c.name}`} className="grid size-9 place-items-center rounded-full border border-akua-gray-200 hover:border-akua-ink disabled:opacity-30">
+                    <button
+                      type="button"
+                      onClick={() => move(c.id, 1)}
+                      disabled={i === sorted.length - 1}
+                      aria-label={`Descendre ${c.name}`}
+                      className="grid size-9 place-items-center rounded-full border border-akua-gray-200 hover:border-akua-ink disabled:opacity-30"
+                    >
                       <ArrowDown aria-hidden className="size-4" />
                     </button>
                   </div>
                   <div className="flex gap-1">
-                    <Link href={`/boutique/${c.slug}`} target="_blank" aria-label={`Voir ${c.name} sur le site`} className="grid size-9 place-items-center rounded-full text-akua-gray-500 hover:bg-akua-page hover:text-akua-ink">
-                      <ExternalLink aria-hidden className="size-4" />
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditing(c);
-                        setOpen(true);
-                      }}
-                      aria-label={`Modifier ${c.name}`}
+                    <Link
+                      href={`/boutique/${c.slug}`}
+                      target="_blank"
+                      aria-label={`Voir ${c.name} sur le site`}
                       className="grid size-9 place-items-center rounded-full text-akua-gray-500 hover:bg-akua-page hover:text-akua-ink"
                     >
-                      <Pencil aria-hidden className="size-4" />
-                    </button>
-                    <button type="button" onClick={() => setToDelete(c)} aria-label={`Supprimer ${c.name}`} className="grid size-9 place-items-center rounded-full text-akua-gray-500 hover:bg-akua-red/5 hover:text-akua-red">
-                      <Trash2 aria-hidden className="size-4" />
-                    </button>
+                      <ExternalLink aria-hidden className="size-4" />
+                    </Link>
+                    {can("categories", "edit") && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditing(c);
+                          setOpen(true);
+                        }}
+                        aria-label={`Modifier ${c.name}`}
+                        className="grid size-9 place-items-center rounded-full text-akua-gray-500 hover:bg-akua-page hover:text-akua-ink"
+                      >
+                        <Pencil aria-hidden className="size-4" />
+                      </button>
+                    )}
+                    {can("categories", "delete") && (
+                      <button
+                        type="button"
+                        onClick={() => setToDelete(c)}
+                        aria-label={`Supprimer ${c.name}`}
+                        className="grid size-9 place-items-center rounded-full text-akua-gray-500 hover:bg-akua-red/5 hover:text-akua-red"
+                      >
+                        <Trash2 aria-hidden className="size-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </li>
@@ -297,6 +350,20 @@ export function CategoriesView() {
 
       <CategoryDialog open={open} onOpenChange={setOpen} initial={editing} />
       <DeleteDialog category={toDelete} onClose={() => setToDelete(null)} />
+      {can("categories", "create") && (
+        <MobileActions team={actor.kind === "team"}>
+          <button
+            type="button"
+            onClick={() => {
+              setEditing(undefined);
+              setOpen(true);
+            }}
+            className={btn({ variant: "primary", size: "lg" })}
+          >
+            <Plus aria-hidden className="size-[18px]" /> Nouvelle catégorie
+          </button>
+        </MobileActions>
+      )}
     </div>
   );
 }

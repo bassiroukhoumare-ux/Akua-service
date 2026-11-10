@@ -12,8 +12,8 @@ interface ReviewsState {
   load: (force?: boolean) => Promise<void>;
   addReview: (r: Omit<Review, "id" | "createdAt" | "status">) => Promise<Review>;
   /** modération depuis l'espace administrateur */
-  setStatus: (id: string, status: Review["status"]) => Promise<void>;
-  removeReview: (id: string) => Promise<void>;
+  setStatus: (id: string, status: Review["status"]) => Promise<boolean>;
+  removeReview: (id: string) => Promise<boolean>;
 }
 
 let loading: Promise<void> | null = null;
@@ -42,12 +42,18 @@ export const useReviews = create<ReviewsState>()((set, get) => ({
     return review;
   },
   setStatus: async (id, status) => {
+    const before = get().reviews;
     set((s) => ({ reviews: s.reviews.map((r) => (r.id === id ? { ...r, status } : r)) }));
-    await fetch(`${portal()}/api/clients/avis`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status }) });
+    const res = await fetch(`${portal()}/api/clients/avis`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status }) }).catch(() => null);
+    if (!res?.ok) set({ reviews: before });
+    return !!res?.ok;
   },
   removeReview: async (id) => {
+    const before = get().reviews;
     set((s) => ({ reviews: s.reviews.filter((r) => r.id !== id) }));
-    await fetch(`${portal()}/api/clients/avis?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+    const res = await fetch(`${portal()}/api/clients/avis?id=${encodeURIComponent(id)}`, { method: "DELETE" }).catch(() => null);
+    if (!res?.ok) set({ reviews: before });
+    return !!res?.ok;
   },
 }));
 

@@ -3,8 +3,8 @@ import { clientsDelete, clientsGet, clientsPatch } from "@/lib/admin/clients-han
 export const dynamic = "force-dynamic";
 type Ctx = { params: Promise<{ kind: string }> };
 
-export async function GET(_req: Request, { params }: Ctx) {
-  return clientsGet("team", (await params).kind);
+export async function GET(req: Request, { params }: Ctx) {
+  return clientsGet("team", (await params).kind, req);
 }
 export async function PATCH(req: Request, { params }: Ctx) {
   return clientsPatch("team", (await params).kind, req);

@@ -23,6 +23,9 @@ export const SLOTS: Record<SlotId, { label: string; ratio: number; ratioLabel: s
 export type LinkKind = "category" | "product" | "page" | "url" | "none";
 export interface Slide {
   id: string;
+  /** image ou vidéo (absent : image) */
+  media?: "image" | "video";
+  /** adresse du visuel : importé (/api/…), fichier du site ou lien externe */
   image: string;
   alt: string;
   linkKind: LinkKind;
@@ -67,6 +70,8 @@ interface AdminHome {
   moveSlide: (slot: SlotId, id: string, dir: -1 | 1) => void;
   toggleSlide: (slot: SlotId, id: string, actor: Actor) => void;
   updateSection: (id: HomeSectionId, patch: Partial<HomeSection>, actor: Actor) => void;
+  /** remplace le visuel d'un emplacement (null : revient au visuel d'origine) */
+  setSlot: (slot: SlotId, s: Slide | null, actor: Actor) => void;
   updateDeals: (patch: Partial<DealsConfig>, actor: Actor, detail?: string) => void;
 }
 
@@ -113,7 +118,7 @@ const initialSections: HomeSection[] = [
   { id: "faq", visible: true, eyebrow: "Questions fréquentes", title: "On vous répond." },
 ];
 
-const initialSlides: Record<SlotId, Slide[]> = {
+export const ORIGINAL_SLIDES: Record<SlotId, Slide[]> = {
   poster: [{ id: "s-poster-1", image: HOME_VISUAL.src, alt: HOME_VISUAL.alt, linkKind: "category", link: "consoles", active: true }],
   banner: [{ id: "s-banner-1", image: HOME_BANNER.src, alt: HOME_BANNER.alt, linkKind: "page", link: "/boutique", active: true }],
 };
@@ -123,7 +128,7 @@ const slotName = (slot: SlotId) => (slot === "poster" ? "Affiche portrait" : "Ba
 export const useAdminHome = create<AdminHome>()(
   persist(
     (set, get) => ({
-      slides: initialSlides,
+      slides: ORIGINAL_SLIDES,
       sections: initialSections,
       deals: initialDeals,
       saveSlide: (slot, s, actor) => {
@@ -147,6 +152,10 @@ export const useAdminHome = create<AdminHome>()(
         const s = get().slides[slot].find((x) => x.id === id);
         set((st) => ({ slides: { ...st.slides, [slot]: st.slides[slot].map((x) => (x.id === id ? { ...x, active: !x.active } : x)) } }));
         if (s) log(actor, "update", "home", slotName(slot), s.active ? "désactivée" : "activée");
+      },
+      setSlot: (slot, s, actor) => {
+        set((st) => ({ slides: { ...st.slides, [slot]: s ? [{ ...s, active: true }] : ORIGINAL_SLIDES[slot] } }));
+        log(actor, "update", "home", slotName(slot), s ? (s.media === "video" ? "nouvelle vidéo" : "nouvelle image") : "visuel d'origine remis");
       },
       updateSection: (id, patch, actor) => {
         set((st) => ({ sections: st.sections.map((x) => (x.id === id ? { ...x, ...patch } : x)) }));

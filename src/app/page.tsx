@@ -2,14 +2,14 @@ import { ProductFeed } from "@/components/home/product-feed";
 import { CategoryRail, DealsSection, FaqCta, type HomeSlot, PacksSection, PlatformMarquee } from "@/components/home/sections";
 import { getCategories, getDealsOfTheDay, getPacks, getProducts, loadHome } from "@/lib/catalog";
 
-type Slide = { image: string; alt: string; linkKind: string; link: string; active: boolean };
+type Slide = { image: string; alt: string; linkKind: string; link: string; active: boolean; media?: "image" | "video" };
 
 /** Lien d'un visuel de l'accueil selon le type choisi dans l'admin. */
 function slot(slides?: Slide[]): HomeSlot | null {
   const s = slides?.find((x) => x.active);
   if (!s) return null;
   const href = s.linkKind === "category" ? `/boutique/${s.link}` : s.linkKind === "product" ? `/produit/${s.link}` : s.linkKind === "page" || s.linkKind === "url" ? s.link || null : null;
-  return { src: s.image, alt: s.alt, href };
+  return { src: s.image, alt: s.alt, href, media: s.media ?? "image" };
 }
 
 export default async function HomePage() {

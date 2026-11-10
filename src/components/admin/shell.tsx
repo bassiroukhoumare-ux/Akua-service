@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, ArrowUpRight, Check, ChevronDown, KeyRound, Loader2, LogOut, Menu, X } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, Check, ChevronDown, KeyRound, Loader2, LogOut, Menu, MoreHorizontal, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -8,10 +8,12 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Logo } from "@/components/ui/logo";
 import { ADMIN_CURRENT_STEP, ADMIN_GROUPS, type AdminModuleId, moduleHref } from "@/config/admin";
 import { PORTAL_BASE, type PortalKind } from "@/config/admin-base";
+import type { Perms } from "@/config/permissions";
 import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
 import type { Actor } from "@/store/admin-catalog";
 import { AdminProvider } from "./actor-context";
+import { useNotifications } from "./use-notifications";
 import { PageTransition } from "./page-transition";
 import { useSaveState, useStoresReady } from "./use-stores-ready";
 
@@ -40,7 +42,7 @@ function initials(name: string) {
     .join("");
 }
 
-function Nav({ base, allowed, onNavigate }: { base: string; allowed?: AdminModuleId[]; onNavigate?: () => void }) {
+function Nav({ base, allowed, onNavigate, badges }: { base: string; allowed?: AdminModuleId[]; onNavigate?: () => void; badges?: Partial<Record<AdminModuleId, number>> }) {
   const path = usePathname() ?? "";
   return (
     <nav aria-label="Menu principal" className="flex flex-col gap-6">
@@ -67,6 +69,11 @@ function Nav({ base, allowed, onNavigate }: { base: string; allowed?: AdminModul
                       <m.icon aria-hidden className={cn("size-[17px] transition-colors", active ? "text-akua-white" : "text-akua-gray-500 group-hover:text-akua-blue")} strokeWidth={1.8} />
                     </span>
                     <span className="min-w-0 flex-1 truncate">{m.label}</span>
+                    {!!badges?.[m.id] && (
+                      <span aria-label={`${badges[m.id]} nouveau${badges[m.id]! > 1 ? "x" : ""}`} className={cn("grid h-5 min-w-5 shrink-0 place-items-center rounded-full px-1.5 text-[11px] leading-none font-bold tabular-nums", active ? "bg-akua-white text-akua-ink" : "bg-akua-red text-akua-white")}>
+                        {badges[m.id]! > 99 ? "99+" : badges[m.id]}
+                      </span>
+                    )}
                     {soon && (
                       <span className={cn("shrink-0 rounded-full px-1.5 py-0.5 text-[10px] leading-none font-semibold", active ? "bg-akua-white/15 text-akua-white" : "bg-akua-page text-akua-gray-500")}>
                         Étape {m.step}
@@ -142,6 +149,53 @@ function UserMenu({ kind, user, compact }: { kind: PortalKind; user: ShellUser; 
   );
 }
 
+/** Téléphone, portail équipe : navigation en bas de l'écran (accueil + modules attribués, « Plus » au-delà). */
+const OWNER_SHORTCUTS: AdminModuleId[] = ["dashboard", "orders", "products", "stats"];
+
+function BottomNav({ base, allowed, onMore, badges, owner }: { base: string; allowed?: AdminModuleId[]; onMore: () => void; badges?: Partial<Record<AdminModuleId, number>>; owner?: boolean }) {
+  const path = usePathname() ?? "";
+  const all = visibleGroups(allowed).flatMap((g) => g.modules);
+  const mods = owner ? [...OWNER_SHORTCUTS.map((id) => all.find((m) => m.id === id)!).filter(Boolean), ...all.filter((m) => !OWNER_SHORTCUTS.includes(m.id))] : all;
+  const max = owner ? 4 : mods.length > 5 ? 4 : 5;
+  const shown = mods.slice(0, max);
+  const more = mods.length > max;
+  const moreActive = more && mods.slice(max).some((m) => isActive(path, moduleHref(base, m), base));
+  const moreBadge = more ? mods.slice(max).reduce((a, m) => a + (badges?.[m.id] ?? 0), 0) : 0;
+  const short: Partial<Record<AdminModuleId, string>> = { dashboard: "Accueil", home: "Vitrine", deals: "Offre", promos: "Promos", settings: "Réglages", categories: "Catégories", stats: "Stats", orders: "Commandes" };
+  return (
+    <nav aria-label="Navigation" className="fixed inset-x-0 bottom-0 z-40 border-t border-akua-gray-200 bg-akua-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden">
+      <ul className="mx-auto flex max-w-[560px] items-stretch justify-around px-1">
+        {shown.map((m) => {
+          const href = moduleHref(base, m);
+          const active = isActive(path, href, base);
+          return (
+            <li key={m.id} className="min-w-0 flex-1">
+              <Link href={href} aria-current={active ? "page" : undefined} className="flex h-[62px] flex-col items-center justify-center gap-1 px-1">
+                <span className={cn("relative grid h-8 w-12 place-items-center rounded-full transition-colors", active ? "bg-akua-ink text-akua-white" : "text-akua-gray-500")}>
+                  <m.icon aria-hidden className="size-[20px]" strokeWidth={active ? 2 : 1.7} />
+                  {!!badges?.[m.id] && <span className="absolute -top-1 right-1 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-akua-red px-1 text-[10.5px] font-bold text-akua-white ring-2 ring-akua-white tabular-nums">{badges[m.id]}</span>}
+                </span>
+                <span className={cn("max-w-full truncate text-[11px] leading-none", active ? "font-bold text-akua-ink" : "font-medium text-akua-gray-500")}>{short[m.id] ?? m.label}</span>
+              </Link>
+            </li>
+          );
+        })}
+        {more && (
+          <li className="min-w-0 flex-1">
+            <button type="button" onClick={onMore} className="flex h-[62px] w-full flex-col items-center justify-center gap-1 px-1">
+              <span className={cn("relative grid h-8 w-12 place-items-center rounded-full transition-colors", moreActive ? "bg-akua-ink text-akua-white" : "text-akua-gray-500")}>
+                {owner ? <Menu aria-hidden className="size-[20px]" /> : <MoreHorizontal aria-hidden className="size-[20px]" />}
+                {moreBadge > 0 && <span className="absolute -top-1 right-1 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-akua-red px-1 text-[10.5px] font-bold text-akua-white ring-2 ring-akua-white tabular-nums">{moreBadge}</span>}
+              </span>
+              <span className={cn("text-[11px] leading-none", moreActive ? "font-bold text-akua-ink" : "font-medium text-akua-gray-500")}>{owner ? "Menu" : "Plus"}</span>
+            </button>
+          </li>
+        )}
+      </ul>
+    </nav>
+  );
+}
+
 /** Indique que les modifications sont bien enregistrées dans la base. */
 function SaveIndicator({ state }: { state: "idle" | "saving" | "error" }) {
   const [shown, setShown] = useState<"saving" | "saved" | "error" | null>(null);
@@ -168,7 +222,7 @@ function SaveIndicator({ state }: { state: "idle" | "saving" | "error" }) {
 }
 
 /** Cadre de l'espace administrateur : menu latéral (ordinateur), tiroir (mobile), barre du haut. */
-export function AdminShell({ kind, user, actor, allowed, children }: { kind: PortalKind; user: ShellUser; actor: Actor; allowed?: AdminModuleId[]; children: React.ReactNode }) {
+export function AdminShell({ kind, user, actor, allowed, perms, children }: { kind: PortalKind; user: ShellUser; actor: Actor; allowed?: AdminModuleId[]; perms?: Perms; children: React.ReactNode }) {
   const base = PORTAL_BASE[kind];
   const path = usePathname() ?? "";
   const [drawer, setDrawer] = useState(false);
@@ -183,7 +237,28 @@ export function AdminShell({ kind, user, actor, allowed, children }: { kind: Por
   const storesReady = useStoresReady();
   const hydrated = mounted && storesReady;
   const save = useSaveState();
+  const badges = useNotifications(base, mounted, current?.id);
   useEffect(() => setDrawer(false), [path]);
+  // lien vers un élément précis (#code-…, #cat-…) : on y descend une fois la page affichée
+  useEffect(() => {
+    if (!hydrated || !window.location.hash) return;
+    const t = window.setTimeout(() => {
+      const el = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      // brève lueur bleue pour repérer l'élément
+      el.animate(
+        [
+          { boxShadow: "0 0 0 0 rgb(31 91 255 / 0)", backgroundColor: "rgb(232 239 255 / 0)" },
+          { boxShadow: "0 0 0 4px rgb(31 91 255 / 0.35)", backgroundColor: "rgb(232 239 255 / 1)", offset: 0.2 },
+          { boxShadow: "0 0 0 4px rgb(31 91 255 / 0.35)", backgroundColor: "rgb(232 239 255 / 1)", offset: 0.7 },
+          { boxShadow: "0 0 0 0 rgb(31 91 255 / 0)", backgroundColor: "rgb(232 239 255 / 0)" },
+        ],
+        { duration: 2600, easing: "ease-out", delay: 250 },
+      );
+    }, 350);
+    return () => window.clearTimeout(t);
+  }, [hydrated, path]);
 
   return (
     <div className="min-h-dvh bg-akua-page text-akua-ink">
@@ -194,7 +269,7 @@ export function AdminShell({ kind, user, actor, allowed, children }: { kind: Por
           <span className="rounded-full bg-akua-blue-100 px-2 py-0.5 text-[10.5px] font-bold tracking-[0.08em] text-akua-blue uppercase">{tag}</span>
         </div>
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-3 pt-3 pb-6">
-          <Nav base={base} allowed={allowed} />
+          <Nav base={base} allowed={allowed} badges={badges} />
         </div>
         <div className="border-t border-akua-gray-200 p-3">
           <UserMenu kind={kind} user={user} />
@@ -215,7 +290,7 @@ export function AdminShell({ kind, user, actor, allowed, children }: { kind: Por
             </button>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto px-3 pt-2 pb-6">
-            <Nav base={base} allowed={allowed} onNavigate={() => setDrawer(false)} />
+            <Nav base={base} allowed={allowed} onNavigate={() => setDrawer(false)} badges={badges} />
           </div>
           <div className="border-t border-akua-gray-200 p-3">
             <UserMenu kind={kind} user={user} />
@@ -227,7 +302,7 @@ export function AdminShell({ kind, user, actor, allowed, children }: { kind: Por
         {/* barre du haut */}
         <header className="sticky top-0 z-20 border-b border-akua-gray-200 bg-akua-white/85 backdrop-blur-xl">
           <div className="mx-auto flex h-16 max-w-[1320px] items-center gap-3 px-4 md:px-8 lg:h-[72px]">
-            <button type="button" onClick={() => setDrawer(true)} aria-label="Ouvrir le menu" className="-ml-1 grid size-10 place-items-center rounded-full hover:bg-akua-page lg:hidden">
+            <button type="button" onClick={() => setDrawer(true)} aria-label="Ouvrir le menu" className="-ml-1 hidden size-10 place-items-center rounded-full hover:bg-akua-page">
               <Menu aria-hidden className="size-5" />
             </button>
             <div className="min-w-0 flex-1">
@@ -251,8 +326,8 @@ export function AdminShell({ kind, user, actor, allowed, children }: { kind: Por
           </div>
         </header>
 
-        <main className="mx-auto max-w-[1320px] px-4 pt-6 pb-16 md:px-8 md:pt-8">
-          <AdminProvider actor={actor} base={base}>
+        <main className="mx-auto max-w-[1320px] px-4 pt-6 pb-[calc(96px+env(safe-area-inset-bottom))] md:px-8 md:pt-8 lg:pb-16">
+          <AdminProvider actor={actor} base={base} perms={perms}>
             {hydrated ? (
               <PageTransition>{children}</PageTransition>
             ) : (
@@ -263,6 +338,7 @@ export function AdminShell({ kind, user, actor, allowed, children }: { kind: Por
             )}
           </AdminProvider>
         </main>
+        <BottomNav base={base} allowed={allowed} onMore={() => setDrawer(true)} badges={badges} owner={kind === "owner"} />
       </div>
     </div>
   );
