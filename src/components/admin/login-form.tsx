@@ -17,11 +17,11 @@ export function LoginForm({ kind }: { kind: PortalKind }) {
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(params.get("erreur") ?? "");
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!password || (team && !identifier.trim())) {
+    if (!password.trim() || (team && !identifier.trim())) {
       setError(team ? "Saisissez votre numéro WhatsApp et votre mot de passe." : "Saisissez votre mot de passe.");
       return;
     }
@@ -48,7 +48,8 @@ export function LoginForm({ kind }: { kind: PortalKind }) {
   const border = error ? "border-akua-red/60 bg-akua-red/[0.03]" : "border-transparent";
 
   return (
-    <form onSubmit={submit} noValidate className="flex flex-col gap-4">
+    <form onSubmit={submit} method="post" action={`${base}/api/session`} noValidate className="flex flex-col gap-4">
+      <input type="hidden" name="suite" value={params.get("suite") ?? ""} />
       {error && (
         <p role="alert" className="flex items-start gap-2.5 rounded-2xl bg-akua-red/8 px-4 py-3 text-[13.5px] font-medium text-akua-red">
           <AlertCircle aria-hidden className="mt-0.5 size-4 shrink-0" /> {error}
@@ -63,6 +64,10 @@ export function LoginForm({ kind }: { kind: PortalKind }) {
             <Phone aria-hidden className="pointer-events-none absolute top-1/2 left-[18px] size-[18px] -translate-y-1/2 text-akua-gray-500" strokeWidth={1.8} />
             <input
               id="login-id"
+              name="identifier"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               type="tel"
               inputMode="tel"
               value={identifier}
@@ -83,6 +88,10 @@ export function LoginForm({ kind }: { kind: PortalKind }) {
           <Lock aria-hidden className="pointer-events-none absolute top-1/2 left-[18px] size-[18px] -translate-y-1/2 text-akua-gray-500" strokeWidth={1.8} />
           <input
             id="login-pw"
+            name="password"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             type={show ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
