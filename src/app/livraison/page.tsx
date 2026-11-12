@@ -12,7 +12,7 @@ const FAQ = [
   { q: "Les produits sont-ils neufs ?", a: "Selon l'article, un produit peut être neuf ou venant, dans son carton d'origine ou sans carton. Vérifiez toujours la fiche du produit : son état et son conditionnement y sont indiqués. En cas de doute, posez-nous la question sur WhatsApp." },
   { q: "Quels sont les délais de livraison ?", a: "Ils dépendent de la destination et de la commande. Le délai et les frais vous sont confirmés sur WhatsApp avant l'expédition." },
   { q: "Comment fonctionne la garantie ?", a: "Tous nos produits sont testés et garantis. En cas de problème, écrivez-nous sur WhatsApp avec votre référence de commande." },
-  { q: "Puis-je acheter en gros ?", a: "Oui, nous proposons des tarifs dégressifs aux revendeurs et salles de jeux. Utilisez le formulaire de la page Vente en gros." },
+  { q: "Puis-je acheter en gros ?", a: "Oui, nous proposons des tarifs dégressifs aux revendeurs, entreprises, écoles et salles de jeux. Utilisez le formulaire de la page Vente en gros." },
 ];
 
 export default async function DeliveryPage() {

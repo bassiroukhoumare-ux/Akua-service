@@ -8,7 +8,7 @@ export function SectionHeading({
   className,
   centerMobile,
 }: {
-  index: string;
+  index?: string;
   eyebrow: string;
   title: React.ReactNode;
   children?: React.ReactNode;
@@ -20,8 +20,12 @@ export function SectionHeading({
     <div className={cn("flex flex-wrap items-end justify-between gap-x-6 gap-y-4", centerMobile && "max-md:flex-col max-md:items-center max-md:text-center", className)}>
       <div className={cn(centerMobile && "max-md:flex max-md:flex-col max-md:items-center")}>
         <p className="flex items-center gap-2.5 text-[12px] font-semibold tracking-[0.16em] text-akua-gray-500 uppercase">
-          <span className="text-akua-blue">{index}</span>
-          <span className="h-px w-8 bg-akua-gray-200" />
+          {index && (
+            <>
+              <span className="text-akua-blue">{index}</span>
+              <span className="h-px w-8 bg-akua-gray-200" />
+            </>
+          )}
           {eyebrow}
           {centerMobile && <span aria-hidden className="h-px w-8 bg-akua-gray-200 md:hidden" />}
         </p>

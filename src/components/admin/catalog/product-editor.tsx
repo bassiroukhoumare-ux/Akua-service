@@ -51,6 +51,7 @@ type Draft = {
   isPack: boolean;
   name: string;
   categoryId: string;
+  group: string;
   images: string[];
   shortDescription: string;
   description: string;
@@ -78,7 +79,8 @@ function toDraft(p?: Product, pack?: boolean): Draft {
   return {
     isPack: p?.isPack ?? !!pack,
     name: p?.name ?? "",
-    categoryId: p?.categoryId ?? (pack ? "cat-packs" : ""),
+    categoryId: p?.categoryId ?? (pack ? "cat-consoles" : ""),
+    group: p?.group ?? (pack ? "packs" : ""),
     images: p?.images ?? [],
     shortDescription: p?.shortDescription ?? "",
     description: p?.description ?? "",
@@ -178,6 +180,7 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
       slug,
       name: d.name.trim(),
       categoryId: d.categoryId,
+      group: categories.find((c) => c.id === d.categoryId)?.groups?.some((g) => g.slug === d.group) ? d.group : undefined,
       platforms: d.platforms,
       otherPlatforms: d.otherPlatforms.length ? d.otherPlatforms : undefined,
       condition: d.condition,
@@ -261,6 +264,7 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
     );
   }
 
+  const groupOptions = (categories.find((c) => c.id === d.categoryId)?.groups ?? []).map((g) => ({ value: g.slug, label: g.name }));
   const preview = build();
   const title = existing ? `${canSave ? "Modifier" : "Fiche"} ${existing.isPack ? "le pack" : "le produit"}`.replace("Fiche le", "Fiche du").replace("Fiche du produit", "Fiche du produit") : d.isPack ? "Nouveau pack" : "Nouveau produit";
   const checklist = [
@@ -318,7 +322,10 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
                 value={d.isPack ? "pack" : "simple"}
                 onChange={(v) => {
                   set("isPack", v === "pack");
-                  if (v === "pack" && !d.categoryId) set("categoryId", "cat-packs");
+                  if (v === "pack" && !d.categoryId) {
+                    set("categoryId", "cat-consoles");
+                    set("group", "packs");
+                  }
                 }}
                 options={[
                   { value: "simple", label: "Produit", icon: Package },
@@ -340,8 +347,24 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
                 <input id="pe-name" value={d.name} onChange={(e) => set("name", e.target.value)} placeholder={d.isPack ? "Ex. PS4 Slim Complète" : "Ex. Manette DualSense PS5"} className={inputCls(errors.name)} />
               </Field>
               <Field id="pe-categoryId" label="Catégorie" error={errors.categoryId}>
-                <SearchSelect id="pe-categoryId" value={d.categoryId} onChange={(v) => set("categoryId", v)} options={catOptions} placeholder="Choisir une catégorie" searchPlaceholder="Rechercher une catégorie…" invalid={!!errors.categoryId} />
+                <SearchSelect
+                  id="pe-categoryId"
+                  value={d.categoryId}
+                  onChange={(v) => {
+                    set("categoryId", v);
+                    set("group", "");
+                  }}
+                  options={catOptions}
+                  placeholder="Choisir une catégorie"
+                  searchPlaceholder="Rechercher une catégorie…"
+                  invalid={!!errors.categoryId}
+                />
               </Field>
+              {!!groupOptions.length && (
+                <Field id="pe-group" label="Sous-rayon" optional hint="La famille du produit dans cette catégorie : elle sert de filtre dans la boutique.">
+                  <SearchSelect id="pe-group" value={d.group} onChange={(v) => set("group", v)} options={groupOptions} placeholder="Choisir un sous-rayon" searchable={false} />
+                </Field>
+              )}
               <Field id="pe-shortDescription" label="Description courte" error={errors.shortDescription} hint={`${d.shortDescription.length}/140 · affichée sous le nom, sur la fiche produit`}>
                 <input
                   id="pe-shortDescription"

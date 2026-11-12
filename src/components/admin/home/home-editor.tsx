@@ -460,7 +460,8 @@ function SectionRow({ s }: { s: HomeSection }) {
 export function HomeEditor() {
   const hydrated = useHydrated();
   const sections = useAdminHome((s) => s.sections);
-  const ordered = useMemo(() => sections, [sections]);
+  // la FAQ et le bloc « Écrivez-nous » sont sur la page Contact : plus gérés ici
+  const ordered = useMemo(() => sections.filter((s) => s.id !== "faq"), [sections]);
   if (!hydrated) return <div className="h-[60vh] animate-pulse rounded-[24px] bg-akua-white" />;
   return (
     <div className="flex flex-col gap-5 md:gap-6">

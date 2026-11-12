@@ -95,9 +95,7 @@ function ProductPicker({ open, onOpenChange, selected, onAdd }: { open: boolean;
           <div className="flex items-start justify-between gap-3">
             <div>
               <DialogTitle className="text-[19px] font-extrabold tracking-[-0.02em]">Ajouter des produits</DialogTitle>
-              <DialogDescription className="mt-0.5 text-[13px] text-akua-gray-500">
-                {room > 0 ? `Encore ${room} place${room > 1 ? "s" : ""} dans l'offre spéciale.` : "L'offre spéciale est complète."}
-              </DialogDescription>
+              <DialogDescription className="mt-0.5 text-[13px] text-akua-gray-500">{room > 0 ? `Encore ${room} place${room > 1 ? "s" : ""} dans l'offre spéciale.` : "L'offre spéciale est complète."}</DialogDescription>
             </div>
             <button type="button" onClick={() => onOpenChange(false)} aria-label="Fermer" className="grid size-9 shrink-0 place-items-center rounded-full hover:bg-akua-page">
               <X aria-hidden className="size-[18px]" />
@@ -173,6 +171,8 @@ function ProductPicker({ open, onOpenChange, selected, onAdd }: { open: boolean;
 
 /* ------------------------------------------------------------- vidéos */
 
+const SHOW_VIDEOS = false;
+
 function VideoCard({ title, value, onChange }: { title: string; value: string[]; onChange: (v: string[]) => void }) {
   const [draft, setDraft] = useState("");
   const [error, setError] = useState("");
@@ -203,11 +203,7 @@ function VideoCard({ title, value, onChange }: { title: string; value: string[];
               <span className="w-4 shrink-0 text-[12px] font-bold text-akua-gray-500 tabular-nums">{i + 1}</span>
               <span className="min-w-0 flex-1 truncate text-[13px] font-medium">{label(v)}</span>
               {src?.kind === "tiktok" && (
-                <button
-                  type="button"
-                  onClick={() => setPreview(src.id)}
-                  className="inline-flex h-8 shrink-0 items-center gap-1 rounded-full bg-akua-white px-2.5 text-[12px] font-semibold hover:text-akua-blue"
-                >
+                <button type="button" onClick={() => setPreview(src.id)} className="inline-flex h-8 shrink-0 items-center gap-1 rounded-full bg-akua-white px-2.5 text-[12px] font-semibold hover:text-akua-blue">
                   <Play aria-hidden className="size-3 fill-current" /> Voir
                 </button>
               )}
@@ -222,9 +218,7 @@ function VideoCard({ title, value, onChange }: { title: string; value: string[];
             </li>
           );
         })}
-        {value.length === 0 && (
-          <li className="rounded-[14px] border border-dashed border-akua-gray-200 px-3 py-4 text-center text-[12.5px] text-akua-gray-500">Aucune vidéo : la carte ne s&apos;affichera pas.</li>
-        )}
+        {value.length === 0 && <li className="rounded-[14px] border border-dashed border-akua-gray-200 px-3 py-4 text-center text-[12.5px] text-akua-gray-500">Aucune vidéo : la carte ne s&apos;affichera pas.</li>}
       </ul>
       <div className="mt-3 flex gap-2">
         <input
@@ -241,13 +235,7 @@ function VideoCard({ title, value, onChange }: { title: string; value: string[];
           aria-label={`Ajouter une vidéo à la ${title.toLowerCase()}`}
           className={cn(inputCls(error), "h-11 text-[14px]")}
         />
-        <button
-          type="button"
-          onClick={add}
-          disabled={!draft.trim()}
-          aria-label="Ajouter la vidéo"
-          className="grid size-11 shrink-0 place-items-center rounded-2xl bg-akua-ink text-akua-white disabled:opacity-30"
-        >
+        <button type="button" onClick={add} disabled={!draft.trim()} aria-label="Ajouter la vidéo" className="grid size-11 shrink-0 place-items-center rounded-2xl bg-akua-ink text-akua-white disabled:opacity-30">
           <Plus aria-hidden className="size-5" />
         </button>
       </div>
@@ -261,12 +249,7 @@ function VideoCard({ title, value, onChange }: { title: string; value: string[];
         >
           <DialogTitle className="sr-only">Aperçu de la vidéo</DialogTitle>
           {preview && (
-            <iframe
-              src={`https://www.tiktok.com/player/v1/${preview}?autoplay=1&controls=1&description=0&music_info=0&rel=0`}
-              title="Aperçu TikTok"
-              allow="autoplay; encrypted-media; fullscreen"
-              className="aspect-[9/16] w-full border-0"
-            />
+            <iframe src={`https://www.tiktok.com/player/v1/${preview}?autoplay=1&controls=1&description=0&music_info=0&rel=0`} title="Aperçu TikTok" allow="autoplay; encrypted-media; fullscreen" className="aspect-[9/16] w-full border-0" />
           )}
           <button type="button" onClick={() => setPreview(null)} className="h-12 w-full text-[14px] font-semibold text-akua-white/80 hover:text-akua-white">
             Fermer
@@ -354,7 +337,7 @@ export function DealsEditor() {
     <div className="flex flex-col gap-5 pb-24 md:gap-6">
       <PageHeader
         title="Offre spéciale"
-        description="Les produits en promotion avec compte à rebours et vidéos TikTok, sur la page d'accueil."
+        description="Les 4 derniers produits en promotion, avec compte à rebours, sur la page d'accueil."
         actions={
           <Link href="/#promo" target="_blank" className={btn({ variant: "outline", size: "md" })}>
             Voir sur le site <ArrowUpRight aria-hidden className="size-4" />
@@ -371,11 +354,7 @@ export function DealsEditor() {
               <span className="size-1.5 rounded-full bg-current" /> {status.label}
             </span>
             <div className="mt-3">
-              {d.enabled && selected.length ? (
-                <Countdown d={d} />
-              ) : (
-                <p className="text-[15px] text-akua-gray-500">{!d.enabled ? "La section est masquée sur l'accueil." : "Ajoutez au moins un produit pour afficher la section."}</p>
-              )}
+              {d.enabled && selected.length ? <Countdown d={d} /> : <p className="text-[15px] text-akua-gray-500">{!d.enabled ? "La section est masquée sur l'accueil." : "Ajoutez au moins un produit pour afficher la section."}</p>}
             </div>
           </div>
           <Toggle checked={d.enabled} onChange={(v) => set("enabled", v)} label="Afficher sur l'accueil" description="Sans produit, la section reste masquée automatiquement." icon={Timer} />
@@ -418,10 +397,7 @@ export function DealsEditor() {
                   <button
                     type="button"
                     onClick={() => setCustomHours(true)}
-                    className={cn(
-                      "h-10 rounded-full border px-4 text-[13.5px] font-semibold transition-colors",
-                      customHours ? "border-akua-blue bg-akua-blue-100 text-akua-blue" : "border-akua-gray-200 hover:border-akua-ink",
-                    )}
+                    className={cn("h-10 rounded-full border px-4 text-[13.5px] font-semibold transition-colors", customHours ? "border-akua-blue bg-akua-blue-100 text-akua-blue" : "border-akua-gray-200 hover:border-akua-ink")}
                   >
                     Autre
                   </button>
@@ -452,13 +428,7 @@ export function DealsEditor() {
                     <RotateCcw aria-hidden className="size-4" /> Relancer à partir de maintenant
                   </button>
                 </div>
-                <Toggle
-                  checked={d.repeat}
-                  onChange={(v) => set("repeat", v)}
-                  label="Relancer automatiquement"
-                  description="À la fin, une nouvelle période de la même durée démarre."
-                  icon={RotateCcw}
-                />
+                <Toggle checked={d.repeat} onChange={(v) => set("repeat", v)} label="Relancer automatiquement" description="À la fin, une nouvelle période de la même durée démarre." icon={RotateCcw} />
               </>
             )}
           </div>
@@ -570,9 +540,7 @@ export function DealsEditor() {
               );
             })}
             {selected.length === 0 && (
-              <li className="rounded-[18px] border border-dashed border-akua-gray-200 px-4 py-8 text-center text-[13.5px] text-akua-gray-500">
-                Aucun produit : la section « Offre spéciale » ne s&apos;affichera pas sur l&apos;accueil.
-              </li>
+              <li className="rounded-[18px] border border-dashed border-akua-gray-200 px-4 py-8 text-center text-[13.5px] text-akua-gray-500">Aucun produit : la section « Offre spéciale » ne s&apos;affichera pas sur l&apos;accueil.</li>
             )}
           </ul>
           <p className="mt-3 text-[12.5px] text-akua-gray-500">
@@ -585,17 +553,19 @@ export function DealsEditor() {
         </section>
       </fieldset>
 
-      {/* vidéos */}
-      <fieldset disabled={!canVideos} className="m-0 min-w-0 border-0 p-0 disabled:opacity-70">
-        <section className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
-          <h2 className="text-[16.5px] font-bold">Vidéos TikTok</h2>
-          <p className="mt-0.5 text-[13px] text-akua-gray-500">Deux cartes vidéo encadrent les produits. Collez le lien d&apos;une vidéo TikTok publique, ou l&apos;adresse d&apos;un fichier .mp4.</p>
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
-            <VideoCard title="Carte de gauche" value={d.videos[0]} onChange={(v) => set("videos", [v, d.videos[1]])} />
-            <VideoCard title="Carte de droite" value={d.videos[1]} onChange={(v) => set("videos", [d.videos[0], v])} />
-          </div>
-        </section>
-      </fieldset>
+      {/* vidéos : retirées de l'accueil (seuls les produits en promo s'affichent), bloc gardé pour plus tard */}
+      {SHOW_VIDEOS && (
+        <fieldset disabled={!canVideos} className="m-0 min-w-0 border-0 p-0 disabled:opacity-70">
+          <section className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
+            <h2 className="text-[16.5px] font-bold">Vidéos TikTok</h2>
+            <p className="mt-0.5 text-[13px] text-akua-gray-500">Deux cartes vidéo encadrent les produits. Collez le lien d&apos;une vidéo TikTok publique, ou l&apos;adresse d&apos;un fichier .mp4.</p>
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
+              <VideoCard title="Carte de gauche" value={d.videos[0]} onChange={(v) => set("videos", [v, d.videos[1]])} />
+              <VideoCard title="Carte de droite" value={d.videos[1]} onChange={(v) => set("videos", [d.videos[0], v])} />
+            </div>
+          </section>
+        </fieldset>
+      )}
 
       {/* barre d'enregistrement */}
       <div
@@ -622,10 +592,7 @@ export function DealsEditor() {
       <ProductPicker open={picker} onOpenChange={setPicker} selected={d.productIds} onAdd={(ids) => set("productIds", [...d.productIds, ...ids].slice(0, MAX_DEAL_PRODUCTS))} />
 
       {toast && (
-        <div
-          role="status"
-          className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2.5 rounded-full bg-akua-ink px-5 py-3 text-[14px] font-semibold text-akua-white shadow-[0_20px_40px_-16px_rgb(7_8_12/0.6)]"
-        >
+        <div role="status" className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2.5 rounded-full bg-akua-ink px-5 py-3 text-[14px] font-semibold text-akua-white shadow-[0_20px_40px_-16px_rgb(7_8_12/0.6)]">
           <Check aria-hidden className="size-[18px] text-akua-whatsapp" /> {toast}
         </div>
       )}

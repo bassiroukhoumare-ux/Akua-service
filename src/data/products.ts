@@ -1,16 +1,18 @@
 import type { Product } from "@/types/catalog";
+import { techProducts } from "./products-tech";
 
 // Prix issus des flyers Facebook d'AKUA Service.
 // Photos : /public/products. Préfixe « fb- » = photos de la page Facebook
 // d'AKUA Service ; les autres = photos studio libres (voir photo-credits.json).
 
-export const products: Product[] = [
+const gaming: Product[] = [
   // ---------------------------------------------------------------- Packs
   {
     id: "p-ps4-slim-complete",
     slug: "ps4-slim-complete",
     name: "PS4 Slim Complète",
-    categoryId: "cat-packs",
+    categoryId: "cat-consoles",
+    group: "packs",
     platforms: ["ps4"],
     condition: "neuf",
     price: 170000,
@@ -34,7 +36,8 @@ export const products: Product[] = [
     id: "p-ps4-slim-pack-3-jeux",
     slug: "ps4-slim-2-manettes-3-jeux",
     name: "PS4 Slim + 2 manettes + 3 jeux neufs scellés",
-    categoryId: "cat-packs",
+    categoryId: "cat-consoles",
+    group: "packs",
     platforms: ["ps4"],
     condition: "neuf",
     price: 200000,
@@ -53,7 +56,8 @@ export const products: Product[] = [
     id: "p-ps4-pro-1to",
     slug: "ps4-pro-1-to",
     name: "PS4 Pro 1 To",
-    categoryId: "cat-packs",
+    categoryId: "cat-consoles",
+    group: "packs",
     platforms: ["ps4"],
     condition: "neuf",
     price: 220000,
@@ -77,6 +81,7 @@ export const products: Product[] = [
     slug: "ps4-slim-neuve-scellee",
     name: "PS4 Slim neuve scellée",
     categoryId: "cat-consoles",
+    group: "consoles",
     platforms: ["ps4"],
     condition: "neuf",
     price: 180000,
@@ -93,6 +98,7 @@ export const products: Product[] = [
     slug: "nintendo-switch-2",
     name: "Nintendo Switch 2",
     categoryId: "cat-consoles",
+    group: "consoles",
     platforms: ["switch2"],
     condition: "neuf",
     price: 395000,
@@ -113,6 +119,7 @@ export const products: Product[] = [
     slug: "ps3-slim-complete",
     name: "PS3 Slim complète",
     categoryId: "cat-consoles",
+    group: "consoles",
     platforms: ["ps3"],
     condition: "neuf",
     price: 80000,
@@ -133,6 +140,7 @@ export const products: Product[] = [
     slug: "xbox-360-complete",
     name: "Xbox 360 complète",
     categoryId: "cat-consoles",
+    group: "consoles",
     platforms: ["xbox-360"],
     condition: "neuf",
     price: 70000,
@@ -154,7 +162,8 @@ export const products: Product[] = [
     id: "p-dualsense",
     slug: "manette-dualsense-ps5",
     name: "Manette DualSense PS5",
-    categoryId: "cat-manettes",
+    categoryId: "cat-consoles",
+    group: "manettes",
     platforms: ["ps5", "pc"],
     condition: "neuf",
     price: 45000,
@@ -172,7 +181,8 @@ export const products: Product[] = [
     id: "p-xbox-velocity",
     slug: "manette-xbox-velocity-green",
     name: "Manette Xbox sans fil Velocity Green",
-    categoryId: "cat-manettes",
+    categoryId: "cat-consoles",
+    group: "manettes",
     platforms: ["xbox-series", "pc"],
     condition: "neuf",
     price: 45000,
@@ -189,7 +199,8 @@ export const products: Product[] = [
     id: "p-dualshock4",
     slug: "manette-ps4-dualshock-sans-fil",
     name: "Manette PS4 DualShock sans fil",
-    categoryId: "cat-manettes",
+    categoryId: "cat-consoles",
+    group: "manettes",
     platforms: ["ps4", "pc", "android"],
     condition: "neuf",
     price: 12000,
@@ -209,7 +220,8 @@ export const products: Product[] = [
     id: "p-android-v8",
     slug: "manette-android-v8",
     name: "Manette Android V8",
-    categoryId: "cat-manettes",
+    categoryId: "cat-consoles",
+    group: "manettes",
     platforms: ["android", "ios", "switch", "ps3", "pc"],
     condition: "neuf",
     price: 8000,
@@ -229,7 +241,8 @@ export const products: Product[] = [
     id: "p-xbox360-filaire",
     slug: "manette-xbox-360-filaire",
     name: "Manette Xbox 360 filaire",
-    categoryId: "cat-manettes",
+    categoryId: "cat-consoles",
+    group: "manettes",
     platforms: ["xbox-360", "pc"],
     condition: "neuf",
     price: 7000,
@@ -245,7 +258,8 @@ export const products: Product[] = [
     id: "p-dualshock3",
     slug: "manette-ps3-dualshock-3",
     name: "Manette PS3 DualShock 3",
-    categoryId: "cat-manettes",
+    categoryId: "cat-consoles",
+    group: "manettes",
     platforms: ["ps3", "pc", "android"],
     condition: "neuf",
     price: 5000,
@@ -266,7 +280,8 @@ export const products: Product[] = [
     id: "p-ps3-sans-fil-24",
     slug: "manette-ps3-sans-fil-2-4ghz",
     name: "Manette PS3 sans fil 2,4 GHz",
-    categoryId: "cat-manettes",
+    categoryId: "cat-consoles",
+    group: "manettes",
     platforms: ["ps3", "pc"],
     condition: "neuf",
     price: 6000,
@@ -282,7 +297,8 @@ export const products: Product[] = [
     id: "p-switch-pro",
     slug: "manette-nintendo-switch-pro",
     name: "Manette Nintendo Switch Pro",
-    categoryId: "cat-manettes",
+    categoryId: "cat-consoles",
+    group: "manettes",
     platforms: ["switch", "switch2"],
     condition: "neuf",
     price: 35000, // TODO prix à confirmer
@@ -300,7 +316,8 @@ export const products: Product[] = [
     id: "p-g29",
     slug: "volant-logitech-g29",
     name: "Volant Logitech G29 Driving Force",
-    categoryId: "cat-simulation",
+    categoryId: "cat-consoles",
+    group: "simulation",
     platforms: ["ps5", "ps4", "pc"],
     condition: "neuf",
     price: 200000, // TODO prix à confirmer
@@ -318,7 +335,8 @@ export const products: Product[] = [
     id: "p-shifter",
     slug: "levier-logitech-driving-force-shifter",
     name: "Levier de vitesse Logitech Driving Force Shifter",
-    categoryId: "cat-simulation",
+    categoryId: "cat-consoles",
+    group: "simulation",
     platforms: ["ps5", "ps4", "pc"],
     condition: "neuf",
     price: 45000, // TODO prix à confirmer
@@ -337,6 +355,7 @@ export const products: Product[] = [
     slug: "disque-dur-wd-elements",
     name: "Disque dur externe WD Elements",
     categoryId: "cat-informatique",
+    group: "stockage",
     platforms: ["pc", "ps5", "ps4"],
     condition: "neuf",
     price: 35000, // TODO prix à confirmer
@@ -354,7 +373,8 @@ export const products: Product[] = [
     id: "p-fc27-ps5",
     slug: "ea-sports-fc-27-ps5",
     name: "EA Sports FC 27 · PS5",
-    categoryId: "cat-jeux",
+    categoryId: "cat-consoles",
+    group: "jeux",
     platforms: ["ps5"],
     condition: "neuf",
     price: 35000, // TODO prix à confirmer
@@ -370,7 +390,8 @@ export const products: Product[] = [
     id: "p-fc27-ps4",
     slug: "ea-sports-fc-27-ps4",
     name: "EA Sports FC 27 · PS4",
-    categoryId: "cat-jeux",
+    categoryId: "cat-consoles",
+    group: "jeux",
     platforms: ["ps4"],
     condition: "neuf",
     price: 30000, // TODO prix à confirmer
@@ -385,7 +406,8 @@ export const products: Product[] = [
     id: "p-fc27-switch2",
     slug: "ea-sports-fc-27-switch-2",
     name: "EA Sports FC 27 · Switch 2",
-    categoryId: "cat-jeux",
+    categoryId: "cat-consoles",
+    group: "jeux",
     platforms: ["switch2"],
     condition: "neuf",
     price: 38000, // TODO prix à confirmer
@@ -401,7 +423,8 @@ export const products: Product[] = [
     id: "p-cod-cold-war",
     slug: "call-of-duty-black-ops-cold-war-ps4",
     name: "Call of Duty Black Ops Cold War · PS4",
-    categoryId: "cat-jeux",
+    categoryId: "cat-consoles",
+    group: "jeux",
     platforms: ["ps4"],
     condition: "neuf",
     price: 15000, // TODO prix à confirmer
@@ -416,7 +439,8 @@ export const products: Product[] = [
     id: "p-cod-mw",
     slug: "call-of-duty-modern-warfare-ps4",
     name: "Call of Duty Modern Warfare · PS4",
-    categoryId: "cat-jeux",
+    categoryId: "cat-consoles",
+    group: "jeux",
     platforms: ["ps4"],
     condition: "neuf",
     price: 15000, // TODO prix à confirmer
@@ -431,7 +455,8 @@ export const products: Product[] = [
     id: "p-gta-v",
     slug: "gta-v-ps4",
     name: "GTA V · PS4",
-    categoryId: "cat-jeux",
+    categoryId: "cat-consoles",
+    group: "jeux",
     platforms: ["ps4"],
     condition: "neuf",
     price: 15000, // TODO prix à confirmer
@@ -446,7 +471,8 @@ export const products: Product[] = [
     id: "p-ac-valhalla",
     slug: "assassins-creed-valhalla-ps4",
     name: "Assassin's Creed Valhalla · PS4",
-    categoryId: "cat-jeux",
+    categoryId: "cat-consoles",
+    group: "jeux",
     platforms: ["ps4"],
     condition: "neuf",
     price: 15000, // TODO prix à confirmer
@@ -461,7 +487,8 @@ export const products: Product[] = [
     id: "p-mk11",
     slug: "mortal-kombat-11-ps4",
     name: "Mortal Kombat 11 · PS4",
-    categoryId: "cat-jeux",
+    categoryId: "cat-consoles",
+    group: "jeux",
     platforms: ["ps4"],
     condition: "neuf",
     price: 12000, // TODO prix à confirmer
@@ -476,7 +503,8 @@ export const products: Product[] = [
     id: "p-watch-dogs-2",
     slug: "watch-dogs-2-ps4",
     name: "Watch Dogs 2 · PS4",
-    categoryId: "cat-jeux",
+    categoryId: "cat-consoles",
+    group: "jeux",
     platforms: ["ps4"],
     condition: "neuf",
     price: 10000, // TODO prix à confirmer
@@ -493,7 +521,8 @@ export const products: Product[] = [
     id: "p-camera",
     slug: "camera-de-surveillance-wifi",
     name: "Caméra de surveillance Wi-Fi",
-    categoryId: "cat-surveillance",
+    categoryId: "cat-electronique",
+    group: "securite",
     platforms: ["android", "ios"],
     condition: "neuf",
     price: 25000, // TODO prix à confirmer
@@ -506,3 +535,5 @@ export const products: Product[] = [
     createdAt: "2026-09-28",
   },
 ];
+
+export const products: Product[] = [...gaming, ...techProducts];

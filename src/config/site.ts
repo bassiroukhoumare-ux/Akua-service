@@ -1,5 +1,5 @@
 export const SITE_NAME = "AKUA Service";
-export const SITE_TAGLINE = "Votre référence High-Tech en Afrique de l'Ouest";
+export const SITE_TAGLINE = "La technologie à votre service";
 export const SITE_URL = "https://akuaservice.com"; // TODO domaine définitif
 
 // format international sans « + » (utilisé dans les liens wa.me)
@@ -43,7 +43,6 @@ export const MAIN_NAV = [
   { label: "Accueil", href: "/" },
   { label: "Boutique", href: "/boutique" },
   { label: "Packs", href: "/packs" },
-  { label: "Jeux", href: "/boutique/jeux" },
   { label: "Vente en gros", href: "/vente-en-gros" },
   { label: "Contact", href: "/contact" },
 ] as const;

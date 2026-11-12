@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useCatalog } from "@/components/catalog-provider";
 import { ProductCard } from "@/components/product/product-card";
 import { Reveal } from "@/components/ui/reveal";
 import { btn } from "@/lib/btn";
@@ -11,29 +12,36 @@ import { cn } from "@/lib/utils";
 import type { Product } from "@/types/catalog";
 import { SectionHeading } from "./section-heading";
 
-const TABS = [
-  { id: "all", label: "Tout" },
-  { id: "cat-consoles", label: "Consoles" },
-  { id: "cat-manettes", label: "Manettes" },
-  { id: "cat-jeux", label: "Jeux" },
-  { id: "cat-packs", label: "Packs" },
-  { id: "promo", label: "Promos" },
-];
+/** Mélange les catégories à tour de rôle : l'onglet « Tout » montre chaque univers dès la première ligne. */
+function interleave(products: Product[], order: string[]) {
+  const buckets = order.map((id) => products.filter((p) => p.categoryId === id));
+  const rest = products.filter((p) => !order.includes(p.categoryId));
+  const out: Product[] = [];
+  for (let i = 0; buckets.some((b) => i < b.length); i++) for (const b of buckets) if (b[i]) out.push(b[i]);
+  return [...out, ...rest];
+}
 
-/** Catalogue : onglets segmentés, grille 4 colonnes (desktop) / 2 (mobile). */
-export function ProductFeed({ products, initial = 8, eyebrow = "Catalogue", title = "Nos produits disponibles." }: { products: Product[]; initial?: number; eyebrow?: string; title?: string }) {
+/** Catalogue : onglets segmentés, 16 produits (4 lignes sur ordinateur), puis « Afficher plus » et lien vers la boutique. */
+export function ProductFeed({ products, initial = 16, eyebrow = "Catalogue", title = "Nos produits disponibles." }: { products: Product[]; initial?: number; eyebrow?: string; title?: string }) {
   const [tab, setTab] = useState("all");
   const [n, setN] = useState(initial);
+  const { categories } = useCatalog();
+  const TABS = useMemo(() => [{ id: "all", label: "Tout" }, ...categories.filter((c) => c.slug !== "promos").map((c) => ({ id: c.id, label: c.shortName ?? c.name })), { id: "promo", label: "Promos" }], [categories]);
   const list = useMemo(() => {
-    if (tab === "all") return products;
+    if (tab === "all") return interleave(products, categories.map((c) => c.id));
     if (tab === "promo") return products.filter((p) => p.compareAtPrice);
     return products.filter((p) => p.categoryId === tab);
-  }, [products, tab]);
+  }, [products, tab, categories]);
+  const shown = Math.min(n, list.length);
+  // le bouton mène à la boutique entière, ou à la catégorie de l'onglet choisi
+  const current = categories.find((c) => c.id === tab);
+  const shopHref = tab === "promo" ? "/boutique/promos" : current ? `/boutique/${current.slug}` : "/boutique";
+  const shopLabel = current ? `Tout voir : ${current.shortName ?? current.name}` : tab === "promo" ? "Toutes les promos" : "Toute la boutique";
 
   return (
     <section aria-labelledby="catalogue" className="container-akua pt-14 md:pt-20">
       <Reveal>
-        <SectionHeading index="02" eyebrow={eyebrow} centerMobile title={<span id="catalogue">{title}</span>}>
+        <SectionHeading index="01" eyebrow={eyebrow} centerMobile title={<span id="catalogue">{title}</span>}>
           <div role="tablist" aria-label="Filtrer le catalogue" className="no-scrollbar -mx-4 flex w-[calc(100%+32px)] overflow-x-auto px-4 md:mx-0 md:w-auto md:px-0">
             <div className="mx-auto flex shrink-0 rounded-full bg-akua-page p-1 md:mx-0">
               {TABS.map((t) => (
@@ -63,15 +71,25 @@ export function ProductFeed({ products, initial = 8, eyebrow = "Catalogue", titl
           </motion.div>
         ))}
       </div>
-      <div className="mt-8 flex flex-wrap justify-center gap-2.5">
-        {n < list.length && (
-          <button type="button" onClick={() => setN((v) => v + 8)} className={btn({ variant: "outline", size: "lg" })}>
-            Afficher plus <ChevronDown aria-hidden className="size-4" />
-          </button>
-        )}
-        <Link href="/boutique" className={btn({ variant: "dark", size: "lg" })}>
-          Toute la boutique <ArrowRight aria-hidden className="size-4" />
-        </Link>
+      <div className="mx-auto mt-10 flex max-w-md flex-col items-center gap-5 md:mt-12">
+        <div className="w-full text-center" aria-live="polite">
+          <p className="text-[13.5px] text-akua-gray-500">
+            <span className="font-bold text-akua-ink tabular-nums">{shown}</span> produit{shown > 1 ? "s" : ""} sur <span className="font-bold text-akua-ink tabular-nums">{list.length}</span>
+          </p>
+          <div className="mx-auto mt-2.5 h-1 w-48 overflow-hidden rounded-full bg-akua-gray-200">
+            <motion.div className="h-full rounded-full bg-akua-blue" initial={false} animate={{ width: `${list.length ? (shown / list.length) * 100 : 0}%` }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }} />
+          </div>
+        </div>
+        <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row sm:justify-center">
+          {shown < list.length && (
+            <button type="button" onClick={() => setN((v) => v + 8)} className={btn({ variant: "outline", size: "lg", className: "w-full sm:w-auto" })}>
+              Afficher plus <ChevronDown aria-hidden className="size-4" />
+            </button>
+          )}
+          <Link href={shopHref} className={btn({ variant: "dark", size: "lg", className: "w-full sm:w-auto" })}>
+            {shopLabel} <ArrowRight aria-hidden className="size-4" />
+          </Link>
+        </div>
       </div>
     </section>
   );

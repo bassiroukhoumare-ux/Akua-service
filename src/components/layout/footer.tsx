@@ -4,6 +4,7 @@ import { ArrowUpRight, Clock, Globe2, MapPin } from "lucide-react";
 import Link from "next/link";
 import { Flag } from "@/components/ui/flag";
 import { Logo } from "@/components/ui/logo";
+import { useCatalog } from "@/components/catalog-provider";
 import { useShopSettings } from "@/components/shop-settings-provider";
 import { SocialLinkIcon } from "@/components/ui/social-link-icon";
 import { summarizeHours } from "@/lib/shop-settings";
@@ -16,16 +17,6 @@ const COLS = [
       { label: "Mes favoris", href: "/favoris" },
       { label: "Packs prêts à jouer", href: "/packs" },
       { label: "Promotions", href: "/boutique/promos" },
-    ],
-  },
-  {
-    title: "Rayons",
-    links: [
-      { label: "Consoles", href: "/boutique/consoles" },
-      { label: "Manettes", href: "/boutique/manettes" },
-      { label: "Jeux vidéo", href: "/boutique/jeux" },
-      { label: "Simulation", href: "/boutique/simulation" },
-      { label: "Informatique", href: "/boutique/informatique" },
     ],
   },
   {
@@ -45,6 +36,7 @@ const LEGAL = [
 
 export function Footer() {
   const s = useShopSettings();
+  const { categories } = useCatalog();
   const hours = summarizeHours(s.hours);
   const socials = s.socials.filter((x) => /^https?:\/\//.test(x.url));
   const delivery = s.delivery.filter((c) => c.enabled);
@@ -54,7 +46,7 @@ export function Footer() {
         <div>
           <Logo className="h-14" />
           <p className="mt-3 max-w-xs text-[14px] leading-relaxed text-akua-gray-500">
-            Votre référence High-Tech en Afrique de l&apos;Ouest. Consoles, jeux, manettes et accessoires, en gros et au détail.
+            {s.tagline}. Consoles, ordinateurs, tablettes, accessoires informatiques et équipements électroniques, en gros et au détail.
           </p>
           <ul className="mt-5 space-y-3 text-[14px]">
             <li>
@@ -78,7 +70,7 @@ export function Footer() {
             </li>
           </ul>
         </div>
-        {COLS.map((col) => (
+        {[COLS[0], { title: "Nos univers", links: categories.filter((c) => c.slug !== "promos").map((c) => ({ label: c.name, href: `/boutique/${c.slug}` })) }, COLS[1]].map((col) => (
           <div key={col.title}>
             <p className="text-[15px] font-bold">{col.title}</p>
             <ul className="mt-4 space-y-2.5">

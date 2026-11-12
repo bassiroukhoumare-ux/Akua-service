@@ -27,6 +27,7 @@ export function parseShopParams(sp: RawParams, categorySlug?: string): ProductQu
   const platforms = (one(sp.plateforme) ?? "").split(",").filter(Boolean) as Platform[];
   return {
     categorySlug: categorySlug ?? one(sp.categorie) ?? undefined,
+    group: one(sp.type) || undefined,
     platforms: platforms.length ? platforms : undefined,
     condition: (one(sp.etat) as Condition) || undefined,
     minPrice: Number.isFinite(min) ? min : undefined,

@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: `${SITE_NAME} · ${SITE_TAGLINE}`, template: `%s | ${SITE_NAME}` },
   description:
-    "Consoles, jeux vidéo, manettes et accessoires testés et garantis. Vente en gros et au détail, livraison au Togo et dans la sous-région.",
+    "Consoles et jeux vidéo, ordinateurs, tablettes, accessoires informatiques et équipements électroniques, testés et garantis. Vente en gros et au détail, livraison au Togo et dans la sous-région.",
   openGraph: { type: "website", locale: "fr_FR", siteName: SITE_NAME },
 };
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCatalog } from "@/components/catalog-provider";
+import { shelfLabel, useCatalog } from "@/components/catalog-provider";
 import { discountPercent, formatFCFA } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/catalog";
@@ -49,7 +49,6 @@ export function CardBadges({ product, className }: { product: Product; className
 export function ProductCard({ product, className, priority, exclusive, sizes = "(min-width:1024px) 23vw, (min-width:768px) 31vw, 48vw" }: ProductCardProps) {
   const { categories } = useCatalog();
   const href = `/produit/${product.slug}`;
-  const category = categories.find((c) => c.id === product.categoryId);
 
   return (
     <article
@@ -64,8 +63,8 @@ export function ProductCard({ product, className, priority, exclusive, sizes = "
           <Link href={href} aria-label={product.name} className="absolute inset-0 transition-transform duration-700 ease-akua group-hover:scale-[1.06]">
             <ProductVisual product={product} sizes={sizes} priority={priority} inset="p-[12%]" />
           </Link>
-          <span className="pointer-events-none absolute top-2.5 left-2.5 rounded-full bg-akua-white/90 px-2.5 py-1 text-[10.5px] font-semibold tracking-[0.08em] text-akua-ink uppercase backdrop-blur">
-            {category?.name}
+          <span className="pointer-events-none absolute top-2.5 left-2.5 max-w-[calc(100%-54px)] truncate rounded-full bg-akua-white/90 px-2.5 py-1 text-[10px] font-semibold tracking-[0.06em] text-akua-ink uppercase backdrop-blur md:text-[10.5px]">
+            {shelfLabel(product, categories)}
           </span>
           <FavoriteButton productId={product.id} className="absolute top-2 right-2 size-8 rounded-full md:size-9" />
           <div className="pointer-events-none absolute bottom-2.5 left-2.5 flex items-center gap-1">

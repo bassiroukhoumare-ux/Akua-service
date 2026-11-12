@@ -17,7 +17,10 @@ export interface WhatsAppCustomer {
 
 export interface WholesaleRequest {
   name: string;
+  company?: string;
   country: string;
+  city: string;
+  address: string;
   phone: string;
   products: string;
   message?: string;
@@ -119,9 +122,10 @@ export function buildWholesaleLink(req: WholesaleRequest): string {
     [
       "Demande de devis — Vente en gros",
       "",
-      `Nom / entreprise : ${req.name}`,
-      `Pays : ${req.country}`,
+      `Nom : ${req.name}`,
+      ...(req.company ? [`Entreprise : ${req.company}`] : []),
       `Téléphone : ${req.phone}`,
+      `Adresse : ${req.address}, ${req.city}, ${req.country}`,
       "",
       "Produits et quantités :",
       req.products,

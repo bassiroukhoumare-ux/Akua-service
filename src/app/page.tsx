@@ -1,5 +1,5 @@
 import { ProductFeed } from "@/components/home/product-feed";
-import { CategoryRail, DealsSection, FaqCta, type HomeSlot, PacksSection, PlatformMarquee } from "@/components/home/sections";
+import { CategoryRail, DealsSection, type HomeSlot, PacksSection, PlatformMarquee } from "@/components/home/sections";
 import { getCategories, getDealsOfTheDay, getPacks, getProducts, loadHome } from "@/lib/catalog";
 
 type Slide = { image: string; alt: string; linkKind: string; link: string; active: boolean; media?: "image" | "video" };
@@ -25,7 +25,6 @@ export default async function HomePage() {
       {shown("deals") && <DealsSection deals={deals} config={home?.deals ?? null} />}
       {shown("catalogue") && <ProductFeed products={products} {...text("catalogue")} />}
       {shown("packs") && <PacksSection packs={packs} {...text("packs")} />}
-      {shown("faq") && <FaqCta {...text("faq")} />}
     </>
   );
 }

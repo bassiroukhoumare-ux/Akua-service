@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Check, ExternalLink, Pencil, Plus, Search, RotateCcw, Shapes, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, ExternalLink, Pencil, Plus, Search, RotateCcw, Shapes, Trash2, X, ImagePlus } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { SearchSelect } from "@/components/ui/search-select";
+import { cropToRatio, readFile } from "@/lib/admin/image";
 import { btn } from "@/lib/btn";
 import { CATEGORY_ICON_DEFS, getCategoryIcon, suggestCategoryIcon } from "@/lib/icons";
 import { useHydrated } from "@/lib/use-hydrated";
@@ -12,7 +13,7 @@ import { cn } from "@/lib/utils";
 import { newCategoryId, slugify, useAdminCatalog } from "@/store/admin-catalog";
 import type { Category } from "@/types/catalog";
 import { useAdmin, useCan } from "../actor-context";
-import { Field, inputCls } from "../form";
+import { Field, inputCls, TagInput } from "../form";
 import { MobileActions, PageHeader } from "../ui";
 import { ReadOnlyNotice } from "../read-only";
 
@@ -32,9 +33,24 @@ function CategoryDialog({ open, onOpenChange, initial }: { open: boolean; onOpen
   const [manual, setManual] = useState(false);
   const [q, setQ] = useState("");
   const [error, setError] = useState("");
+  const [shortName, setShortName] = useState("");
+  const [image, setImage] = useState<string | undefined>();
+  const [groups, setGroups] = useState<string[]>([]);
+  const file = useRef<HTMLInputElement>(null);
+
+  async function pickImage(files: FileList | null) {
+    const f = files?.[0];
+    if (file.current) file.current.value = "";
+    if (!f) return;
+    // photo carrée, allégée : elle sert de vignette de la catégorie sur l'accueil et dans les menus
+    setImage(await cropToRatio(await readFile(f), 1, 800));
+  }
 
   useEffect(() => {
     if (!open) return;
+    setShortName(initial?.shortName ?? "");
+    setImage(initial?.image);
+    setGroups(initial?.groups?.map((g) => g.name) ?? []);
     setName(initial?.name ?? "");
     setDescription(initial?.description ?? "");
     setIcon(initial?.icon ?? "");
@@ -62,7 +78,18 @@ function CategoryDialog({ open, onOpenChange, initial }: { open: boolean; onOpen
     if (name.trim().length < 2) return setError("Indiquez le nom de la catégorie.");
     if (categories.some((c) => c.id !== initial?.id && slugify(c.name) === slug)) return setError("Une catégorie porte déjà ce nom.");
     save(
-      { id: initial?.id ?? newCategoryId(), slug: initial?.slug ?? slug, name: name.trim(), icon: icon || "console", description: description.trim() || undefined, order: initial?.order ?? 0 },
+      {
+        id: initial?.id ?? newCategoryId(),
+        slug: initial?.slug ?? slug,
+        name: name.trim(),
+        shortName: shortName.trim() || undefined,
+        icon: icon || "console",
+        description: description.trim() || undefined,
+        image,
+        // un sous-rayon déjà existant garde son adresse, même renommé à l'identique
+        groups: groups.length ? groups.map((g) => ({ slug: initial?.groups?.find((x) => x.name === g)?.slug ?? slugify(g), name: g })) : undefined,
+        order: initial?.order ?? 0,
+      },
       actor,
     );
     onOpenChange(false);
@@ -107,6 +134,42 @@ function CategoryDialog({ open, onOpenChange, initial }: { open: boolean; onOpen
 
             <Field label="Description" optional className="mt-4">
               <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Ex. Casques gaming, écouteurs et micros." className={inputCls()} />
+            </Field>
+
+            <div className="mt-4 grid gap-4 sm:grid-cols-[150px_minmax(0,1fr)]">
+              <div>
+                <p className="mb-1.5 text-[13.5px] font-medium">Photo</p>
+                <label htmlFor="cat-image" className="group relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1.5 overflow-hidden rounded-[18px] border-2 border-dashed border-akua-gray-200 bg-akua-tile text-center transition-colors hover:border-akua-blue">
+                  {image ? (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={image} alt="" className="absolute inset-0 size-full object-contain p-2" />
+                      <span className="absolute inset-x-2 bottom-2 rounded-full bg-akua-white/95 py-1 text-[12px] font-semibold shadow-sm">Changer</span>
+                    </>
+                  ) : (
+                    <>
+                      <ImagePlus aria-hidden className="size-6 text-akua-blue" strokeWidth={1.6} />
+                      <span className="px-2 text-[12.5px] font-semibold">Ajouter une photo</span>
+                    </>
+                  )}
+                </label>
+                <input id="cat-image" ref={file} type="file" accept="image/*" className="sr-only" tabIndex={-1} onChange={(e) => void pickImage(e.target.files)} />
+                {image && (
+                  <button type="button" onClick={() => setImage(undefined)} className="mt-1.5 text-[12.5px] font-semibold text-akua-gray-500 hover:text-akua-red">
+                    Retirer la photo
+                  </button>
+                )}
+              </div>
+              <div className="flex min-w-0 flex-col gap-4">
+                <p className="rounded-[14px] bg-akua-page px-3.5 py-2.5 text-[12.5px] text-akua-gray-500">La photo d&apos;un produit représentatif : elle s&apos;affiche sur la carte de la catégorie, sur l&apos;accueil et dans les menus du site.</p>
+                <Field label="Nom court" optional hint="Pour les onglets et les petits écrans. Ex. « Ordinateurs ».">
+                  <input value={shortName} onChange={(e) => setShortName(e.target.value)} maxLength={22} className={inputCls()} />
+                </Field>
+              </div>
+            </div>
+
+            <Field label="Sous-rayons" optional hint="Les familles de produits de cette catégorie. Ex. Souris, Claviers, Hubs USB. Écrivez puis appuyez sur Entrée." className="mt-4">
+              <TagInput value={groups} onChange={setGroups} placeholder="Ex. Souris" />
             </Field>
 
             <div className="mt-5">
@@ -273,8 +336,13 @@ export function CategoriesView() {
                 className="group flex scroll-mt-28 flex-col rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 transition-colors target:border-akua-blue target:ring-4 target:ring-akua-blue/15 hover:border-akua-gray-500/40"
               >
                 <div className="flex items-start gap-4">
-                  <span className="grid size-14 shrink-0 place-items-center rounded-[18px] bg-akua-page transition-colors group-hover:bg-akua-blue-100">
-                    <Icon aria-hidden className="size-7 text-akua-ink transition-colors group-hover:text-akua-blue" strokeWidth={1.4} />
+                  <span className="relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-[18px] bg-akua-tile transition-colors group-hover:bg-akua-blue-100">
+                    {c.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={c.image} alt="" className="absolute inset-0 size-full object-contain p-1.5" />
+                    ) : (
+                      <Icon aria-hidden className="size-7 text-akua-ink transition-colors group-hover:text-akua-blue" strokeWidth={1.4} />
+                    )}
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="flex items-center gap-2">
@@ -287,6 +355,15 @@ export function CategoriesView() {
                   </div>
                 </div>
                 {c.description && <p className="mt-3 line-clamp-2 text-[13.5px] text-akua-gray-500">{c.description}</p>}
+                {!!c.groups?.length && (
+                  <ul className="mt-3 flex flex-wrap gap-1.5">
+                    {c.groups.map((g) => (
+                      <li key={g.slug} className="rounded-full bg-akua-page px-2.5 py-1 text-[11.5px] font-medium">
+                        {g.name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 <div className="mt-auto flex items-center justify-between gap-2 pt-4">
                   <div className={cn("flex gap-1", !can("categories", "edit") && "invisible")}>
                     <button

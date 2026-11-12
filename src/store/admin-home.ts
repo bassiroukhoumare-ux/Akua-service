@@ -105,7 +105,7 @@ const initialDeals: DealsConfig = {
 export const HOME_SECTION_META: Record<HomeSectionId, { label: string; description: string; editable?: boolean }> = {
   platforms: { label: "Bandeau des plateformes", description: "Logos PS5, PS4, Switch, Xbox… qui défilent sous les catégories." },
   deals: { label: "Offre spéciale", description: "Compte à rebours, produits en promo et vidéos TikTok." },
-  catalogue: { label: "Nos produits disponibles", description: "Le catalogue avec ses onglets (Consoles, Manettes, Jeux…).", editable: true },
+  catalogue: { label: "Nos produits disponibles", description: "Le catalogue avec ses onglets par catégorie (16 produits, puis « Afficher plus »).", editable: true },
   packs: { label: "Packs prêts à jouer", description: "Les consoles complètes, le plus vendu mis en avant.", editable: true },
   faq: { label: "Questions fréquentes et contact", description: "Les questions fréquentes et le bloc « Écrivez-nous ».", editable: true },
 };

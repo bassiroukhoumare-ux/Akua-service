@@ -172,7 +172,7 @@ export function SearchDialog() {
                           alt=""
                           fill
                           sizes="56px"
-                          className={p.images[0].includes("/fb-") || p.categoryId === "cat-simulation" ? "object-cover" : "object-contain p-1.5"}
+                          className={p.images[0].includes("/fb-") || p.group === "simulation" ? "object-cover" : "object-contain p-1.5"}
                         />
                       </span>
                       <span className="min-w-0 flex-1">

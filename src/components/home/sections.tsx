@@ -1,4 +1,5 @@
 import { ArrowRight, BadgeCheck, Check, MessageCircleMore, PackageCheck, ShieldCheck, Store, TrendingUp, Truck } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { HOME_BANNER, HOME_VISUAL } from "@/config/home-visual";
 import { BuyNowButton } from "@/components/product/add-to-cart-button";
@@ -6,18 +7,16 @@ import { ProductCard } from "@/components/product/product-card";
 import { ProductVisual } from "@/components/product/product-visual";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Reveal } from "@/components/ui/reveal";
+import { categoryImages } from "@/data/category-media";
 import { btn } from "@/lib/btn";
-import { getCategoryIcon } from "@/lib/icons";
 import { CONDITION_LABEL, formatFCFA } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Category, Product } from "@/types/catalog";
 import { MobileSlider } from "@/components/ui/mobile-slider";
 import { PLATFORM_LOGOS } from "./platform-logos";
-import { WhatsAppContactButton } from "@/components/shop/whatsapp-contact-dialog";
-import { PromoVideo } from "./promo-video";
 import { HomeMedia } from "@/components/ui/home-media";
-import { PROMO_VIDEO_CARDS } from "@/config/promo-video";
 import { PromoTimer } from "./promo-timer";
+import { WhatsAppContactButton } from "@/components/shop/whatsapp-contact-dialog";
 import { dealEnd, type DealTiming } from "@/lib/deals";
 import { SectionHeading } from "./section-heading";
 
@@ -29,7 +28,7 @@ export { SectionHeading };
 export function PlatformMarquee() {
   return (
     <div className="mt-8 overflow-hidden border-y border-akua-gray-200 py-6 [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)] md:mt-14 md:py-7">
-      <p className="sr-only">Plateformes disponibles : {PLATFORM_LOGOS.map((p) => p.name).join(", ")}</p>
+      <p className="sr-only">Marques et plateformes disponibles : {PLATFORM_LOGOS.map((p) => p.name).join(", ")}</p>
       <div aria-hidden className="flex w-max animate-[akua-marquee_38s_linear_infinite] items-center gap-12 motion-reduce:animate-none md:gap-16">
         {[0, 1].map((d) => (
           <ul key={d} className="flex shrink-0 items-center gap-12 md:gap-16">
@@ -66,71 +65,70 @@ function SlotLink({ slot, className, style, children, label }: { slot: HomeSlot;
   );
 }
 
+/** Photo d'une catégorie : fichier du site (optimisé) ou image importée / externe. */
+function CategoryPhoto({ src, className, sizes }: { src: string; className?: string; sizes: string }) {
+  if (src.startsWith("/") && !src.startsWith("/api/")) return <Image src={src} alt="" fill sizes={sizes} className={className} />;
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={src} alt="" loading="lazy" className={cn("absolute inset-0 size-full", className)} />;
+}
+
+function CategoryTile({ c }: { c: Category }) {
+  return (
+    <Link href={`/boutique/${c.slug}`} className="group flex flex-col items-center gap-2 text-center md:gap-3">
+      <span className="relative block aspect-square w-full overflow-hidden rounded-[18px] border border-transparent bg-akua-tile transition-all duration-500 ease-akua group-hover:-translate-y-1 group-hover:border-akua-blue/40 group-hover:shadow-[0_20px_40px_-28px_rgb(31_91_255/0.6)] md:rounded-[22px]">
+        {c.image && <CategoryPhoto src={c.image} sizes="(min-width:1024px) 200px, 33vw" className="object-contain p-2.5 transition-transform duration-700 ease-akua group-hover:scale-[1.06] md:p-4" />}
+      </span>
+      <span className="line-clamp-3 text-[11px] leading-[1.2] font-extrabold tracking-[0.01em] text-balance text-akua-ink uppercase transition-colors group-hover:text-akua-blue min-[400px]:text-[11.5px] md:text-[14px] md:tracking-[0.02em]">{c.name}</span>
+    </Link>
+  );
+}
+
 export function CategoryRail({ categories, poster, banner }: { categories: Category[]; products?: Product[]; poster?: HomeSlot | null; banner?: HomeSlot | null }) {
   const p = poster ?? { src: HOME_VISUAL.src, alt: HOME_VISUAL.alt, href: HOME_VISUAL.href };
   const b = banner ?? { src: HOME_BANNER.src, alt: HOME_BANNER.alt, href: HOME_BANNER.href };
+  // les promos ont leur propre section et le menu « Offres » : pas de tuile ici
+  const cards = categories.filter((c) => c.slug !== "promos").map((c) => ({ ...c, image: c.image ?? categoryImages[c.id] }));
+
   return (
-    <section id="categories" aria-labelledby="rayons" className="container-akua scroll-mt-[120px] pt-5 md:scroll-mt-28 md:pt-10">
-      <div className="flex items-end justify-between gap-4">
-        <h1 id="rayons" className="text-[22px] font-extrabold tracking-[-0.03em] md:text-[28px]">
-          Nos catégories
-        </h1>
-        <Link href="/boutique" className="group inline-flex items-center gap-1 text-[13.5px] font-semibold text-akua-blue">
-          Tout voir <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-0.5" />
-        </Link>
-      </div>
+    <>
+      <h1 className="sr-only">AKUA Service : consoles, ordinateurs, tablettes, accessoires informatiques et équipements électroniques</h1>
 
-      {/* Mobile : catégories, bannière, puis affiche (empilées).
-          Tablette : catégories + affiche côte à côte, bannière 3:1 sur toute la largeur.
-          Ordinateur : catégories sur une ligne + bannière à gauche, affiche à droite.
-          La largeur de l'affiche est calculée pour que la bannière garde son ratio 3:1
-          et que son bas soit aligné avec celui de l'affiche :
-          R = (100% + 3 × 104px + 2 × 20px) / (3 × ratio de l’affiche + 1). */}
-      <div className="mt-4 grid gap-4 md:mt-5 md:grid-cols-[minmax(0,1fr)_260px] lg:grid-cols-[minmax(0,1fr)_calc((100%_+_352px)/4.748)] lg:grid-rows-[104px_1fr] lg:gap-5">
-        <nav aria-label="Catégories de produits" className="order-1 min-w-0 rounded-[24px] border border-akua-gray-200 bg-akua-white md:order-none md:col-start-1 md:row-start-1">
-          <ul className="grid h-full grid-cols-4 grid-rows-2 lg:grid-cols-8 lg:grid-rows-1">
-            {categories.map((c) => {
-              const Icon = getCategoryIcon(c.icon);
-              return (
-                <li key={c.id} className="min-w-0">
-                  <Link
-                    href={`/boutique/${c.slug}`}
-                    className="group flex h-full flex-col items-center justify-center gap-2 rounded-[22px] px-1 py-4 text-center lg:px-0.5 transition-colors hover:bg-akua-page md:gap-3"
-                  >
-                    <Icon aria-hidden className="size-7 text-akua-ink transition-all duration-300 group-hover:-translate-y-0.5 group-hover:text-akua-blue md:size-8 lg:size-9" strokeWidth={1.4} />
-                    <span className="max-w-full truncate text-[12px] font-semibold tracking-[-0.01em] text-akua-ink group-hover:text-akua-blue md:text-[14px] lg:text-[11.5px] xl:text-[14px]">{c.name}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+      {/* Catégories : tout en haut, droit au but. Téléphone : 3 par ligne. Ordinateur : toutes sur une ligne. */}
+      <section id="categories" aria-labelledby="rayons" className="container-akua scroll-mt-[120px] pt-5 md:scroll-mt-28 md:pt-8">
+        <div className="flex items-center justify-between gap-4">
+          <h2 id="rayons" className="text-[20px] font-extrabold tracking-[-0.02em] md:text-[26px]">Catégories</h2>
+          <Link href="/boutique" className="inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-akua-blue md:text-[14.5px]">
+            Tout voir <ArrowRight aria-hidden className="size-4" />
+          </Link>
+        </div>
+        <ul className={cn("mt-4 grid grid-cols-3 gap-x-3 gap-y-5 md:mt-5 md:gap-x-4", cards.length > 4 ? "md:grid-cols-6" : "md:grid-cols-4")}>
+          {cards.map((c) => (
+            <li key={c.id}>
+              <CategoryTile c={c} />
+            </li>
+          ))}
+        </ul>
+      </section>
 
-        <SlotLink
-          slot={p}
-          style={{ aspectRatio: `${HOME_VISUAL.width} / ${HOME_VISUAL.height}` }}
-          className="group relative order-3 block overflow-hidden rounded-[24px] bg-akua-page md:order-none md:col-start-2 md:row-start-1 lg:row-span-2"
-        >
-          <HomeMedia
-            src={p.src}
-            alt={p.alt}
-            media={p.media}
-            fit={p.media === "video" ? "cover" : "contain"}
-            priority
-            sizes="(min-width:1024px) 340px, (min-width:768px) 260px, 100vw"
-            className="transition-transform duration-700 ease-akua group-hover:scale-[1.03]"
-          />
-        </SlotLink>
+      {/* Bannière + affiche (gérées dans l'admin). Ordinateur : côte à côte, même hauteur. Téléphone : bannière puis affiche. */}
+      <section aria-label="À la une" className="container-akua pt-8 md:pt-12">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,3.72fr)_minmax(0,1fr)] lg:gap-5">
+          <SlotLink slot={b} label={b.alt} className="group relative block aspect-[3/1] overflow-hidden rounded-[24px] bg-akua-page lg:aspect-auto lg:min-h-full">
+            <HomeMedia src={b.src} alt={b.alt} media={b.media} sizes="(min-width:1024px) 1000px, 100vw" priority className="transition-transform duration-700 ease-akua group-hover:scale-[1.02]" />
+          </SlotLink>
+          <SlotLink slot={p} style={{ aspectRatio: `${HOME_VISUAL.width} / ${HOME_VISUAL.height}` }} className="group relative hidden overflow-hidden rounded-[24px] bg-akua-page lg:block">
+            <HomeMedia src={p.src} alt={p.alt} media={p.media} fit={p.media === "video" ? "cover" : "contain"} priority sizes="280px" className="transition-transform duration-700 ease-akua group-hover:scale-[1.03]" />
+          </SlotLink>
+        </div>
+      </section>
 
-        <SlotLink
-          slot={b}
-          label={b.alt}
-          className="group relative order-2 block aspect-[3/1] overflow-hidden rounded-[24px] bg-akua-page md:order-none md:col-span-2 md:row-start-2 lg:col-span-1 lg:col-start-1 lg:aspect-auto"
-        >
-          <HomeMedia src={b.src} alt={b.alt} media={b.media} sizes="(min-width:1024px) 900px, 100vw" priority className="transition-transform duration-700 ease-akua group-hover:scale-[1.02]" />
+      {/* Affiche portrait : sur téléphone et tablette, sous la bannière */}
+      <div className="container-akua pt-4 lg:hidden">
+        <SlotLink slot={p} style={{ aspectRatio: `${HOME_VISUAL.width} / ${HOME_VISUAL.height}` }} className="group relative mx-auto block w-full max-w-[420px] overflow-hidden rounded-[24px] bg-akua-page">
+          <HomeMedia src={p.src} alt={p.alt} media={p.media} fit={p.media === "video" ? "cover" : "contain"} sizes="(min-width:768px) 420px, 100vw" />
         </SlotLink>
       </div>
-    </section>
+    </>
   );
 }
 
@@ -147,7 +145,6 @@ export interface DealsSettings extends DealTiming {
 
 export function DealsSection({ deals, config }: { deals: Product[]; config?: DealsSettings | null }) {
   if (config && (!config.enabled || !dealEnd(config))) return null;
-  const videoCards = config ? config.videos.filter((v) => v.length) : PROMO_VIDEO_CARDS;
   // les 4 dernières promotions ajoutées
   const promo = deals
     .filter((p) => p.compareAtPrice)
@@ -168,24 +165,16 @@ export function DealsSection({ deals, config }: { deals: Product[]; config?: Dea
           </div>
           <PromoTimer timing={config ? { mode: config.mode, hours: config.hours, startedAt: config.startedAt, repeat: config.repeat } : undefined} />
         </div>
-        {/* Mobile et tablette : les 2 vidéos côte à côte, puis 2 × 2 produits.
-            Ordinateur : 5 colonnes égales, vidéo | 3 produits | vidéo (même hauteur que les cartes). */}
-        <div className="mt-8 grid grid-cols-2 gap-2.5 md:gap-4 lg:grid-cols-5">
-          {videoCards.map((videos, i) => (
-            <PromoVideo
-              key={i}
-              videos={videos}
-              className={cn("aspect-[9/16] w-full lg:aspect-auto lg:h-full lg:min-h-[400px]", i === 0 ? "order-1" : "order-2 lg:order-3")}
-            />
-          ))}
+        {/* Les 4 dernières promotions : 2 par ligne sur téléphone, 4 alignées sur ordinateur. */}
+        <div className="mt-8 grid grid-cols-2 gap-2.5 md:gap-4 lg:grid-cols-4">
           {promo.map((p, i) => (
-            <div key={p.id} className={cn("order-2 min-w-0", i === 3 && "lg:hidden")}>
-              <ProductCard product={p} exclusive />
+            <div key={p.id} className="min-w-0">
+              <ProductCard product={p} priority={i < 2} />
             </div>
           ))}
         </div>
-        <div className="mt-7 flex justify-center">
-          <Link href="/boutique/promos" className={btn({ variant: "dark", size: "lg" })}>
+        <div className="mt-8 flex justify-center">
+          <Link href="/boutique/promos" className={btn({ variant: "dark", size: "lg", className: "w-full sm:w-auto" })}>
             Voir toutes les promotions <ArrowRight aria-hidden className="size-4" />
           </Link>
         </div>
@@ -241,7 +230,7 @@ export function PacksSection({ packs, eyebrow = "Consoles complètes", title = "
   return (
     <section aria-labelledby="packs" className="pt-14 md:pt-20">
       <Reveal className="container-akua">
-        <SectionHeading index="03" eyebrow={eyebrow} centerMobile title={<span id="packs">{title}</span>}>
+        <SectionHeading index="02" eyebrow={eyebrow} centerMobile title={<span id="packs">{title}</span>}>
           <Link href="/packs" className={btn({ variant: "outline", size: "md" })}>
             Tous les packs <ArrowRight aria-hidden className="size-4" />
           </Link>
@@ -271,7 +260,7 @@ export function WhySection() {
   return (
     <section aria-labelledby="why" className="container-akua pt-14 md:pt-20">
       <Reveal>
-        <SectionHeading index="05" eyebrow="Pourquoi AKUA Service" title={<span id="why">Achetez l&apos;esprit tranquille.</span>} />
+        <SectionHeading index="04" eyebrow="Pourquoi AKUA Service" title={<span id="why">Achetez l&apos;esprit tranquille.</span>} />
       </Reveal>
       <div className="mt-7 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         {WHY.map((w, i) => (
@@ -289,7 +278,7 @@ export function WhySection() {
           <div className="flex items-center gap-4">
             <Store aria-hidden className="size-10 shrink-0" strokeWidth={1.3} />
             <div>
-              <p className="text-[22px] font-extrabold tracking-[-0.03em] md:text-[26px]">Revendeur ou salle de jeux ?</p>
+              <p className="text-[22px] font-extrabold tracking-[-0.03em] md:text-[26px]">Revendeur, entreprise ou école ?</p>
               <p className="text-[14px] text-akua-white/80">Tarifs dégressifs, stock disponible, livraison au Togo et dans la sous-région.</p>
             </div>
           </div>
@@ -308,16 +297,39 @@ const FAQ = [
   { q: "Comment passer commande ?", a: "Ajoutez vos produits au panier, remplissez vos informations puis envoyez la commande sur WhatsApp. Notre équipe vous répond avec le lien de paiement." },
   { q: "Les produits sont-ils neufs ?", a: "Selon l'article, un produit peut être neuf ou venant, dans son carton d'origine ou sans carton. Vérifiez toujours la fiche du produit : son état et son conditionnement y sont indiqués. En cas de doute, posez-nous la question sur WhatsApp." },
   { q: "Puis-je récupérer ma commande en boutique ?", a: "Oui. Choisissez « Retrait en boutique », indiquez le jour et l'heure de passage. Vous pouvez verser un acompte pour réserver le produit." },
+  { q: "Que vendez-vous ?", a: "Consoles et jeux vidéo, ordinateurs portables, tablettes, accessoires informatiques (souris, claviers, hubs USB…) et équipements électroniques comme les routeurs Wi-Fi et les vidéoprojecteurs. Tous nos produits sont testés et garantis." },
   { q: "Livrez-vous hors du Togo ?", a: "Oui, nous livrons dans les pays de la sous-région : Bénin, Ghana, Burkina Faso, Côte d'Ivoire, Niger et Mali. Les frais sont confirmés sur WhatsApp." },
 ];
 
+/** Questions fréquentes (page Contact) : titre à gauche, questions à droite sur ordinateur. */
+export function FaqSection({ eyebrow = "Questions fréquentes", title = "On vous répond." }: { eyebrow?: string; title?: string }) {
+  return (
+    <section id="questions" aria-labelledby="faq" className="container-akua scroll-mt-28 pt-12 md:pt-16">
+      <Reveal>
+        <div className="grid gap-6 rounded-[28px] border border-akua-gray-200 p-6 md:p-9 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)] lg:gap-12">
+          <SectionHeading eyebrow={eyebrow} title={<span id="faq">{title}</span>} className="self-start" />
+          <Accordion type="single" collapsible className="-mt-2 lg:mt-0">
+            {FAQ.map((f, i) => (
+              <AccordionItem key={f.q} value={`f${i}`}>
+                <AccordionTrigger className="text-[15.5px] font-semibold">{f.q}</AccordionTrigger>
+                <AccordionContent className="text-[14.5px] leading-relaxed text-akua-gray-500">{f.a}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+/** Questions fréquentes + bloc « Écrivez-nous » côte à côte (bas des pages Boutique et Packs). */
 export function FaqCta({ eyebrow = "Questions fréquentes", title = "On vous répond." }: { eyebrow?: string; title?: string }) {
   return (
     <section aria-labelledby="faq" className="container-akua pt-14 md:pt-20">
       <div className="grid gap-4 lg:grid-cols-[1.25fr_1fr]">
         <Reveal>
           <div className="h-full rounded-[30px] border border-akua-gray-200 p-6 md:p-9">
-            <SectionHeading index="04" eyebrow={eyebrow} title={<span id="faq">{title}</span>} />
+            <SectionHeading eyebrow={eyebrow} title={<span id="faq">{title}</span>} />
             <Accordion type="single" collapsible className="mt-5">
               {FAQ.map((f, i) => (
                 <AccordionItem key={f.q} value={`f${i}`}>
@@ -333,7 +345,7 @@ export function FaqCta({ eyebrow = "Questions fréquentes", title = "On vous ré
             <div aria-hidden className="bg-grid absolute inset-0 opacity-60 [mask-image:radial-gradient(ellipse_at_bottom_right,black,transparent_70%)]" />
             <MessageCircleMore aria-hidden className="relative size-11 text-akua-blue" strokeWidth={1.3} />
             <p className="relative mt-6 text-[28px] leading-[1.08] font-extrabold tracking-[-0.035em] md:text-[34px]">Une question ? Écrivez-nous, on répond vite.</p>
-            <p className="relative mt-3 text-[14.5px] text-akua-gray-500">Conseil, disponibilité, prix de gros : écrivez-nous sur WhatsApp, notre équipe vous répond rapidement.</p>
+            <p className="relative mt-3 text-[14.5px] text-akua-gray-500">Conseil pour choisir un ordinateur, une tablette ou une console, disponibilité, prix de gros : écrivez-nous sur WhatsApp, notre équipe vous répond rapidement.</p>
             <div className="relative mt-auto flex flex-wrap gap-2.5 pt-8">
               <WhatsAppContactButton />
               <Link href="/contact" className={btn({ variant: "outline", size: "lg" })}>

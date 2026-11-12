@@ -33,6 +33,8 @@ export type SortKey = "pertinence" | "prix-asc" | "prix-desc" | "nouveautes";
 
 export interface ProductQuery {
   categorySlug?: string;
+  /** sous-rayon de la catégorie */
+  group?: string;
   platforms?: Platform[];
   condition?: Condition;
   minPrice?: number;
@@ -78,6 +80,7 @@ export async function getProducts(query: ProductQuery = {}): Promise<Product[]> 
       list = cat ? list.filter((p) => p.categoryId === cat.id) : [];
     }
   }
+  if (query.group) list = list.filter((p) => p.group === query.group);
   if (query.platforms?.length) {
     list = list.filter((p) => p.platforms.some((pl) => query.platforms!.includes(pl)));
   }
@@ -88,7 +91,7 @@ export async function getProducts(query: ProductQuery = {}): Promise<Product[]> 
   if (query.search) {
     const q = normalize(query.search.trim());
     list = list.filter((p) =>
-      normalize(`${p.name} ${p.shortDescription} ${p.platforms.join(" ")}`).includes(q),
+      normalize(`${p.name} ${p.shortDescription} ${p.platforms.join(" ")} ${categories.find((c) => c.id === p.categoryId)?.name ?? ""}`).includes(q),
     );
   }
 

@@ -7,7 +7,7 @@ export const HOME_VISUAL = {
   width: 1600,
   height: 1999,
   alt: "Nintendo Switch OLED neuve en carton à 250 000 FCFA chez AKUA Service",
-  href: "/boutique/consoles",
+  href: "/boutique/consoles-jeux-video?type=consoles",
 };
 
 // Bannière horizontale : sous les catégories sur ordinateur (alignée en bas avec

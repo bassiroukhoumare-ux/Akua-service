@@ -33,6 +33,17 @@ export interface Category {
   icon: string; // nom d'icône lucide (voir src/lib/icons.ts)
   description?: string;
   order: number;
+  /** nom court pour les petits espaces (onglets, barre mobile) */
+  shortName?: string;
+  /** photo représentative de la catégorie (accueil, menus) */
+  image?: string;
+  /** sous-rayons : « Souris », « Claviers »… */
+  groups?: CategoryGroup[];
+}
+
+export interface CategoryGroup {
+  slug: string;
+  name: string;
 }
 
 export interface Product {
@@ -40,6 +51,8 @@ export interface Product {
   slug: string;
   name: string;
   categoryId: string;
+  /** sous-rayon dans la catégorie (slug d'un CategoryGroup) */
+  group?: string;
   platforms: Platform[];
   /** plateformes hors liste, saisies librement (« Autre ») */
   otherPlatforms?: string[];

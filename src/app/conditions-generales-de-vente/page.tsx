@@ -26,7 +26,7 @@ const SECTIONS: LegalSection[] = [
           conditions décrites ci-dessous. Toute commande implique l&apos;acceptation pleine et entière des présentes CGV, qui prévalent sur tout autre document.
         </P>
         <P>
-          Les ventes en gros destinées aux professionnels (revendeurs, salles de jeux) peuvent faire l&apos;objet de conditions particulières convenues par écrit, qui complètent alors les
+          Les ventes en gros destinées aux professionnels (revendeurs, entreprises, écoles, salles de jeux) peuvent faire l&apos;objet de conditions particulières convenues par écrit, qui complètent alors les
           présentes CGV.
         </P>
       </>

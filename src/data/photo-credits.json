@@ -142,5 +142,179 @@
   "license": "Public domain",
   "artist": "Evan-Amos",
   "page": "https://commons.wikimedia.org/wiki/File:Nintendo-Switch-Console-Docked-wJoyConRB.jpg"
+ },
+ "macbook": {
+  "file": "Macbook Air M1 Silver PNG.png",
+  "license": "CC BY-SA 4.0",
+  "artist": "L ",
+  "page": "https://commons.wikimedia.org/wiki/File:Macbook_Air_M1_Silver_PNG.png"
+ },
+ "macbook-pro": {
+  "file": "Apple MacBook Pro, model A1278-8107.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Raimond Spekking",
+  "page": "https://commons.wikimedia.org/wiki/File:Apple_MacBook_Pro,_model_A1278-8107.jpg"
+ },
+ "galaxy-tab": {
+  "file": "Samsung galaxy tab.png",
+  "license": "Public domain",
+  "artist": "KA KIT",
+  "page": "https://commons.wikimedia.org/wiki/File:Samsung_galaxy_tab.png"
+ },
+ "ipad": {
+  "file": "IPad and iPad Pro.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "彭家杰",
+  "page": "https://commons.wikimedia.org/wiki/File:IPad_and_iPad_Pro.jpg"
+ },
+ "mx-master": {
+  "file": "2017 Mysz komputerowa Logitech MX Master.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Jacek Halicki",
+  "page": "https://commons.wikimedia.org/wiki/File:2017_Mysz_komputerowa_Logitech_MX_Master.jpg"
+ },
+ "hub-usb": {
+  "file": "USB HUB 2.0.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Kskhh",
+  "page": "https://commons.wikimedia.org/wiki/File:USB_HUB_2.0.jpg"
+ },
+ "hp-pavilion": {
+  "file": "HP Pavilion dv2000 laptop.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Aaron Patterson from Redding CA",
+  "page": "https://commons.wikimedia.org/wiki/File:HP_Pavilion_dv2000_laptop.jpg"
+ },
+ "souris-gaming": {
+  "file": "2023 Mysz komputerowa Logitech G903 Lightspeed.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Jacek Halicki",
+  "page": "https://commons.wikimedia.org/wiki/File:2023_Mysz_komputerowa_Logitech_G903_Lightspeed.jpg"
+ },
+ "souris-rouge": {
+  "file": "Logitech M171.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Filo gèn'",
+  "page": "https://commons.wikimedia.org/wiki/File:Logitech_M171.jpg"
+ },
+ "clavier-meca": {
+  "file": "System76 product launch.png",
+  "license": "GPLv3",
+  "artist": "System76",
+  "page": "https://commons.wikimedia.org/wiki/File:System76_product_launch.png"
+ },
+ "clavier-k380": {
+  "file": "Logitech K380 CJK Keyboard.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Cangjie6",
+  "page": "https://commons.wikimedia.org/wiki/File:Logitech_K380_CJK_Keyboard.jpg"
+ },
+ "refroidisseur": {
+  "file": "Laptop cooler.JPG",
+  "license": "CC BY-SA 3.0",
+  "artist": "User:Littletung",
+  "page": "https://commons.wikimedia.org/wiki/File:Laptop_cooler.JPG"
+ },
+ "adaptateur": {
+  "file": "USB-C Digital AV Multiport Adapter.jpeg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Thefreeencyclopedia1",
+  "page": "https://commons.wikimedia.org/wiki/File:USB-C_Digital_AV_Multiport_Adapter.jpeg"
+ },
+ "routeur": {
+  "file": "TP-Link TL-WR740N router HS1 transparent.png",
+  "license": "CC BY 4.0",
+  "artist": "Hayden Schiff",
+  "page": "https://commons.wikimedia.org/wiki/File:TP-Link_TL-WR740N_router_HS1_transparent.png"
+ },
+ "projecteur": {
+  "file": "BenQ DLP projector MP515 20101213.jpg",
+  "license": "Public domain",
+  "artist": "Aivar Luist",
+  "page": "https://commons.wikimedia.org/wiki/File:BenQ_DLP_projector_MP515_20101213.jpg"
+ },
+ "enceinte": {
+  "file": "Głośnik JBL Flip 3.jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "Przemek Pietrak",
+  "page": "https://commons.wikimedia.org/wiki/File:G%C5%82o%C5%9Bnik_JBL_Flip_3.jpg"
+ },
+ "onduleur": {
+  "file": "Apc ups rs500 03.jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "Hundehalter",
+  "page": "https://commons.wikimedia.org/wiki/File:Apc_ups_rs500_03.jpg"
+ },
+ "thinkpad": {
+  "file": "Lenovo ThinkPad T490.jpg",
+  "license": "CC BY 4.0",
+  "artist": "P2u111",
+  "page": "https://commons.wikimedia.org/wiki/File:Lenovo_ThinkPad_T490.jpg"
+ },
+ "laserjet": {
+  "file": "Hp-laserjet-printer.png",
+  "license": "CC BY-SA 3.0",
+  "artist": "diskdepot.co.uk",
+  "page": "https://commons.wikimedia.org/wiki/File:Hp-laserjet-printer.png"
+ },
+ "tab-7": {
+  "file": "Samsung Galaxy Tab 2.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Віщун",
+  "page": "https://commons.wikimedia.org/wiki/File:Samsung_Galaxy_Tab_2.jpg"
+ },
+ "fire-tab": {
+  "file": "Kindle Fire tablet HD 8 Plus - 1.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "KKPCW（Kyu3）",
+  "page": "https://commons.wikimedia.org/wiki/File:Kindle_Fire_tablet_HD_8_Plus_-_1.jpg"
+ },
+ "stylet": {
+  "file": "Apple Pencil.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Brett Jordan",
+  "page": "https://commons.wikimedia.org/wiki/File:Apple_Pencil.jpg"
+ },
+ "etui-clavier": {
+  "file": "Keyboard with tablet.jpg",
+  "license": "CC BY 2.0",
+  "artist": "Kārlis Dambrāns",
+  "page": "https://commons.wikimedia.org/wiki/File:Keyboard_with_tablet.jpg"
+ },
+ "ssd": {
+  "file": "Samsung T5 Portable External SSD (Solid State Drive) (43544308485).jpg",
+  "license": "CC BY 2.0",
+  "artist": "Tony Webster from Minneapolis, Minnesota, United States",
+  "page": "https://commons.wikimedia.org/wiki/File:Samsung_T5_Portable_External_SSD_(Solid_State_Drive)_(43544308485).jpg"
+ },
+ "webcam": {
+  "file": "Webcam 01.jpg",
+  "license": "CC0",
+  "artist": "Pmwiki1",
+  "page": "https://commons.wikimedia.org/wiki/File:Webcam_01.jpg"
+ },
+ "casque-micro": {
+  "file": "Xbox-360-Headset-Mk2-Black.jpg",
+  "license": "Public domain",
+  "artist": "Evan-Amos",
+  "page": "https://commons.wikimedia.org/wiki/File:Xbox-360-Headset-Mk2-Black.jpg"
+ },
+ "casque-bose": {
+  "file": "Bose QuietComfort 25 Acoustic Noise Cancelling Headphones.jpg",
+  "license": "CC BY-SA 3.0",
+  "artist": "Florian Fuchs",
+  "page": "https://commons.wikimedia.org/wiki/File:Bose_QuietComfort_25_Acoustic_Noise_Cancelling_Headphones.jpg"
+ },
+ "ecouteurs": {
+  "file": "AirPods Pro case.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "— aconcagua (talk)",
+  "page": "https://commons.wikimedia.org/wiki/File:AirPods_Pro_case.jpg"
+ },
+ "montre": {
+  "file": "SAMSUNG Galaxy Watch (2).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "page": "https://commons.wikimedia.org/wiki/File:SAMSUNG_Galaxy_Watch_(2).jpg"
  }
 }

@@ -32,6 +32,7 @@ export default async function ProductPage({ params }: Props) {
   const [category, related, { products: allProducts }] = await Promise.all([getCategoryById(product.categoryId), getRelatedProducts(product), loadCatalog()]);
   const pct = discountPercent(product.price, product.compareAtPrice);
   const CatIcon = getCategoryIcon(category?.icon);
+  const groupName = category?.groups?.find((g) => g.slug === product.group)?.name;
   const isNew = product.condition === "neuf";
   const compat = product.compatibility ?? [...product.platforms.map((p) => PLATFORM_LABELS[p]), ...(product.otherPlatforms ?? [])];
   // produits liés, puis mis en avant, puis le reste du catalogue : toujours 8 (2 lignes complètes sur ordinateur)
@@ -58,7 +59,7 @@ export default async function ProductPage({ params }: Props) {
   };
 
   const specs = [
-    { k: "Catégorie", v: category?.name ?? "" },
+    { k: "Catégorie", v: [category?.name, groupName].filter(Boolean).join(" · ") },
     { k: "État", v: CONDITION_LABEL[product.condition] },
     ...(product.packaging ? [{ k: "Emballage", v: PACKAGING_LABEL[product.packaging] }] : []),
     { k: "Compatibilité", v: compat.join(", ") },
@@ -68,7 +69,7 @@ export default async function ProductPage({ params }: Props) {
   const infos = [
     { icon: Truck, t: "Livraison ou retrait en boutique", d: "Livraison possible au Togo et dans les pays de la sous-région : Bénin, Ghana, Burkina Faso, Côte d'Ivoire, Niger et Mali." },
     ...(product.warranty === false ? [] : [{ icon: ShieldCheck, t: "Garantie", d: product.warrantyLabel ? `Produit testé et garanti ${product.warrantyLabel}.` : "Tous nos produits sont testés et garantis." }]),
-    ...(product.wholesale === false ? [] : [{ icon: Store, t: "Vente en gros", d: "Revendeur ou salle de jeux ? Demandez un devis : tarifs dégressifs selon les quantités, livraison au Togo et dans la sous-région." }]),
+    ...(product.wholesale === false ? [] : [{ icon: Store, t: "Vente en gros", d: "Revendeur, entreprise ou école ? Demandez un devis : tarifs dégressifs selon les quantités, livraison au Togo et dans la sous-région." }]),
   ];
 
   return (
@@ -91,8 +92,8 @@ export default async function ProductPage({ params }: Props) {
           <ProductGallery product={product} />
 
           <div className="min-w-0 lg:pt-2">
-            <Link href={`/boutique/${category?.slug ?? ""}`} className="inline-flex h-8 items-center gap-1.5 rounded-full border border-akua-gray-200 px-3 text-[12.5px] font-medium hover:border-akua-ink">
-              <CatIcon aria-hidden className="size-3.5 text-akua-blue" /> {category?.name}
+            <Link href={`/boutique/${category?.slug ?? ""}${groupName ? `?type=${product.group}` : ""}`} className="inline-flex h-8 items-center gap-1.5 rounded-full border border-akua-gray-200 px-3 text-[12.5px] font-medium hover:border-akua-ink">
+              <CatIcon aria-hidden className="size-3.5 text-akua-blue" /> {groupName ?? category?.name}
             </Link>
             <h1 className="mt-4 text-[30px] leading-[1.08] font-extrabold tracking-[-0.03em] md:text-[42px]">{product.name}</h1>
             <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">

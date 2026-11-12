@@ -88,14 +88,31 @@ function Filters({ category }: { category: Category | null }) {
                 href={`/boutique/${c.slug}`}
                 className={cn("ml-3 flex h-10 items-center gap-2.5 rounded-xl px-3 text-[13.5px] transition-colors", on ? "bg-akua-blue-100 font-semibold text-akua-blue" : "text-akua-gray-500 hover:text-akua-ink")}
               >
-                <Icon aria-hidden className="size-4" strokeWidth={ICON_STROKE} />
-                {c.name}
+                <Icon aria-hidden className="size-4 shrink-0" strokeWidth={ICON_STROKE} />
+                <span className="truncate">{c.shortName ?? c.name}</span>
               </Link>
+              {on && !!c.groups?.length && (
+                <ul className="mt-1 mb-2 ml-9 flex flex-col gap-0.5 border-l border-akua-gray-200 pl-2">
+                  {c.groups.map((g) => {
+                    const active = sp.get("type") === g.slug;
+                    const n = allProducts.filter((p) => p.categoryId === c.id && p.group === g.slug).length;
+                    return (
+                      <li key={g.slug}>
+                        <button type="button" onClick={() => set("type", active ? null : g.slug)} aria-pressed={active} className={cn("flex h-8 w-full items-center justify-between gap-2 rounded-lg px-2 text-left text-[13px] transition-colors", active ? "bg-akua-ink font-semibold text-akua-white" : "text-akua-gray-500 hover:bg-akua-page hover:text-akua-ink")}>
+                          <span className="truncate">{g.name}</span>
+                          <span className={cn("text-[11.5px] tabular-nums", active ? "text-akua-white/70" : "text-akua-gray-500")}>{n}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </li>
           );
         })}
       </ul>
 
+      {(!category || category.id === "cat-consoles") && (
       <Group title="Plateforme">
         <div className="space-y-0.5">
           {SHOP_PLATFORMS.map((p) => (
@@ -105,6 +122,7 @@ function Filters({ category }: { category: Category | null }) {
           ))}
         </div>
       </Group>
+      )}
       <Group title="Prix">
         <div className="space-y-0.5">
           {PRICE_RANGES.map((r) => (
@@ -178,10 +196,12 @@ export function ShopView({ products, category, query }: { products: Product[]; c
   const pathname = usePathname();
   const sort = sp.get("tri") ?? "pertinence";
   const activeCount = ["plateforme", "prix", "etat", "dispo"].filter((k) => sp.get(k)).length;
+  const type = sp.get("type");
+  const groupName = category?.groups?.find((g) => g.slug === type)?.name;
   const pages = Math.max(1, Math.ceil(products.length / PER_PAGE));
   const visible = products.slice((page - 1) * PER_PAGE, page * PER_PAGE);
-  const heroImg = category ? categoryImages[category.id] : "/products/ps4-ds4.webp";
-  const heroCover = heroImg.includes("/fb-") || category?.slug === "simulation" || category?.slug === "surveillance";
+  const heroImg = category ? (category.image ?? categoryImages[category.id] ?? "/products/ps4-ds4.webp") : "/products/ps4-ds4.webp";
+  const heroCover = heroImg.includes("/fb-") || heroImg.startsWith("/api/");
 
   useEffect(() => setPage(1), [products.length, sort]);
 
@@ -206,7 +226,19 @@ export function ShopView({ products, category, query }: { products: Product[]; c
             {category && (
               <>
                 <span aria-hidden>›</span>
-                <span className="font-medium text-akua-ink">{category.name}</span>
+                {groupName ? (
+                  <Link href={`/boutique/${category.slug}`} className="hover:text-akua-ink">
+                    {category.name}
+                  </Link>
+                ) : (
+                  <span className="font-medium text-akua-ink">{category.name}</span>
+                )}
+              </>
+            )}
+            {groupName && (
+              <>
+                <span aria-hidden>›</span>
+                <span className="font-medium text-akua-ink">{groupName}</span>
               </>
             )}
           </nav>
@@ -217,9 +249,9 @@ export function ShopView({ products, category, query }: { products: Product[]; c
               </span>
             )}
             <div className="min-w-0 flex-1">
-              <h1 className="text-[22px] font-bold tracking-[-0.01em] md:text-[28px]">{query ? `Résultats pour « ${query} »` : (category?.name ?? "Toute la boutique")}</h1>
+              <h1 className="text-[22px] font-bold tracking-[-0.01em] md:text-[28px]">{query ? `Résultats pour « ${query} »` : (groupName ?? category?.name ?? "Toute la boutique")}</h1>
               <p className="mt-0.5 text-[13.5px] text-akua-gray-500">
-                {products.length} produits · {category?.description ?? "Consoles, jeux, manettes et accessoires testés et garantis."}
+                {products.length} produit{products.length > 1 ? "s" : ""} · {category?.description ?? "Consoles, ordinateurs, tablettes, accessoires et équipements testés et garantis."}
               </p>
             </div>
             <form
@@ -257,7 +289,7 @@ export function ShopView({ products, category, query }: { products: Product[]; c
             {/* barre d'outils */}
             <div className="flex items-center justify-between gap-2 rounded-[20px] bg-akua-page p-1.5 sm:pl-5">
               <p className="hidden text-[14px] text-akua-gray-500 sm:block">
-                <span className="font-semibold text-akua-ink">{products.length}</span> produits
+                <span className="font-semibold text-akua-ink">{products.length}</span> produit{products.length > 1 ? "s" : ""}
               </p>
               <div className="flex w-full items-center gap-2 sm:w-auto">
                 <button type="button" onClick={() => setSheet(true)} className="flex h-10 shrink-0 items-center gap-2 rounded-full border border-akua-gray-200 bg-akua-white px-4 text-[13.5px] font-medium lg:hidden">
@@ -282,10 +314,23 @@ export function ShopView({ products, category, query }: { products: Product[]; c
               </Link>
               {categories.map((c) => (
                 <Link key={c.id} href={`/boutique/${c.slug}`} className={cn("h-10 shrink-0 rounded-full px-4 text-[13.5px] leading-10 font-medium whitespace-nowrap", category?.id === c.id ? "bg-akua-ink text-akua-white" : "bg-akua-white ring-1 ring-akua-gray-200")}>
-                  {c.name}
+                  {c.shortName ?? c.name}
                 </Link>
               ))}
             </div>
+
+            {!!category?.groups?.length && (
+              <div className="no-scrollbar -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:mt-4 lg:flex-wrap lg:px-0" role="tablist" aria-label={`Rayons de ${category.name}`}>
+                <button type="button" role="tab" aria-selected={!type} onClick={() => set("type", null)} className={cn("h-9 shrink-0 rounded-full px-4 text-[13px] font-semibold whitespace-nowrap transition-colors", !type ? "bg-akua-blue text-akua-white" : "bg-akua-blue-100/70 text-akua-blue hover:bg-akua-blue-100")}>
+                  Tout
+                </button>
+                {category.groups.map((g) => (
+                  <button key={g.slug} type="button" role="tab" aria-selected={type === g.slug} onClick={() => set("type", g.slug)} className={cn("h-9 shrink-0 rounded-full px-4 text-[13px] font-semibold whitespace-nowrap transition-colors", type === g.slug ? "bg-akua-blue text-akua-white" : "bg-akua-blue-100/70 text-akua-blue hover:bg-akua-blue-100")}>
+                    {g.name}
+                  </button>
+                ))}
+              </div>
+            )}
 
             <div className={cn("mt-5 grid grid-cols-2 gap-2.5 transition-opacity md:grid-cols-3 md:gap-4 xl:grid-cols-4", pending && "opacity-50")}>
               {visible.length ? visible.map((p, i) => <ProductCard key={p.id} product={p} priority={i < 3} />) : <EmptyState />}
