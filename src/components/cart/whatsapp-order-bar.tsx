@@ -1,18 +1,20 @@
 "use client";
 
+import { useMoney } from "@/components/currency";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { WhatsAppContactButton } from "@/components/shop/whatsapp-contact-dialog";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
-import { formatFCFA, pluralize } from "@/lib/format";
+import { pluralize } from "@/lib/format";
 import { useHydrated } from "@/lib/use-hydrated";
 import { selectCount, selectTotal, useCart } from "@/store/cart";
 import { useUI } from "@/store/ui";
 
 /** Mobile : barre « Voir mon panier » au-dessus de la navigation basse (réf. « View your cart »). */
 export function CartBar() {
+  const money = useMoney();
   const hydrated = useHydrated();
   const count = useCart(selectCount);
   const total = useCart(selectTotal);
@@ -33,7 +35,7 @@ export function CartBar() {
           <Link href="/panier" className="flex h-[58px] items-center gap-3 rounded-[20px] bg-akua-blue pr-2 pl-5 text-akua-white shadow-[0_18px_36px_-14px_rgb(31_91_255/0.7)]">
             <span className="text-[15px] font-semibold">Voir mon panier</span>
             <span className="rounded-full bg-akua-white/20 px-2.5 py-0.5 text-[12px] font-semibold">{pluralize(count, "article")}</span>
-            <span className="price ml-auto text-[17px]">{formatFCFA(total)}</span>
+            <span className="price ml-auto text-[17px]">{money(total)}</span>
             <span className="grid size-10 place-items-center rounded-2xl bg-akua-white text-akua-blue">
               <ArrowRight aria-hidden className="size-5" />
             </span>

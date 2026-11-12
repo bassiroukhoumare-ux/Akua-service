@@ -11,7 +11,7 @@ import { useCatalog } from "@/components/catalog-provider";
 import { categoryImages } from "@/data/category-media";
 import { PLATFORM_LABELS } from "@/lib/catalog";
 import { getCategoryIcon, ICON_STROKE } from "@/lib/icons";
-import { PRICE_RANGES, SHOP_PLATFORMS, SORTS } from "@/lib/shop-params";
+import { SHOP_PLATFORMS, SORTS } from "@/lib/shop-params";
 import { cn } from "@/lib/utils";
 import { SearchSelect } from "@/components/ui/search-select";
 import type { Category, Product } from "@/types/catalog";
@@ -38,124 +38,213 @@ function useParamsUpdater() {
   return { sp, set, togglePlatform, reset, pending };
 }
 
-function Tick({ on }: { on: boolean }) {
-  return (
-    <span className={cn("grid size-[18px] shrink-0 place-items-center rounded-[6px] border-[1.5px] transition-colors", on ? "border-akua-blue bg-akua-blue text-akua-white" : "border-akua-gray-200")}>
-      {on && <Check aria-hidden className="size-3" strokeWidth={3} />}
-    </span>
-  );
-}
+const fmt = (n: number) => new Intl.NumberFormat("fr-FR").format(n).replace(/\u202f|\u00a0/g, " ") + " F";
 
-function Group({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
+function Section({ title, hint, children, defaultOpen = true }: { title: string; hint?: string; children: React.ReactNode; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="border-t border-akua-gray-200 py-4">
-      <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} className="flex w-full items-center justify-between text-left text-[14.5px] font-bold">
-        {title}
+    <div className="border-t border-akua-gray-200 py-5">
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} className="flex w-full items-center justify-between text-left">
+        <span className="text-[12px] font-extrabold tracking-[0.1em] text-akua-ink uppercase">{title}</span>
         <ChevronDown aria-hidden className={cn("size-4 text-akua-gray-500 transition-transform", open && "rotate-180")} />
       </button>
-      {open && <div className="mt-3">{children}</div>}
+      {open && (
+        <div className="mt-3.5">
+          {hint && <p className="-mt-1.5 mb-3 text-[12.5px] leading-snug text-akua-gray-500">{hint}</p>}
+          {children}
+        </div>
+      )}
     </div>
   );
 }
 
-function Filters({ category }: { category: Category | null }) {
+const chip = (on: boolean) =>
+  cn("inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold whitespace-nowrap transition-colors", on ? "bg-akua-ink text-akua-white" : "bg-akua-white text-akua-ink ring-1 ring-akua-gray-200 hover:ring-akua-ink");
+
+/** Curseur de prix à deux poignées : le filtre s'applique dès qu'on relâche (petite pause). */
+function PriceSlider({ bounds, value, onCommit }: { bounds: [number, number]; value: [number, number] | null; onCommit: (v: [number, number] | null) => void }) {
+  const [lo0, hi0] = bounds;
+  const step = hi0 - lo0 > 200000 ? 5000 : 1000;
+  const [lo, setLo] = useState(value?.[0] ?? lo0);
+  const [hi, setHi] = useState(value?.[1] ?? hi0);
+  const [touched, setTouched] = useState(false);
+  useEffect(() => {
+    setLo(Math.max(lo0, value?.[0] ?? lo0));
+    setHi(Math.min(hi0, value?.[1] ?? hi0));
+    setTouched(false);
+  }, [lo0, hi0, value?.[0], value?.[1]]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!touched) return;
+    const t = window.setTimeout(() => onCommit(lo <= lo0 && hi >= hi0 ? null : [lo, hi]), 450);
+    return () => window.clearTimeout(t);
+  }, [lo, hi, touched]); // eslint-disable-line react-hooks/exhaustive-deps
+  const span = Math.max(1, hi0 - lo0);
+  const left = ((lo - lo0) / span) * 100;
+  const right = 100 - ((hi - lo0) / span) * 100;
+  const range = "range-thumb absolute inset-x-0 top-1/2 h-6 w-full -translate-y-1/2";
+  return (
+    <div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="rounded-xl bg-akua-page px-3 py-2">
+          <p className="text-[11px] font-medium text-akua-gray-500">Minimum</p>
+          <p className="truncate text-[14px] font-bold tabular-nums">{fmt(lo)}</p>
+        </div>
+        <div className="rounded-xl bg-akua-page px-3 py-2 text-right">
+          <p className="text-[11px] font-medium text-akua-gray-500">Maximum</p>
+          <p className="truncate text-[14px] font-bold tabular-nums">{fmt(hi)}</p>
+        </div>
+      </div>
+      <div className="relative mx-[11px] mt-5 mb-2 h-6">
+        <div className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-akua-gray-200" />
+        <div className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-akua-blue" style={{ left: `${left}%`, right: `${right}%` }} />
+        <input
+          type="range"
+          aria-label="Prix minimum"
+          min={lo0}
+          max={hi0}
+          step={step}
+          value={lo}
+          onChange={(e) => {
+            setLo(Math.min(Number(e.target.value), hi - step));
+            setTouched(true);
+          }}
+          className={cn(range, lo > hi0 - span * 0.1 && "z-[2]")}
+        />
+        <input
+          type="range"
+          aria-label="Prix maximum"
+          min={lo0}
+          max={hi0}
+          step={step}
+          value={hi}
+          onChange={(e) => {
+            setHi(Math.max(Number(e.target.value), lo + step));
+            setTouched(true);
+          }}
+          className={range}
+        />
+      </div>
+    </div>
+  );
+}
+
+function Filters({ category, inSheet }: { category: Category | null; inSheet?: boolean }) {
   const { categories, products: allProducts } = useCatalog();
   const { sp, set, togglePlatform, reset } = useParamsUpdater();
-  const platforms = (sp.get("plateforme") ?? "").split(",");
-  const row = "flex w-full items-center gap-3 rounded-lg py-1.5 text-left text-[14px] text-akua-ink transition-colors hover:text-akua-blue";
+  const platforms = (sp.get("plateforme") ?? "").split(",").filter(Boolean);
   const realCats = categories.filter((c) => c.slug !== "promos");
+  const promoCat = categories.find((c) => c.slug === "promos");
+  const count = (c: Category) => (c.slug === "promos" ? allProducts.filter((p) => p.compareAtPrice).length : allProducts.filter((p) => p.categoryId === c.id).length);
+  const scope = category && category.slug !== "promos" ? allProducts.filter((p) => p.categoryId === category.id) : allProducts;
+  const prices = scope.map((p) => p.price);
+  const bounds: [number, number] = [Math.floor(Math.min(...prices, 0) / 1000) * 1000, Math.ceil(Math.max(...prices, 1000) / 1000) * 1000];
+  const prix = sp.get("prix");
+  const value = prix ? (prix.split("-").map(Number) as [number, number]) : null;
+  const active = ["plateforme", "prix", "etat", "dispo"].filter((k) => sp.get(k)).length;
+  const inStock = sp.get("dispo") === "1";
+  const catRow = (on: boolean) => cn("flex h-10 w-full items-center gap-2.5 rounded-xl px-3 text-[13.5px] transition-colors", on ? "bg-akua-ink font-semibold text-akua-white" : "text-akua-ink hover:bg-akua-page");
 
   return (
     <div>
-      <p className="text-[16px] font-bold">Catégorie</p>
-      <Link
-        href="/boutique"
-        className={cn("mt-4 flex h-11 items-center gap-3 rounded-xl px-3 text-[14px] font-medium transition-colors", !category ? "bg-akua-tile text-akua-ink" : "text-akua-gray-500 hover:text-akua-ink")}
-      >
-        <LayoutGrid aria-hidden className="size-[18px]" strokeWidth={ICON_STROKE} />
-        Tous les produits
-        <span className="ml-auto grid h-5 min-w-6 place-items-center rounded-md bg-akua-red px-1.5 text-[11px] font-semibold text-akua-white">{allProducts.length}</span>
-      </Link>
-      <ul className="relative mt-1 mb-4 ml-[21px] border-l border-akua-gray-200 py-1">
-        {[...realCats, categories.find((c) => c.slug === "promos")!].map((c) => {
-          const Icon = getCategoryIcon(c.icon);
-          const on = category?.id === c.id;
-          return (
-            <li key={c.id} className="relative">
-              <span aria-hidden className="absolute top-1/2 left-0 h-px w-3 bg-akua-gray-200" />
-              <Link
-                href={`/boutique/${c.slug}`}
-                className={cn("ml-3 flex h-10 items-center gap-2.5 rounded-xl px-3 text-[13.5px] transition-colors", on ? "bg-akua-blue-100 font-semibold text-akua-blue" : "text-akua-gray-500 hover:text-akua-ink")}
-              >
-                <Icon aria-hidden className="size-4 shrink-0" strokeWidth={ICON_STROKE} />
-                <span className="truncate">{c.shortName ?? c.name}</span>
-              </Link>
-              {on && !!c.groups?.length && (
-                <ul className="mt-1 mb-2 ml-9 flex flex-col gap-0.5 border-l border-akua-gray-200 pl-2">
-                  {c.groups.map((g) => {
-                    const active = sp.get("type") === g.slug;
-                    const n = allProducts.filter((p) => p.categoryId === c.id && p.group === g.slug).length;
-                    return (
-                      <li key={g.slug}>
-                        <button type="button" onClick={() => set("type", active ? null : g.slug)} aria-pressed={active} className={cn("flex h-8 w-full items-center justify-between gap-2 rounded-lg px-2 text-left text-[13px] transition-colors", active ? "bg-akua-ink font-semibold text-akua-white" : "text-akua-gray-500 hover:bg-akua-page hover:text-akua-ink")}>
-                          <span className="truncate">{g.name}</span>
-                          <span className={cn("text-[11.5px] tabular-nums", active ? "text-akua-white/70" : "text-akua-gray-500")}>{n}</span>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+      <div className={cn("flex items-center justify-between pb-4", inSheet && active === 0 && "hidden")}>
+        <p className={cn("flex items-center gap-2 text-[17px] font-extrabold tracking-[-0.01em]", inSheet && "invisible")}>
+          <SlidersHorizontal aria-hidden className="size-[18px]" strokeWidth={2} /> Filtres
+          {active > 0 && <span className="grid size-5 place-items-center rounded-full bg-akua-blue text-[11px] font-bold text-akua-white">{active}</span>}
+        </p>
+        {active > 0 && (
+          <button type="button" onClick={reset} className="text-[13px] font-semibold text-akua-blue">
+            Tout effacer
+          </button>
+        )}
+      </div>
+
+      <Section title="Catégories">
+        <ul className="space-y-0.5">
+          <li>
+            <Link href="/boutique" className={catRow(!category)}>
+              <LayoutGrid aria-hidden className="size-4 shrink-0" strokeWidth={ICON_STROKE} />
+              <span className="flex-1 truncate">Tous les produits</span>
+              <span className={cn("text-[12px] tabular-nums", !category ? "text-akua-white/70" : "text-akua-gray-500")}>{allProducts.length}</span>
+            </Link>
+          </li>
+          {[...realCats, ...(promoCat ? [promoCat] : [])].map((c) => {
+            const Icon = getCategoryIcon(c.icon);
+            const on = category?.id === c.id;
+            return (
+              <li key={c.id}>
+                <Link href={`/boutique/${c.slug}`} className={catRow(on)}>
+                  <Icon aria-hidden className="size-4 shrink-0" strokeWidth={ICON_STROKE} />
+                  <span className="flex-1 truncate">{c.shortName ?? c.name}</span>
+                  <span className={cn("text-[12px] tabular-nums", on ? "text-akua-white/70" : "text-akua-gray-500")}>{count(c)}</span>
+                </Link>
+                {on && !!c.groups?.length && (
+                  <ul className="mt-1 mb-2 ml-5 space-y-0.5 border-l-2 border-akua-gray-200 pl-2">
+                    {c.groups.map((g) => {
+                      const sel = sp.get("type") === g.slug;
+                      const n = allProducts.filter((p) => p.categoryId === c.id && p.group === g.slug).length;
+                      return (
+                        <li key={g.slug}>
+                          <button type="button" onClick={() => set("type", sel ? null : g.slug)} aria-pressed={sel} className={cn("flex h-8 w-full items-center justify-between gap-2 rounded-lg px-2.5 text-left text-[13px] transition-colors", sel ? "bg-akua-blue-100 font-semibold text-akua-blue" : "text-akua-gray-500 hover:text-akua-ink")}>
+                            <span className="truncate">{g.name}</span>
+                            <span className="text-[11.5px] tabular-nums">{n}</span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </Section>
+
+      <Section title="Prix">
+        <PriceSlider bounds={bounds} value={value} onCommit={(v) => set("prix", v ? `${v[0]}-${v[1]}` : null)} />
+      </Section>
 
       {(!category || category.id === "cat-consoles") && (
-      <Group title="Plateforme">
-        <div className="space-y-0.5">
-          {SHOP_PLATFORMS.map((p) => (
-            <button key={p} type="button" onClick={() => togglePlatform(p)} aria-pressed={platforms.includes(p)} className={row}>
-              <Tick on={platforms.includes(p)} /> {PLATFORM_LABELS[p]}
-            </button>
-          ))}
-        </div>
-      </Group>
+        <Section title="Compatible avec" hint="Affichez seulement les consoles, jeux et manettes faits pour votre appareil.">
+          <div className="flex flex-wrap gap-2">
+            {SHOP_PLATFORMS.map((p) => {
+              const on = platforms.includes(p);
+              return (
+                <button key={p} type="button" onClick={() => togglePlatform(p)} aria-pressed={on} className={chip(on)}>
+                  {on && <Check aria-hidden className="size-3.5" strokeWidth={3} />}
+                  {PLATFORM_LABELS[p]}
+                </button>
+              );
+            })}
+          </div>
+        </Section>
       )}
-      <Group title="Prix">
-        <div className="space-y-0.5">
-          {PRICE_RANGES.map((r) => (
-            <button key={r.id} type="button" onClick={() => set("prix", sp.get("prix") === r.id ? null : r.id)} aria-pressed={sp.get("prix") === r.id} className={row}>
-              <Tick on={sp.get("prix") === r.id} /> {r.label}
-            </button>
-          ))}
-        </div>
-      </Group>
-      <Group title="Disponibilité">
-        <button type="button" onClick={() => set("dispo", sp.get("dispo") === "1" ? null : "1")} aria-pressed={sp.get("dispo") === "1"} className={row}>
-          <Tick on={sp.get("dispo") === "1"} /> En stock uniquement
+
+      <Section title="Disponibilité">
+        <button type="button" role="switch" aria-checked={inStock} onClick={() => set("dispo", inStock ? null : "1")} className="flex w-full items-center justify-between gap-3 text-left">
+          <span className="text-[14px] font-medium">En stock uniquement</span>
+          <span className={cn("relative h-6 w-11 shrink-0 rounded-full transition-colors", inStock ? "bg-akua-blue" : "bg-akua-gray-200")}>
+            <span className={cn("absolute top-0.5 left-0.5 size-5 rounded-full bg-akua-white shadow transition-transform", inStock && "translate-x-5")} />
+          </span>
         </button>
-        <div className="mt-2 flex gap-2">
+      </Section>
+
+      <Section title="État">
+        <div className="flex flex-wrap gap-2">
           {[
             { id: "neuf", label: "Neuf" },
             { id: "occasion", label: "Venant" },
             { id: "reconditionne", label: "Reconditionné" },
-          ].map((e) => (
-            <button
-              key={e.id}
-              type="button"
-              onClick={() => set("etat", sp.get("etat") === e.id ? null : e.id)}
-              className={cn("h-9 rounded-full px-4 text-[13px] font-medium transition-colors", sp.get("etat") === e.id ? "bg-akua-ink text-akua-white" : "border border-akua-gray-200 hover:border-akua-ink")}
-            >
-              {e.label}
-            </button>
-          ))}
+          ].map((e) => {
+            const on = sp.get("etat") === e.id;
+            return (
+              <button key={e.id} type="button" onClick={() => set("etat", on ? null : e.id)} aria-pressed={on} className={chip(on)}>
+                {on && <Check aria-hidden className="size-3.5" strokeWidth={3} />}
+                {e.label}
+              </button>
+            );
+          })}
         </div>
-      </Group>
-      <button type="button" onClick={reset} className="mt-2 text-[13.5px] font-semibold text-akua-blue">
-        Réinitialiser les filtres
-      </button>
+      </Section>
     </div>
   );
 }
@@ -278,9 +367,9 @@ export function ShopView({ products, category, query }: { products: Product[]; c
       </section>
 
       <section id="resultats" className="scroll-mt-32 bg-akua-white pt-5 pb-10 md:pt-8"><div className="container-akua">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[250px_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[272px_minmax(0,1fr)]">
           <aside className="hidden lg:block" aria-label="Filtres">
-            <div className="sticky top-[96px] rounded-[24px] bg-akua-white p-5 ring-1 ring-akua-gray-200">
+            <div className="sticky top-[140px] max-h-[calc(100vh-160px)] overflow-y-auto overscroll-contain rounded-[24px] bg-akua-white p-5 pb-2 ring-1 ring-akua-gray-200 no-scrollbar">
               <Filters category={category} />
             </div>
           </aside>
@@ -332,7 +421,7 @@ export function ShopView({ products, category, query }: { products: Product[]; c
               </div>
             )}
 
-            <div className={cn("mt-5 grid grid-cols-2 gap-2.5 transition-opacity md:grid-cols-3 md:gap-4 xl:grid-cols-4", pending && "opacity-50")}>
+            <div className={cn("mt-5 grid grid-cols-2 gap-2.5 transition-opacity md:grid-cols-3 md:gap-4 xl:gap-5", pending && "opacity-50")}>
               {visible.length ? visible.map((p, i) => <ProductCard key={p.id} product={p} priority={i < 3} />) : <EmptyState />}
             </div>
 
@@ -381,7 +470,7 @@ export function ShopView({ products, category, query }: { products: Product[]; c
             </button>
           </div>
           <div className="overflow-y-auto px-5 pb-4">
-            <Filters category={category} />
+            <Filters category={category} inSheet />
           </div>
           <div className="border-t border-akua-gray-200 p-4">
             <button type="button" onClick={() => setSheet(false)} className="btn-shine h-12 w-full rounded-full bg-akua-ink font-semibold text-akua-white">

@@ -243,6 +243,44 @@
   }
 }
 
+/* Curseur de prix à deux poignées : deux curseurs superposés, seules les poignées réagissent au toucher. */
+@utility range-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  pointer-events: none;
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    pointer-events: auto;
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: var(--akua-white);
+    border: 2px solid var(--akua-ink);
+    box-shadow: 0 4px 10px -3px rgb(11 16 32 / 0.35);
+    cursor: grab;
+  }
+  &::-moz-range-thumb {
+    pointer-events: auto;
+    width: 18px;
+    height: 18px;
+    border-radius: 9999px;
+    background: var(--akua-white);
+    border: 2px solid var(--akua-ink);
+    box-shadow: 0 4px 10px -3px rgb(11 16 32 / 0.35);
+    cursor: grab;
+  }
+  &::-webkit-slider-runnable-track {
+    background: transparent;
+  }
+  &::-moz-range-track {
+    background: transparent;
+  }
+  &:focus-visible::-webkit-slider-thumb {
+    outline: 3px solid color-mix(in oklab, var(--akua-blue) 40%, transparent);
+  }
+}
+
 @layer base {
   * {
     @apply border-border;

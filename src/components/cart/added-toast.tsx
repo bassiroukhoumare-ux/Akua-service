@@ -1,17 +1,18 @@
 "use client";
 
+import { useMoney } from "@/components/currency";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { formatFCFA } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useUI } from "@/store/ui";
 
 /** Confirmation d'ajout : accès direct à la page panier. */
 export function AddedToast() {
+  const money = useMoney();
   const toast = useUI((s) => s.toast);
   const dismiss = useUI((s) => s.dismissToast);
   const onProduct = usePathname().startsWith("/produit/");
@@ -44,7 +45,7 @@ export function AddedToast() {
                 </p>
                 <p className="line-clamp-1 text-[14px] font-semibold text-akua-ink">{toast.name}</p>
                 <p className="text-[12.5px] text-akua-gray-500">
-                  {toast.quantity} × {formatFCFA(toast.price)}
+                  {toast.quantity} × {money(toast.price)}
                 </p>
               </div>
               <button type="button" onClick={dismiss} aria-label="Fermer" className="grid size-8 place-items-center self-start rounded-full text-akua-gray-500 hover:bg-akua-tile">

@@ -22,7 +22,7 @@ export function useAddToCart() {
 
 interface AddToCartButtonProps {
   product: CartProduct;
-  variant?: "icon" | "outline" | "full";
+  variant?: "icon" | "outline" | "full" | "compact";
   quantity?: number;
   className?: string;
   label?: string;
@@ -39,6 +39,25 @@ export function AddToCartButton({ product, variant = "outline", quantity = 1, cl
     addToCart(product, quantity);
     setDone(true);
     window.setTimeout(() => setDone(false), 1500);
+  }
+
+  // carte produit : pastille ronde sur téléphone, « Ajouter » avec l'icône à partir de la tablette
+  if (variant === "compact") {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={`Ajouter ${product.name} au panier`}
+        className={cn(
+          "relative inline-flex h-10 min-w-10 shrink-0 items-center justify-center gap-1.5 rounded-full px-0 text-[13px] font-semibold text-akua-white transition-colors duration-300 md:h-10 md:px-4",
+          done ? "bg-akua-blue" : "bg-akua-ink hover:bg-akua-blue",
+          className,
+        )}
+      >
+        {done ? <Check aria-hidden className="size-[18px]" strokeWidth={2.5} /> : <ShoppingBag aria-hidden className="size-[17px]" strokeWidth={2} />}
+        <span className="hidden md:inline">{done ? "Ajouté" : label}</span>
+      </button>
+    );
   }
 
   if (variant === "icon") {

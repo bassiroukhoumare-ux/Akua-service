@@ -27,16 +27,16 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ProductVisual } from "@/components/product/product-visual";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { deliveryCountryOptions } from "@/components/ui/country-options";
+import { allCountryOptions } from "@/components/ui/country-options";
 import { SearchSelect } from "@/components/ui/search-select";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
-import { DELIVERY_COUNTRIES } from "@/config/site";
 import { useShopSettings } from "@/components/shop-settings-provider";
 import { summarizeHours } from "@/lib/shop-settings";
 import { categories } from "@/data/categories";
-import { CITIES } from "@/data/cities";
+import { citiesOf, isDeliveryCountry } from "@/data/world-cities";
 import { products } from "@/data/products";
 import { formatFCFA, pluralize } from "@/lib/format";
+import { useCurrency, useMoney } from "@/components/currency";
 import { checkPromoCode, computeDiscount, isPromoValid } from "@/lib/promo";
 import { useAdminPromos } from "@/store/admin-promos";
 import { useSavedCarts } from "@/store/saved-carts";
@@ -46,7 +46,9 @@ import { buildCheckoutMessage, waLink } from "@/lib/whatsapp";
 import { type CartItem, type CheckoutDraft, selectCount, selectTotal, useCart } from "@/store/cart";
 
 const OTHER_CITY = "__autre__";
-const COUNTRY_OPTIONS = deliveryCountryOptions();
+const OTHER_COUNTRY = "__autre-pays__";
+const COUNTRY_OPTIONS = allCountryOptions(OTHER_COUNTRY);
+const KNOWN_COUNTRIES = new Set(COUNTRY_OPTIONS.map((o) => o.value));
 const TIMES = ["10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
 const DEPOSITS: { id: CheckoutDraft["deposit"]; label: string; pct: number }[] = [
   { id: "25", label: "25 %", pct: 25 },
@@ -68,6 +70,7 @@ function validate(d: CheckoutDraft): Errors {
   if (d.phone.replace(/\D/g, "").length < 8) e.phone = "Numéro WhatsApp invalide (8 chiffres minimum).";
   if (d.email && !/^\S+@\S+\.\S+$/.test(d.email)) e.email = "Adresse e-mail invalide.";
   if (d.mode === "livraison") {
+    if (!d.country.trim()) e.country = "Indiquez votre pays.";
     if (!d.city.trim()) e.city = "Indiquez votre ville.";
     if (d.address.trim().length < 6) e.address = "Décrivez votre adresse exacte (quartier, rue, maison).";
   } else {
@@ -82,7 +85,7 @@ function validate(d: CheckoutDraft): Errors {
 
 function Section({ step, title, subtitle, children, id }: { step: number; title: string; subtitle?: string; children: React.ReactNode; id?: string }) {
   return (
-    <section id={id} className="scroll-mt-28 rounded-[28px] border border-akua-gray-200 bg-akua-white p-5 md:p-7">
+    <section id={id} className="scroll-mt-28 md:scroll-mt-36 rounded-[28px] border border-akua-gray-200 bg-akua-white p-5 md:p-7">
       <div className="flex items-start gap-3.5">
         <span className="grid size-8 shrink-0 place-items-center rounded-full bg-akua-ink font-display text-[14px] font-semibold text-akua-white">{step}</span>
         <div>
@@ -183,6 +186,8 @@ function Line({ item }: { item: CartItem }) {
 export function CheckoutView() {
   const shop = useShopSettings();
   const hydrated = useHydrated();
+  const money = useMoney();
+  const currency = useCurrency((s) => s.currency);
   const items = useCart((s) => s.items);
   const count = useCart(selectCount);
   const subtotal = useCart(selectTotal);
@@ -192,10 +197,12 @@ export function CheckoutView() {
 
   const [errors, setErrors] = useState<Errors>({});
   const [otherCity, setOtherCity] = useState(false);
-  const countryCode = DELIVERY_COUNTRIES.find((c) => c.name === draft.country)?.code ?? "TG";
-  const cityList = CITIES[countryCode];
-  // « Autre ville » choisie, ou ville déjà saisie à la main lors d'une visite précédente
-  const cityIsOther = otherCity || (!!draft.city && !cityList.includes(draft.city));
+  const [otherCountry, setOtherCountry] = useState(false);
+  // « Autre pays » choisi, ou pays déjà saisi à la main lors d'une visite précédente
+  const countryIsOther = otherCountry || (!!draft.country && !KNOWN_COUNTRIES.has(draft.country));
+  const cityList = countryIsOther ? [] : citiesOf(draft.country);
+  // pas de liste pour ce pays, « Autre ville » choisie, ou ville déjà saisie à la main
+  const cityIsOther = cityList.length === 0 || otherCity || (!!draft.city && !cityList.includes(draft.city));
   const [promoInput, setPromoInput] = useState("");
   const [promoState, setPromoState] = useState<{ loading: boolean; error?: string }>({ loading: false });
   const [sending, setSending] = useState(false);
@@ -392,8 +399,8 @@ export function CheckoutView() {
         </p>
       </div>
 
-      <div className="mt-7 grid gap-5 lg:grid-cols-[1fr_400px] lg:gap-7">
-        <div className="space-y-5">
+      <div className="mt-7 grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-7">
+        <div className="min-w-0 space-y-5">
           {/* 1. Panier */}
           <Section step={1} title="Votre panier" subtitle={hydrated ? `${pluralize(count, "article")} · modifiez les quantités si besoin` : undefined}>
             <ul className="divide-y divide-akua-gray-200">
@@ -473,47 +480,71 @@ export function CheckoutView() {
               <motion.div key="liv" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
                 <Section step={4} title="Adresse de livraison" subtitle="Soyez le plus précis possible pour une livraison rapide.">
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="Pays" htmlFor="f-country">
+                    <Field label="Pays" htmlFor="f-country" error={errors.country}>
                       <SearchSelect
                         id="f-country"
-                        value={draft.country}
-                        onChange={(country) => {
+                        value={countryIsOther ? OTHER_COUNTRY : draft.country}
+                        onChange={(v) => {
                           setOtherCity(false);
-                          setDraft({ country, city: "" });
+                          setOtherCountry(v === OTHER_COUNTRY);
+                          setDraft({ country: v === OTHER_COUNTRY ? "" : v, city: "" });
+                          if (errors.country) setErrors((er) => ({ ...er, country: undefined }));
                         }}
                         options={COUNTRY_OPTIONS}
                         searchPlaceholder="Rechercher un pays…"
+                        emptyText="Pays introuvable : choisissez « Autre pays » en bas de la liste."
+                        invalid={!!errors.country}
                       />
+                      {countryIsOther && (
+                        <input
+                          value={draft.country}
+                          onChange={up("country")}
+                          autoFocus
+                          autoComplete="country-name"
+                          placeholder="Nom de votre pays"
+                          aria-label="Nom de votre pays"
+                          aria-invalid={!!errors.country}
+                          className={cn(inputCls(errors.country), "mt-2")}
+                        />
+                      )}
                     </Field>
                     <Field label="Ville" htmlFor="f-city" error={errors.city}>
-                      <SearchSelect
-                        id="f-city"
-                        value={cityIsOther ? OTHER_CITY : draft.city}
-                        onChange={(v) => {
-                          setOtherCity(v === OTHER_CITY);
-                          setDraft({ city: v === OTHER_CITY ? "" : v });
-                          if (errors.city) setErrors((er) => ({ ...er, city: undefined }));
-                        }}
-                        options={[...cityList.map((c) => ({ value: c, label: c })), { value: OTHER_CITY, label: "Autre ville…", display: "Autre ville" }]}
-                        placeholder="Choisir une ville"
-                        searchPlaceholder="Rechercher une ville…"
-                        emptyText="Ville introuvable : choisissez « Autre ville » en bas de la liste."
-                        invalid={!!errors.city}
-                        aria-describedby={errors.city ? "f-city-err" : undefined}
-                      />
+                      {cityList.length > 0 && (
+                        <SearchSelect
+                          id="f-city"
+                          value={cityIsOther ? OTHER_CITY : draft.city}
+                          onChange={(v) => {
+                            setOtherCity(v === OTHER_CITY);
+                            setDraft({ city: v === OTHER_CITY ? "" : v });
+                            if (errors.city) setErrors((er) => ({ ...er, city: undefined }));
+                          }}
+                          options={[...cityList.map((c) => ({ value: c, label: c })), { value: OTHER_CITY, label: "Autre ville…", display: "Autre ville" }]}
+                          placeholder="Choisir une ville"
+                          searchPlaceholder="Rechercher une ville…"
+                          emptyText="Ville introuvable : choisissez « Autre ville » en bas de la liste."
+                          invalid={!!errors.city}
+                          aria-describedby={errors.city ? "f-city-err" : undefined}
+                        />
+                      )}
                       {cityIsOther && (
                         <input
+                          id={cityList.length ? undefined : "f-city"}
                           value={draft.city}
                           onChange={up("city")}
-                          autoFocus
+                          autoFocus={cityList.length > 0}
                           autoComplete="address-level2"
                           placeholder="Nom de votre ville"
                           aria-label="Nom de votre ville"
                           aria-invalid={!!errors.city}
-                          className={cn(inputCls(errors.city), "mt-2")}
+                          className={cn(inputCls(errors.city), cityList.length > 0 && "mt-2")}
                         />
                       )}
                     </Field>
+                    {!!draft.country && !isDeliveryCountry(draft.country) && (
+                      <p className="-mt-1 rounded-xl bg-akua-blue-100/70 px-3.5 py-2.5 text-[12.5px] leading-snug text-akua-ink sm:col-span-2">
+                        Livraison hors du Togo et de la sous-région : les frais et le délai vous sont confirmés sur WhatsApp avant tout paiement.
+                      </p>
+                    )}
                     <Field label="Adresse exacte" htmlFor="f-address" error={errors.address} className="sm:col-span-2">
                       <textarea id="f-address" value={draft.address} onChange={up("address")} rows={3} autoComplete="street-address" placeholder="Quartier, rue, numéro ou couleur de la maison…" aria-invalid={!!errors.address} className={cn(inputCls(errors.address), "h-auto resize-none py-3 leading-relaxed")} />
                     </Field>
@@ -615,7 +646,7 @@ export function CheckoutView() {
         </div>
 
         {/* Récapitulatif */}
-        <aside aria-label="Récapitulatif" className="lg:sticky lg:top-[100px] lg:self-start">
+        <aside aria-label="Récapitulatif" className="min-w-0 lg:sticky lg:top-[144px] lg:self-start">
           <div className="rounded-[28px] bg-akua-tile p-5 md:p-7">
             <h2 className="font-display text-[22px] font-semibold">Récapitulatif</h2>
             <ul className="mt-4 space-y-3">
@@ -695,6 +726,11 @@ export function CheckoutView() {
                 <dt className="font-display text-[16px] font-semibold">Total</dt>
                 <dd className="price text-[30px] leading-none">{formatFCFA(hydrated ? total : 0)}</dd>
               </div>
+              {hydrated && currency !== "XOF" && (
+                <p className="-mt-1 text-right text-[12.5px] text-akua-gray-500">
+                  Soit environ <span className="font-semibold text-akua-ink">{money(total)}</span> · paiement en F CFA
+                </p>
+              )}
               {depositPct > 0 && (
                 <div className="flex justify-between rounded-xl bg-akua-white px-3 py-2.5 text-akua-blue">
                   <dt className="font-medium">Acompte à payer ({depositPct === 100 ? "total" : `${depositPct} %`})</dt>

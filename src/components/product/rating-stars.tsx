@@ -26,11 +26,13 @@ export function Stars({ value, size = "size-3.5", className }: { value: number; 
 }
 
 /** Note d'un produit calculée à partir des avis publiés. */
-export function ProductRating({ productId, className, size = "size-3.5" }: { productId: string; className?: string; size?: string }) {
+export function ProductRating({ productId, className, size = "size-3.5", fallback }: { productId: string; className?: string; size?: string; fallback?: React.ReactNode }) {
   const hydrated = useHydrated();
   const reviews = useReviews((s) => s.reviews);
   useEffect(() => ensureReviews(), []);
   const { average, count } = summarize(hydrated ? reviews : [], productId);
+  // version compacte (cartes) : sans avis, on affiche autre chose à la place
+  if (fallback !== undefined && !count) return <>{fallback}</>;
   return (
     <span className={cn("inline-flex items-center gap-1.5 text-[12.5px] text-akua-gray-500", className)} aria-label={count ? `Note ${average.toFixed(1)} sur 5, ${count} avis` : "Aucun avis pour le moment"}>
       <Stars value={average} size={size} />

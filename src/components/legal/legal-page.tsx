@@ -64,7 +64,7 @@ export function LegalPage({ eyebrow, title, intro, updated, sections, related }:
 
       <div className="container-akua mt-8 grid gap-8 md:mt-12 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-14">
         {/* Sommaire */}
-        <aside className="lg:sticky lg:top-28 lg:self-start">
+        <aside className="lg:sticky lg:top-36 lg:self-start">
           <details className="group rounded-[24px] border border-akua-gray-200 bg-akua-white lg:hidden">
             <summary className="flex list-none items-center justify-between px-5 py-4 text-[14.5px] font-bold [&::-webkit-details-marker]:hidden">
               Sommaire
@@ -83,7 +83,7 @@ export function LegalPage({ eyebrow, title, intro, updated, sections, related }:
         {/* Articles */}
         <div className="min-w-0 max-w-[760px]">
           {sections.map((s, i) => (
-            <section key={s.id} id={s.id} aria-labelledby={`${s.id}-t`} className="scroll-mt-[140px] border-b border-akua-gray-200 py-8 first:pt-0 last:border-0 md:scroll-mt-28">
+            <section key={s.id} id={s.id} aria-labelledby={`${s.id}-t`} className="scroll-mt-[140px] border-b border-akua-gray-200 py-8 first:pt-0 last:border-0 md:scroll-mt-36">
               <p className="text-[12px] font-semibold tracking-[0.14em] text-akua-blue tabular-nums">ARTICLE {String(i + 1).padStart(2, "0")}</p>
               <h2 id={`${s.id}-t`} className="mt-1.5 text-[21px] leading-tight font-extrabold tracking-[-0.02em] md:text-[24px]">
                 {s.title}

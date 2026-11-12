@@ -2,7 +2,7 @@ import { discountPercent } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/catalog";
 
-/** Badge principal d'une carte : -x % (rouge), Nouveau (bleu), Premium (noir). */
+/** Badge principal d'une carte : -x % (rouge), Nouveau (bleu), Top vente (noir). */
 export function ProductBadge({ product, className }: { product: Product; className?: string }) {
   const pct = discountPercent(product.price, product.compareAtPrice);
   let label: string | null = null;
@@ -11,9 +11,6 @@ export function ProductBadge({ product, className }: { product: Product; classNa
   else if (product.badges.includes("nouveau")) {
     label = "Nouveau";
     tone = "bg-akua-blue";
-  } else if (product.badges.includes("premium")) {
-    label = "Premium";
-    tone = "bg-akua-black";
   } else if (product.badges.includes("best-seller")) {
     label = "Top vente";
     tone = "bg-akua-black";

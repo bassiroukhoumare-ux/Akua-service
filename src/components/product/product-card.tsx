@@ -1,8 +1,10 @@
 "use client";
 
+import { useMoney } from "@/components/currency";
+import { PackageCheck, PackageMinus, PackageSearch, PackageX } from "lucide-react";
 import Link from "next/link";
 import { shelfLabel, useCatalog } from "@/components/catalog-provider";
-import { discountPercent, formatFCFA } from "@/lib/format";
+import { discountPercent } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/catalog";
 import { AddToCartButton } from "./add-to-cart-button";
@@ -15,18 +17,34 @@ interface ProductCardProps {
   className?: string;
   priority?: boolean;
   sizes?: string;
-  /** petite mention « Exclusif » à côté de la remise (offres spéciales) */
-  exclusive?: boolean;
 }
 
+/** État du stock : icône fine et sobre (noir), en rouge seulement quand il en reste peu. */
 export function StockText({ product, className }: { product: Product; className?: string }) {
   const s = product.stockStatus;
-  if (s === "stock_faible") return <p className={cn("text-[12.5px] font-semibold text-akua-red", className)}>Plus que {product.stockLeft} en stock</p>;
-  if (s === "sur_commande") return <p className={cn("text-[12.5px] font-semibold text-akua-gray-500", className)}>Sur commande</p>;
-  if (s === "rupture") return <p className={cn("text-[12.5px] font-semibold text-akua-gray-500", className)}>Rupture de stock</p>;
+  const base = "flex items-center gap-1.5 text-[12.5px] font-semibold";
+  const icon = "size-[15px] shrink-0";
+  if (s === "stock_faible")
+    return (
+      <p className={cn(base, "text-akua-red", className)}>
+        <PackageMinus aria-hidden className={icon} strokeWidth={1.9} /> Plus que {product.stockLeft} en stock
+      </p>
+    );
+  if (s === "sur_commande")
+    return (
+      <p className={cn(base, "text-akua-gray-500", className)}>
+        <PackageSearch aria-hidden className={icon} strokeWidth={1.9} /> Sur commande
+      </p>
+    );
+  if (s === "rupture")
+    return (
+      <p className={cn(base, "text-akua-gray-500", className)}>
+        <PackageX aria-hidden className={icon} strokeWidth={1.9} /> Rupture de stock
+      </p>
+    );
   return (
-    <p className={cn("flex items-center gap-1.5 text-[12.5px] font-semibold text-akua-ink", className)}>
-      <span className="size-2 rounded-full bg-akua-whatsapp" /> En stock
+    <p className={cn(base, "text-akua-ink", className)}>
+      <PackageCheck aria-hidden className={icon} strokeWidth={1.9} /> En stock
     </p>
   );
 }
@@ -36,67 +54,56 @@ export function CardBadges({ product, className }: { product: Product; className
   let b: { label: string; tone: string } | null = null;
   if (pct) b = { label: `-${pct} %`, tone: "bg-akua-red text-akua-white" };
   else if (product.badges.includes("nouveau")) b = { label: "Nouveau", tone: "bg-akua-blue text-akua-white" };
-  else if (product.badges.includes("premium")) b = { label: "Premium", tone: "bg-akua-ink text-akua-white" };
   else if (product.badges.includes("best-seller")) b = { label: "Top vente", tone: "bg-akua-white text-akua-ink ring-1 ring-akua-gray-200" };
   if (!b) return null;
   return <span className={cn("inline-flex h-6 items-center rounded-full px-2.5 text-[11.5px] font-bold", b.tone, className)}>{b.label}</span>;
 }
 
 /**
- * Carte produit : liseré dégradé bleu au survol, visuel sur tuile douce,
- * nom, plateformes, note, prix mis en avant et ajout rapide.
+ * Carte produit : cadre blanc et fin contour, visuel sur tuile douce, remise et favori sur la photo,
+ * puis rayon, nom, note (ou stock), prix et ajout au panier sur une même ligne.
  */
-export function ProductCard({ product, className, priority, exclusive, sizes = "(min-width:1024px) 23vw, (min-width:768px) 31vw, 48vw" }: ProductCardProps) {
+export function ProductCard({ product, className, priority, sizes = "(min-width:1024px) 23vw, (min-width:768px) 31vw, 48vw" }: ProductCardProps) {
   const { categories } = useCatalog();
+  const money = useMoney();
   const href = `/produit/${product.slug}`;
+  const promo = !!product.compareAtPrice;
 
   return (
     <article
       className={cn(
-        "group relative h-full rounded-[24px] bg-akua-gray-200/70 p-px transition-all duration-500 ease-akua",
-        "hover:-translate-y-1 hover:bg-[linear-gradient(150deg,var(--akua-blue),var(--akua-gray-200)_38%,var(--akua-gray-200)_62%,var(--akua-blue))] hover:shadow-[0_24px_50px_-28px_rgb(31_91_255/0.55)]",
+        "group relative flex h-full flex-col rounded-[20px] border border-akua-gray-200 bg-akua-white p-1.5 transition-[border-color,box-shadow,transform] duration-500 ease-akua md:p-2",
+        "hover:-translate-y-0.5 hover:border-akua-ink/15 hover:shadow-[0_22px_44px_-26px_rgb(11_16_32/0.4)]",
         className,
       )}
     >
-      <div className="flex h-full flex-col rounded-[23px] bg-akua-white p-2 md:p-2.5">
-        <div className="relative aspect-square overflow-hidden rounded-[18px] bg-[radial-gradient(circle_at_50%_38%,var(--akua-white)_0%,var(--akua-tile)_70%)]">
-          <Link href={href} aria-label={product.name} className="absolute inset-0 transition-transform duration-700 ease-akua group-hover:scale-[1.06]">
-            <ProductVisual product={product} sizes={sizes} priority={priority} inset="p-[12%]" />
+      {/* visuel */}
+      <div className="relative aspect-square overflow-hidden rounded-[15px] bg-[radial-gradient(circle_at_50%_40%,var(--akua-white)_0%,var(--akua-tile)_72%)]">
+        <Link href={href} aria-label={product.name} className="absolute inset-0 transition-transform duration-700 ease-akua group-hover:scale-[1.05]">
+          <ProductVisual product={product} sizes={sizes} priority={priority} inset="p-[11%]" />
+        </Link>
+        <CardBadges product={product} className="pointer-events-none absolute top-2.5 left-2.5" />
+        <FavoriteButton productId={product.id} className="absolute top-2 right-2 size-8 rounded-full md:size-9" />
+      </div>
+
+      {/* informations */}
+      <div className="flex flex-1 flex-col px-1.5 pt-3 pb-1 md:px-2 md:pt-3.5">
+        <p className="truncate text-[10px] font-medium tracking-[0.08em] text-akua-gray-500/90 uppercase md:text-[10.5px]">{shelfLabel(product, categories)}</p>
+        <h3 className="mt-1 line-clamp-2 min-h-[2.6em] text-[15px] leading-[1.28] font-bold tracking-[-0.015em] text-akua-ink md:text-[17px]">
+          <Link href={href} className="transition-colors hover:text-akua-blue">
+            {product.name}
           </Link>
-          <span className="pointer-events-none absolute top-2.5 left-2.5 max-w-[calc(100%-54px)] truncate rounded-full bg-akua-white/90 px-2.5 py-1 text-[10px] font-semibold tracking-[0.06em] text-akua-ink uppercase backdrop-blur md:text-[10.5px]">
-            {shelfLabel(product, categories)}
-          </span>
-          <FavoriteButton productId={product.id} className="absolute top-2 right-2 size-8 rounded-full md:size-9" />
-          <div className="pointer-events-none absolute bottom-2.5 left-2.5 flex items-center gap-1">
-            <CardBadges product={product} />
-            {exclusive && (
-              <span className="inline-flex h-6 items-center gap-1 rounded-full bg-akua-white/95 px-2 text-[11px] font-semibold text-akua-ink ring-1 ring-akua-gray-200 backdrop-blur">
-                <span aria-hidden className="size-1.5 rounded-full bg-akua-blue" /> Exclusif
-              </span>
-            )}
-          </div>
-          {product.stockStatus === "stock_faible" && (
-            <span className="pointer-events-none absolute right-2.5 bottom-2.5 hidden rounded-full bg-akua-white/95 px-2.5 py-1 text-[11px] font-semibold text-akua-red sm:inline">Plus que {product.stockLeft}</span>
-          )}
+        </h3>
+        <div className="mt-1.5 flex h-5 items-center">
+          <ProductRating productId={product.id} className="text-[12px]" size="size-3.5" fallback={<StockText product={product} className="text-[12px]" />} />
         </div>
 
-        <div className="flex flex-1 flex-col px-1.5 pt-3 pb-1 md:px-2">
-          <h3 className="line-clamp-2 min-h-[2.6em] text-[14px] leading-[1.3] font-semibold tracking-[-0.01em] text-akua-ink md:text-[15.5px]">
-            <Link href={href} className="hover:text-akua-blue">
-              {product.name}
-            </Link>
-          </h3>
-          <ProductRating productId={product.id} className="mt-1.5 text-[12px]" size="size-3.5" />
-
-          <div className="mt-auto pt-2.5">
-            {product.compareAtPrice ? (
-              <p className="text-[12.5px] text-akua-gray-500 line-through tabular-nums md:text-[13px]">{formatFCFA(product.compareAtPrice)}</p>
-            ) : (
-              <p className="text-[12.5px] text-akua-gray-500 md:text-[13px]">{product.stockStatus === "sur_commande" ? "Sur commande" : "\u00a0"}</p>
-            )}
-            <p className={cn("text-[19px] leading-tight font-extrabold tracking-[-0.02em] tabular-nums md:text-[23px]", product.compareAtPrice ? "text-akua-blue" : "text-akua-ink")}>{formatFCFA(product.price)}</p>
-            <AddToCartButton product={product} variant="full" label="Ajouter au panier" className="mt-3 h-10 gap-1.5 px-2 text-[12.5px] md:h-11 md:text-[13.5px]" />
+        <div className="mt-auto flex items-center justify-between gap-2 pt-3">
+          <div className="min-w-0">
+            <p className={cn("truncate text-[18px] leading-tight font-extrabold tracking-[-0.02em] tabular-nums md:text-[22px]", promo ? "text-akua-blue" : "text-akua-ink")}>{money(product.price)}</p>
+            {promo && <p className="mt-0.5 text-[11.5px] leading-tight text-akua-gray-500 line-through tabular-nums md:text-[12.5px]">{money(product.compareAtPrice!)}</p>}
           </div>
+          <AddToCartButton product={product} variant="compact" label="Ajouter" />
         </div>
       </div>
     </article>

@@ -115,7 +115,7 @@ export function ReviewsSection({ productId, productName }: { productId: string; 
   }
 
   return (
-    <section id="avis" aria-labelledby="avis-title" className="scroll-mt-28">
+    <section id="avis" aria-labelledby="avis-title" className="scroll-mt-28 md:scroll-mt-36">
       <div className="grid gap-6 lg:grid-cols-[340px_1fr] lg:gap-10">
         {/* Synthèse */}
         <div className="h-fit rounded-[28px] bg-akua-page p-6 lg:sticky lg:top-[100px]">

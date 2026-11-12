@@ -1,5 +1,6 @@
 "use client";
 
+import { useMoney } from "@/components/currency";
 import { ArrowRight, ArrowUpRight, CornerDownLeft, Search, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,7 +8,6 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useCatalog } from "@/components/catalog-provider";
-import { formatFCFA } from "@/lib/format";
 import { getCategoryIcon } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 import { useUI } from "@/store/ui";
@@ -38,6 +38,7 @@ const label = "text-[11px] font-bold tracking-[0.14em] text-akua-gray-500 upperc
  */
 export function SearchDialog() {
   const { products, categories } = useCatalog();
+  const money = useMoney();
   const open = useUI((s) => s.searchOpen);
   const setOpen = useUI((s) => s.setSearchOpen);
   const [q, setQ] = useState("");
@@ -180,8 +181,8 @@ export function SearchDialog() {
                         <span className="block text-[12.5px] text-akua-gray-500">{categories.find((c) => c.id === p.categoryId)?.name}</span>
                       </span>
                       <span className="shrink-0 text-right">
-                        <span className={cn("block text-[14.5px] font-extrabold tabular-nums", p.compareAtPrice ? "text-akua-blue" : "text-akua-ink")}>{formatFCFA(p.price)}</span>
-                        {p.compareAtPrice && <span className="block text-[11.5px] text-akua-gray-500 tabular-nums line-through">{formatFCFA(p.compareAtPrice)}</span>}
+                        <span className={cn("block text-[14.5px] font-extrabold tabular-nums", p.compareAtPrice ? "text-akua-blue" : "text-akua-ink")}>{money(p.price)}</span>
+                        {p.compareAtPrice && <span className="block text-[11.5px] text-akua-gray-500 tabular-nums line-through">{money(p.compareAtPrice)}</span>}
                       </span>
                     </Link>
                   </li>

@@ -9,6 +9,7 @@ import { ProductRating } from "@/components/product/rating-stars";
 import { ReviewsSection } from "@/components/product/reviews-section";
 import { SITE_NAME, SITE_URL } from "@/config/site";
 import { getCategoryById, getProductBySlug, getRelatedProducts, loadCatalog, PLATFORM_LABELS } from "@/lib/catalog";
+import { Money } from "@/components/currency";
 import { CONDITION_LABEL, discountPercent, formatFCFA, PACKAGING_LABEL } from "@/lib/format";
 import { getCategoryIcon } from "@/lib/icons";
 
@@ -103,13 +104,14 @@ export default async function ProductPage({ params }: Props) {
               <StockText product={product} className="text-[13.5px]" />
             </div>
 
-            <div className="mt-6 flex flex-wrap items-end gap-3">
-              <span className={pct ? "text-[40px] leading-none font-extrabold tracking-[-0.03em] text-akua-blue md:text-[48px]" : "text-[40px] leading-none font-extrabold tracking-[-0.03em] md:text-[48px]"}>{formatFCFA(product.price)}</span>
+            {/* prix de vente mis en avant, ancien prix barré en dessous */}
+            <div className="mt-6">
+              <p className={pct ? "text-[40px] leading-none font-extrabold tracking-[-0.03em] text-akua-blue md:text-[48px]" : "text-[40px] leading-none font-extrabold tracking-[-0.03em] md:text-[48px]"}><Money amount={product.price} /></p>
               {product.compareAtPrice && (
-                <>
-                  <span className="pb-1 text-[17px] text-akua-gray-500 line-through">{formatFCFA(product.compareAtPrice)}</span>
-                  <span className="mb-1 rounded-full bg-akua-red px-2.5 py-1 text-[12.5px] font-bold text-akua-white">-{pct} %</span>
-                </>
+                <p className="mt-2.5 flex items-center gap-2.5">
+                  <span className="text-[16px] text-akua-gray-500 line-through tabular-nums"><Money amount={product.compareAtPrice} /></span>
+                  <span className="rounded-full bg-akua-red px-2.5 py-1 text-[12.5px] font-bold text-akua-white">-{pct} %</span>
+                </p>
               )}
             </div>
 

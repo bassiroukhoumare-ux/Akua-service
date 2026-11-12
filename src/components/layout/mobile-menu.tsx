@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { OpenStatus } from "@/components/shop/open-status";
+import { CurrencySwitch } from "@/components/currency";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Logo } from "@/components/ui/logo";
 import { useShopSettings } from "@/components/shop-settings-provider";
@@ -52,6 +53,13 @@ export function MobileMenu() {
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6">
+          {/* devise d'affichage des prix (sur téléphone, uniquement ici) */}
+          <div className="mb-5 rounded-2xl bg-akua-page p-3.5">
+            <p className="text-[11.5px] font-semibold tracking-[0.14em] text-akua-gray-500 uppercase">Afficher les prix en</p>
+            <CurrencySwitch className="mt-2.5 flex w-full bg-akua-white [&>button]:h-10 [&>button]:flex-1 [&>button]:text-[13.5px]" />
+            <p className="mt-2 text-[11.5px] leading-snug text-akua-gray-500">Euro et dollar à titre indicatif : le paiement se fait en F CFA.</p>
+          </div>
+
           <p className="px-2 text-[11.5px] font-semibold tracking-[0.14em] text-akua-gray-500 uppercase">Navigation</p>
           <nav aria-label="Menu" className="mt-2 space-y-1">
             {LINKS.map(({ label, href, icon: Icon }) => {
@@ -84,7 +92,7 @@ export function MobileMenu() {
               return (
                 <Link key={c.id} href={`/boutique/${c.slug}`} onClick={close} className="group flex flex-col items-center gap-1.5 min-w-0 rounded-[20px] px-0 py-3.5 text-center transition-colors hover:bg-akua-page">
                   <Icon aria-hidden className="size-6 text-akua-ink transition-colors group-hover:text-akua-blue" strokeWidth={1.4} />
-                  <span className="w-full truncate text-[9.5px] leading-tight font-semibold tracking-[-0.03em] min-[380px]:text-[10.5px] min-[380px]:tracking-[-0.01em]">{c.name}</span>
+                  <span className="w-full truncate text-[9.5px] leading-tight font-semibold tracking-[-0.03em] min-[380px]:text-[10.5px] min-[380px]:tracking-[-0.01em]">{c.shortName ?? c.name}</span>
                 </Link>
               );
             })}

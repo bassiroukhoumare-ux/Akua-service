@@ -91,7 +91,7 @@ export default async function ContactPage() {
       </section>
 
       {/* 3. Carte */}
-      <section aria-labelledby="carte-titre" id="carte" className="container-akua scroll-mt-28 pt-4 md:pt-5">
+      <section aria-labelledby="carte-titre" id="carte" className="container-akua scroll-mt-28 md:scroll-mt-36 pt-4 md:pt-5">
         <div className={`${card} overflow-hidden`}>
           <iframe
             src={MAPS_EMBED_URL}

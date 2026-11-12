@@ -1,5 +1,6 @@
 "use client";
 
+import { useMoney } from "@/components/currency";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, LayoutGrid, ListFilter, Minus, PackagePlus, PencilLine, Plus, Search, X } from "lucide-react";
 import Image from "next/image";
@@ -45,6 +46,7 @@ function ProductBrowser({ selected, onToggle }: { selected: Set<string>; onToggl
   const [cat, setCat] = useState<string | null>(null);
   const cats = useMemo(() => categories.filter((c) => c.slug !== "promos"), [categories]);
   const visible = useMemo(() => products.filter((p) => p.published !== false), [products]);
+  const money = useMoney();
 
   const list = useMemo(() => {
     const words = norm(q.trim()).split(/\s+/).filter(Boolean);
@@ -145,7 +147,7 @@ function ProductBrowser({ selected, onToggle }: { selected: Set<string>; onToggl
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="line-clamp-2 text-[14px] leading-snug font-semibold text-akua-ink">{p.name}</span>
-                    <span className="mt-0.5 block truncate text-[12.5px] text-akua-gray-500">{formatFCFA(p.price)} l&apos;unité en boutique</span>
+                    <span className="mt-0.5 block truncate text-[12.5px] text-akua-gray-500">{money(p.price)} l&apos;unité en boutique</span>
                   </span>
                   <span className={cn("flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-[13px] font-semibold transition-colors", on ? "bg-akua-ink text-akua-white" : "border border-akua-gray-200 bg-akua-white text-akua-ink")}>
                     {on ? <Check aria-hidden className="size-4" /> : <Plus aria-hidden className="size-4" />}
@@ -225,6 +227,7 @@ export function WholesaleForm() {
   const up = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF((s) => ({ ...s, [k]: e.target.value }));
   const selected = useMemo(() => new Set(lines.flatMap((l) => (l.product ? [l.product.id] : []))), [lines]);
   const units = lines.reduce((n, l) => n + l.qty, 0);
+  const money = useMoney();
 
   const toggle = (p: Product) => {
     setError(false);
@@ -326,7 +329,7 @@ export function WholesaleForm() {
                       </span>
                       <span className="min-w-0 flex-1 basis-[calc(100%-120px)] sm:basis-auto">
                         <span className="line-clamp-2 text-[14px] leading-snug font-semibold text-akua-ink">{l.label}</span>
-                        <span className="mt-0.5 block text-[12.5px] text-akua-gray-500">{l.product ? `${formatFCFA(l.product.price)} l'unité en boutique` : "Non listé sur le site"}</span>
+                        <span className="mt-0.5 block text-[12.5px] text-akua-gray-500">{l.product ? `${money(l.product.price)} l'unité en boutique` : "Non listé sur le site"}</span>
                       </span>
                       <button
                         type="button"

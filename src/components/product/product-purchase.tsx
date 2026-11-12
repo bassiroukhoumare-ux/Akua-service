@@ -1,10 +1,10 @@
 "use client";
 
+import { useMoney } from "@/components/currency";
 import { motion } from "framer-motion";
 import { Minus, Plus } from "lucide-react";
 import { useState } from "react";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
-import { formatFCFA } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import type { Product } from "@/types/catalog";
@@ -18,7 +18,7 @@ export function ProductGallery({ product }: { product: Product }) {
   const images = product.images;
 
   return (
-    <div className="lg:sticky lg:top-[100px]">
+    <div className="lg:sticky lg:top-[144px]">
       <div className="group relative aspect-square overflow-hidden rounded-[32px] bg-akua-tile">
         <motion.div key={i} initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} className="absolute inset-0 transition-transform duration-700 ease-akua md:group-hover:scale-[1.08]">
           <ProductVisual product={product} src={images[i]} sizes="(min-width:1024px) 50vw, 100vw" priority inset="p-[11%]" />
@@ -56,6 +56,7 @@ export function ProductGallery({ product }: { product: Product }) {
 
 export function PurchaseBox({ product }: { product: Product }) {
   const [qty, setQty] = useState(1);
+  const money = useMoney();
   const wa = buildWhatsAppLink([{ name: product.name, price: product.price, quantity: qty }]);
 
   return (
@@ -82,8 +83,8 @@ export function PurchaseBox({ product }: { product: Product }) {
       {/* Barre d'achat fixe mobile */}
       <div className="fixed inset-x-2.5 bottom-[calc(74px+env(safe-area-inset-bottom))] z-30 flex items-center gap-3 rounded-[22px] border border-akua-gray-200 bg-akua-white/95 shadow-[0_18px_40px_-18px_rgb(11_16_32/0.35)] px-4 py-3 backdrop-blur-xl lg:hidden">
         <div className="min-w-0">
-          {product.compareAtPrice && <p className="text-[12px] text-akua-gray-500 line-through decoration-akua-red/70">{formatFCFA(product.compareAtPrice * qty)}</p>}
-          <p className="price text-[20px] leading-tight">{formatFCFA(product.price * qty)}</p>
+          <p className="price text-[20px] leading-tight">{money(product.price * qty)}</p>
+          {product.compareAtPrice && <p className="text-[12px] text-akua-gray-500 line-through decoration-akua-red/70">{money(product.compareAtPrice * qty)}</p>}
         </div>
         <AddToCartButton product={product} quantity={qty} variant="icon" className="ml-auto size-12" />
         <BuyNowButton product={product} quantity={qty} className="h-12 flex-1" />

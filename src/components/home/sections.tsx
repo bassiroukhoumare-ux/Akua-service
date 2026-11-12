@@ -9,7 +9,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Reveal } from "@/components/ui/reveal";
 import { categoryImages } from "@/data/category-media";
 import { btn } from "@/lib/btn";
-import { CONDITION_LABEL, formatFCFA } from "@/lib/format";
+import { CONDITION_LABEL } from "@/lib/format";
+import { Money } from "@/components/currency";
 import { cn } from "@/lib/utils";
 import type { Category, Product } from "@/types/catalog";
 import { MobileSlider } from "@/components/ui/mobile-slider";
@@ -94,7 +95,7 @@ export function CategoryRail({ categories, poster, banner }: { categories: Categ
       <h1 className="sr-only">AKUA Service : consoles, ordinateurs, tablettes, accessoires informatiques et équipements électroniques</h1>
 
       {/* Catégories : tout en haut, droit au but. Téléphone : 3 par ligne. Ordinateur : toutes sur une ligne. */}
-      <section id="categories" aria-labelledby="rayons" className="container-akua scroll-mt-[120px] pt-5 md:scroll-mt-28 md:pt-8">
+      <section id="categories" aria-labelledby="rayons" className="container-akua scroll-mt-[120px] pt-5 md:scroll-mt-36 md:pt-8">
         <div className="flex items-center justify-between gap-4">
           <h2 id="rayons" className="text-[20px] font-extrabold tracking-[-0.02em] md:text-[26px]">Catégories</h2>
           <Link href="/boutique" className="inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-akua-blue md:text-[14.5px]">
@@ -197,7 +198,7 @@ export function PackCard({ product, featured }: { product: Product; featured?: b
             <TrendingUp aria-hidden className="size-3.5" strokeWidth={2.5} /> Le plus vendu
           </span>
         ) : (
-          <span className="absolute top-4 left-4 rounded-full bg-akua-ink px-3 py-1 text-[11.5px] font-bold text-akua-white">{product.badges.includes("premium") ? "Premium" : CONDITION_LABEL[product.condition]}</span>
+          <span className="absolute top-4 left-4 rounded-full bg-akua-ink px-3 py-1 text-[11.5px] font-bold text-akua-white">{CONDITION_LABEL[product.condition]}</span>
         )}
       </Link>
       <div className="flex flex-1 flex-col p-5 md:p-6">
@@ -212,8 +213,8 @@ export function PackCard({ product, featured }: { product: Product; featured?: b
         </ul>
         <div className="mt-auto flex items-end justify-between gap-3 pt-6">
           <div>
-            {product.compareAtPrice && <p className="text-[13px] text-akua-gray-500 line-through">{formatFCFA(product.compareAtPrice)}</p>}
-            <p className="text-[28px] leading-none font-extrabold tracking-[-0.03em]">{formatFCFA(product.price)}</p>
+            <p className="text-[28px] leading-none font-extrabold tracking-[-0.03em]"><Money amount={product.price} /></p>
+            {product.compareAtPrice && <p className="mt-1.5 text-[13px] text-akua-gray-500 line-through tabular-nums"><Money amount={product.compareAtPrice} /></p>}
           </div>
           <BuyNowButton product={product} />
         </div>
@@ -304,7 +305,7 @@ const FAQ = [
 /** Questions fréquentes (page Contact) : titre à gauche, questions à droite sur ordinateur. */
 export function FaqSection({ eyebrow = "Questions fréquentes", title = "On vous répond." }: { eyebrow?: string; title?: string }) {
   return (
-    <section id="questions" aria-labelledby="faq" className="container-akua scroll-mt-28 pt-12 md:pt-16">
+    <section id="questions" aria-labelledby="faq" className="container-akua scroll-mt-28 md:scroll-mt-36 pt-12 md:pt-16">
       <Reveal>
         <div className="grid gap-6 rounded-[28px] border border-akua-gray-200 p-6 md:p-9 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)] lg:gap-12">
           <SectionHeading eyebrow={eyebrow} title={<span id="faq">{title}</span>} className="self-start" />
