@@ -88,7 +88,7 @@ export function ReviewsView() {
   const dist = [5, 4, 3, 2, 1].map((n) => ({ n, c: all.filter((r) => r.rating === n).length }));
   const maxDist = Math.max(1, ...dist.map((d) => d.c));
 
-  if (!hydrated || !loaded) return <div className="h-[60vh] animate-pulse rounded-[24px] bg-akua-white" />;
+  if (!hydrated || !loaded) return <div className="h-[60vh] animate-pulse rounded-[12px] bg-akua-white" />;
 
   return (
     <div className="flex flex-col gap-5 md:gap-6">
@@ -105,7 +105,7 @@ export function ReviewsView() {
 
       {/* synthèse */}
       <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
-        <div className="flex items-center gap-5 rounded-[24px] border border-akua-gray-200 bg-akua-white p-5">
+        <div className="flex items-center gap-5 rounded-[12px] border border-akua-gray-200 bg-akua-white p-5">
           <div>
             <p className="text-[44px] leading-none font-extrabold tracking-[-0.04em] tabular-nums">{avg.toFixed(1).replace(".", ",")}</p>
             <div className="mt-2">
@@ -125,7 +125,7 @@ export function ReviewsView() {
             ))}
           </div>
         </div>
-        <div className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5">
+        <div className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-5">
           <ul className="flex flex-col gap-1.5">
             {dist.map((d) => (
               <li key={d.n}>
@@ -186,13 +186,13 @@ export function ReviewsView() {
             onChange={(e) => setQ(e.target.value)}
             placeholder="Nom, e-mail, produit, commentaire…"
             aria-label="Rechercher un avis"
-            className="h-11 w-full rounded-2xl border border-akua-gray-200 bg-akua-white pr-4 pl-11 text-[16px] outline-none focus:border-akua-blue focus:ring-4 focus:ring-akua-blue/10 sm:text-[14.5px]"
+            className="h-11 w-full rounded-[10px] border border-akua-gray-200 bg-akua-white pr-4 pl-11 text-[16px] outline-none focus:border-akua-blue focus:ring-4 focus:ring-akua-blue/10 sm:text-[14.5px]"
           />
         </div>
       </div>
 
       {list.length === 0 ? (
-        <div className="flex flex-col items-center rounded-[24px] border border-dashed border-akua-gray-200 bg-akua-white px-6 py-16 text-center">
+        <div className="flex flex-col items-center rounded-[12px] border border-dashed border-akua-gray-200 bg-akua-white px-6 py-16 text-center">
           <MessageSquareText aria-hidden className="size-10 text-akua-gray-200" strokeWidth={1.3} />
           <p className="mt-3 text-[16px] font-bold">Aucun avis</p>
           <p className="mt-1 text-[14px] text-akua-gray-500">{all.length ? "Aucun avis ne correspond à ces filtres." : "Les avis laissés par vos clients sur vos produits apparaîtront ici."}</p>
@@ -204,7 +204,7 @@ export function ReviewsView() {
             const hidden = r.status === "masque";
             const working = busy === r.id;
             return (
-              <li key={r.id} className={cn("rounded-[24px] border border-akua-gray-200 bg-akua-white p-5", hidden && "bg-akua-white/60")}>
+              <li key={r.id} className={cn("rounded-[12px] border border-akua-gray-200 bg-akua-white p-5", hidden && "bg-akua-white/60")}>
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">

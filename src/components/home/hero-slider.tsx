@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { discountPercent } from "@/lib/format";
+import { HomeMedia } from "@/components/ui/home-media";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/catalog";
 
@@ -35,12 +36,12 @@ function Countdown() {
   const units = ["h", "min", "s"];
   return (
     <div className="flex items-center gap-[1.2cqw]" role="timer" aria-label={left == null ? "Compte à rebours" : `Se termine dans ${parts[0]} heures ${parts[1]} minutes`}>
-      <span className="text-[1.6cqw] font-medium whitespace-nowrap text-white/60">Se termine dans</span>
+      <span className="text-[1.6cqw] font-medium whitespace-nowrap text-akua-gray-500">Se termine dans</span>
       <span className="flex items-center gap-[0.6cqw]">
         {parts.map((p, i) => (
-          <span key={i} className="flex items-baseline gap-[0.2cqw] rounded-[0.8cqw] bg-white/10 px-[0.9cqw] py-[0.4cqw] ring-1 ring-white/10">
+          <span key={i} className="flex items-baseline gap-[0.2cqw] rounded-[0.6cqw] bg-[#0b0f19] px-[0.9cqw] py-[0.45cqw]">
             <span className="text-[2.4cqw] leading-none font-bold text-white tabular-nums">{p}</span>
-            <span className="text-[1.3cqw] leading-none font-medium text-white/55">{units[i]}</span>
+            <span className="text-[1.3cqw] leading-none font-medium text-white/60">{units[i]}</span>
           </span>
         ))}
       </span>
@@ -59,7 +60,7 @@ function Countdown() {
 /** Produit présenté sur une carte blanche (rendu net sur tous les fonds), placé dans la composition. */
 function Shot({ src, className, priority }: { src: string; className: string; priority?: boolean }) {
   return (
-    <span className={cn("pointer-events-none absolute aspect-square rounded-[2.4cqw] bg-white shadow-[0_3cqw_5cqw_-2.4cqw_rgb(0_0_0/0.45)]", className)}>
+    <span className={cn("pointer-events-none absolute aspect-square rounded-[1.4cqw] bg-white shadow-[0_3cqw_5cqw_-2.6cqw_rgb(11_16_32/0.45)] ring-1 ring-[#0b1020]/5", className)}>
       <span className="absolute inset-[9%]">
         <Image src={src} alt="" fill sizes="(min-width:1024px) 280px, 35vw" priority={priority} className="object-contain" />
       </span>
@@ -67,16 +68,16 @@ function Shot({ src, className, priority }: { src: string; className: string; pr
   );
 }
 
-const label = "inline-flex w-fit items-center rounded-full px-[1.4cqw] py-[0.5cqw] text-[1.5cqw] leading-none font-semibold tracking-[0.14em] whitespace-nowrap uppercase";
-const title = "text-[5.4cqw] leading-[1.02] font-extrabold tracking-[-0.04em]";
-const cta = "inline-flex h-[5.4cqw] w-fit items-center gap-[0.9cqw] rounded-full px-[2.6cqw] text-[1.8cqw] font-semibold whitespace-nowrap transition-transform active:scale-[0.98]";
+const label = "inline-flex w-fit items-center rounded-[0.5cqw] px-[1.2cqw] py-[0.55cqw] text-[1.4cqw] leading-none font-semibold tracking-[0.14em] whitespace-nowrap uppercase";
+const title = "font-num text-[4.6cqw] leading-[1.04] font-extrabold tracking-[-0.045em]";
+const cta = "btn-shine inline-flex h-[4.6cqw] w-fit items-center gap-[0.9cqw] rounded-[0.8cqw] px-[2.4cqw] text-[1.7cqw] font-semibold whitespace-nowrap transition-transform active:scale-[0.98]";
 const arrow = "size-[1.9cqw]";
 
 /** Mise en page unique : texte à gauche, composition de produits à droite, sur tous les écrans. */
 function Layout({ className, copy, visual, href }: { className: string; copy: React.ReactNode; visual: React.ReactNode; href: string }) {
   return (
     <div className={cn("relative flex h-full w-full overflow-hidden", className)}>
-      <div className="relative z-[2] flex w-[50%] flex-col justify-center gap-[1.6cqw] pb-[3cqw] pl-[5.5cqw]">{copy}</div>
+      <div className="relative z-[2] flex w-[48%] flex-col justify-center gap-[1.2cqw] pb-[1.2cqw] pl-[6.5cqw]">{copy}</div>
       {/* toute la composition est cliquable (pratique au doigt) */}
       <Link href={href} tabIndex={-1} aria-hidden className="relative block flex-1">
         {visual}
@@ -91,27 +92,27 @@ function PromoSlide({ pct }: { pct: number | null }) {
   return (
     <Layout
       href="/boutique/promos"
-      className="bg-[#0b0f19] text-white"
+      className="bg-[linear-gradient(100deg,#f3f6ff_0%,#e4ecff_100%)] text-[#0b1020]"
       copy={
         <>
-          <span className={cn(label, "bg-white text-[#0b0f19]")}>Black Friday</span>
+          <span className={cn(label, "bg-akua-blue text-white")}>Black Friday</span>
           {pct ? (
             <p className="leading-none">
-              <span className="block text-[2cqw] font-semibold text-white/70">Jusqu&apos;à</span>
-              <span className="block text-[9.6cqw] font-extrabold tracking-[-0.05em] whitespace-nowrap">-{pct}&nbsp;%</span>
+              <span className="block text-[2cqw] font-semibold text-akua-gray-500">Jusqu&apos;à</span>
+              <span className="font-num block text-[7.4cqw] font-extrabold tracking-[-0.06em] whitespace-nowrap text-akua-blue">-{pct}&nbsp;%</span>
             </p>
           ) : (
             <p className={title}>Prix exceptionnels</p>
           )}
           <Countdown />
-          <Link href="/boutique/promos" className={cn(cta, "bg-white text-[#0b0f19] hover:bg-white/90")}>
+          <Link href="/boutique/promos" className={cn(cta, "glow-blue bg-akua-blue text-white hover:bg-akua-blue-600")}>
             Voir les offres <ArrowRight aria-hidden className={arrow} />
           </Link>
         </>
       }
       visual={
         <>
-          <span aria-hidden className="absolute top-1/2 left-1/2 size-[85%] -translate-1/2 rounded-full bg-[radial-gradient(circle,rgb(255_255_255/0.14)_0%,transparent_65%)]" />
+          <span aria-hidden className="absolute top-1/2 left-[46%] aspect-square h-[118%] -translate-1/2 rounded-full bg-akua-blue/[0.13]" />
           <Shot src="/categories/univers-ordinateurs.webp" priority className="top-[16%] left-[4%] h-[64%] -rotate-3" />
           <Shot src="/categories/univers-audio.webp" className="top-[9%] right-[12%] h-[40%] rotate-6" />
           <Shot src="/products/dualsense.webp" className="right-[22%] bottom-[9%] h-[34%] -rotate-6" />
@@ -167,7 +168,7 @@ function TrustSlide() {
   return (
     <Layout
       href="/boutique"
-      className="bg-[linear-gradient(120deg,#f6f7fa_0%,#eceef3_100%)] text-[#0b0f19]"
+      className="bg-[linear-gradient(100deg,#f7f8fb_0%,#eceff5_100%)] text-[#0b0f19]"
       copy={
         <>
           <span className={cn(label, "bg-[#0b0f19]/[0.06] text-[#0b0f19]")}>AKUA.SERVICE</span>
@@ -210,24 +211,48 @@ const slide = {
  * Bannière de l'accueil : 3 visuels qui glissent de droite à gauche toutes les 5 secondes
  * (pause au survol, flèches et points, glissement du doigt sur téléphone).
  */
-export function HeroSlider({ deals, month }: { deals: Product[]; month: number }) {
+/** Bannière ajoutée depuis l'espace admin (image ou vidéo au format 16:5). */
+export interface HeroBanner {
+  id: string;
+  src: string;
+  alt: string;
+  href: string | null;
+  media: "image" | "video";
+}
+
+function CustomSlide({ b, priority }: { b: HeroBanner; priority?: boolean }) {
+  const media = <HomeMedia src={b.src} alt={b.alt} media={b.media} fit="cover" sizes="(min-width:1320px) 1256px, 100vw" priority={priority} />;
+  if (!b.href) return <div className="relative h-full w-full">{media}</div>;
+  const external = /^https?:\/\//.test(b.href);
+  return (
+    <Link href={b.href} {...(external ? { target: "_blank", rel: "noopener" } : {})} aria-label={b.alt || "Voir l'offre"} className="relative block h-full w-full">
+      {media}
+    </Link>
+  );
+}
+
+export function HeroSlider({ deals, month, banners = [] }: { deals: Product[]; month: number; banners?: HeroBanner[] }) {
   const best = useMemo(() => Math.max(0, ...deals.map((p) => discountPercent(p.price, p.compareAtPrice) ?? 0)) || null, [deals]);
   const season = seasonFor(month);
-  const slides = [
-    { key: "promo", label: "Black Friday", node: <PromoSlide pct={best} /> },
-    { key: "saison", label: season.label, node: <SeasonSlide season={season} /> },
-    { key: "confiance", label: "Testés, garantis, livrés", node: <TrustSlide /> },
-  ];
+  // visuels ajoutés dans l'admin : ils remplacent les 3 bannières automatiques
+  const custom = banners.length > 0;
+  const slides = custom
+    ? banners.slice(0, 3).map((b, n) => ({ key: b.id, label: b.alt || `Bannière ${n + 1}`, node: <CustomSlide b={b} priority={n === 0} /> }))
+    : [
+        { key: "promo", label: "Black Friday", node: <PromoSlide pct={best} /> },
+        { key: "saison", label: season.label, node: <SeasonSlide season={season} /> },
+        { key: "confiance", label: "Testés, garantis, livrés", node: <TrustSlide /> },
+      ];
   const count = slides.length;
   const [[i, dir], setState] = useState<[number, number]>([0, 1]);
   const [paused, setPaused] = useState(false);
   const go = useCallback((n: number, d: number) => setState([((n % count) + count) % count, d]), [count]);
 
   useEffect(() => {
-    if (paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (count < 2 || paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = window.setTimeout(() => go(i + 1, 1), DURATION);
     return () => window.clearTimeout(id);
-  }, [i, paused, go]);
+  }, [i, paused, go, count]);
 
   // glissement du doigt
   const start = useRef<number | null>(null);
@@ -238,13 +263,13 @@ export function HeroSlider({ deals, month }: { deals: Product[]; month: number }
     if (start.current == null) return;
     const dx = e.clientX - start.current;
     start.current = null;
-    if (Math.abs(dx) > 40) go(i + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+    if (count > 1 && Math.abs(dx) > 40) go(i + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
   };
 
   return (
-    <section aria-roledescription="carrousel" aria-label="À la une" className="container-akua pt-3 md:pt-8">
+    <section aria-roledescription="carrousel" aria-label="À la une" className="container-akua pt-3 md:pt-5">
       <div
-        className="group relative aspect-[12/5] overflow-hidden rounded-[14px] bg-[#0b0f19] [container-type:inline-size] sm:rounded-[20px] md:rounded-[28px]"
+        className="group relative aspect-[16/5] overflow-hidden rounded-[12px] bg-akua-blue-100 [container-type:inline-size]"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
         onFocusCapture={() => setPaused(true)}
@@ -270,21 +295,50 @@ export function HeroSlider({ deals, month }: { deals: Product[]; month: number }
           </motion.div>
         </AnimatePresence>
 
-        <button type="button" onClick={() => go(i - 1, -1)} aria-label="Bannière précédente" className="absolute top-1/2 left-4 z-10 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-white text-[#0b0f19] opacity-0 shadow-lg transition-opacity group-hover:opacity-100 focus-visible:opacity-100 md:grid">
-          <ChevronLeft aria-hidden className="size-5" />
-        </button>
-        <button type="button" onClick={() => go(i + 1, 1)} aria-label="Bannière suivante" className="absolute top-1/2 right-4 z-10 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-white text-[#0b0f19] opacity-0 shadow-lg transition-opacity group-hover:opacity-100 focus-visible:opacity-100 md:grid">
-          <ChevronRight aria-hidden className="size-5" />
-        </button>
-
-        {/* points : celui en cours se remplit pendant les 5 secondes */}
-        <div className="absolute bottom-[3cqw] left-[5.5cqw] z-10 flex items-center gap-[0.6cqw]">
-          {slides.map((s, n) => (
-            <button key={s.key} type="button" onClick={() => go(n, n >= i ? 1 : -1)} aria-label={`Afficher : ${s.label}`} aria-current={n === i} className={cn("relative h-[max(3px,0.45cqw)] overflow-hidden rounded-full bg-current transition-all", n === i ? "w-[4cqw]" : "w-[1.6cqw]", i === 2 ? "text-[#0b0f19]/20" : "text-white/30")}>
-              {n === i && <motion.span key={`${i}-${paused}`} className={cn("absolute inset-y-0 left-0", i === 2 ? "bg-[#0b0f19]" : "bg-white")} initial={{ width: paused ? "100%" : "0%" }} animate={{ width: "100%" }} transition={{ duration: paused ? 0 : DURATION / 1000, ease: "linear" }} />}
+        {count > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={() => go(i - 1, -1)}
+              aria-label="Bannière précédente"
+              className="glow-soft absolute top-1/2 left-3 z-10 hidden size-10 -translate-y-1/2 place-items-center rounded-full border border-akua-gray-200 bg-white text-[#0b0f19] shadow-[0_8px_20px_-10px_rgb(11_16_32/0.5)] hover:text-akua-blue md:grid"
+            >
+              <ChevronLeft aria-hidden className="size-5" />
             </button>
-          ))}
-        </div>
+            <button
+              type="button"
+              onClick={() => go(i + 1, 1)}
+              aria-label="Bannière suivante"
+              className="glow-soft absolute top-1/2 right-3 z-10 hidden size-10 -translate-y-1/2 place-items-center rounded-full border border-akua-gray-200 bg-white text-[#0b0f19] shadow-[0_8px_20px_-10px_rgb(11_16_32/0.5)] hover:text-akua-blue md:grid"
+            >
+              <ChevronRight aria-hidden className="size-5" />
+            </button>
+
+            {/* points : celui en cours se remplit pendant les 5 secondes */}
+            <div className={cn("absolute bottom-[1.6cqw] left-1/2 z-10 flex -translate-x-1/2 items-center gap-[0.6cqw]", custom && "rounded-full bg-[#0b0f19]/35 px-[0.9cqw] py-[0.6cqw] backdrop-blur-sm")}>
+              {slides.map((s, n) => (
+                <button
+                  key={s.key}
+                  type="button"
+                  onClick={() => go(n, n >= i ? 1 : -1)}
+                  aria-label={`Afficher : ${s.label}`}
+                  aria-current={n === i}
+                  className={cn("relative h-[max(3px,0.45cqw)] overflow-hidden rounded-full bg-current transition-all", n === i ? "w-[4cqw]" : "w-[1.6cqw]", custom || i === 1 ? "text-white/45" : "text-[#0b0f19]/20")}
+                >
+                  {n === i && (
+                    <motion.span
+                      key={`${i}-${paused}`}
+                      className={cn("absolute inset-y-0 left-0", custom || i === 1 ? "bg-white" : "bg-akua-blue")}
+                      initial={{ width: paused ? "100%" : "0%" }}
+                      animate={{ width: "100%" }}
+                      transition={{ duration: paused ? 0 : DURATION / 1000, ease: "linear" }}
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </section>
   );

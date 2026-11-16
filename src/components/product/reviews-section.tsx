@@ -39,7 +39,7 @@ const field = (err?: string) =>
 function ReviewItem({ r }: { r: Review }) {
   const date = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" }).format(new Date(r.createdAt));
   return (
-    <li className="rounded-[22px] border border-akua-gray-200 p-5">
+    <li className="rounded-[12px] border border-akua-gray-200 p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <span className="grid size-10 place-items-center rounded-full bg-akua-blue-100 text-[14px] font-bold text-akua-blue">
@@ -118,7 +118,7 @@ export function ReviewsSection({ productId, productName }: { productId: string; 
     <section id="avis" aria-labelledby="avis-title" className="scroll-mt-28 md:scroll-mt-36">
       <div className="grid gap-6 lg:grid-cols-[340px_1fr] lg:gap-10">
         {/* Synthèse */}
-        <div className="h-fit rounded-[28px] bg-akua-page p-6 lg:sticky lg:top-[100px]">
+        <div className="h-fit rounded-[12px] bg-akua-page p-6 lg:sticky lg:top-[100px]">
           <h2 id="avis-title" className="text-[22px] font-extrabold tracking-[-0.02em]">
             Avis clients
           </h2>
@@ -165,7 +165,7 @@ export function ReviewsSection({ productId, productName }: { productId: string; 
                 noValidate
                 className="mb-6 overflow-hidden"
               >
-                <div className="rounded-[28px] border border-akua-gray-200 p-5 md:p-7">
+                <div className="rounded-[12px] border border-akua-gray-200 p-5 md:p-7">
                   <p className="text-[18px] font-bold">Votre avis sur {productName}</p>
                   <p className="mt-1 text-[13px] text-akua-gray-500">Tous les champs sont obligatoires. Votre e-mail ne sera jamais affiché.</p>
 
@@ -278,7 +278,7 @@ export function ReviewsSection({ productId, productName }: { productId: string; 
             </ul>
           ) : (
             !open && (
-              <div className="flex flex-col items-center rounded-[28px] border border-dashed border-akua-gray-200 px-6 py-12 text-center">
+              <div className="flex flex-col items-center rounded-[12px] border border-dashed border-akua-gray-200 px-6 py-12 text-center">
                 <Stars value={0} size="size-6" />
                 <p className="mt-4 text-[17px] font-bold">Soyez le premier à donner votre avis</p>
                 <p className="mt-1 max-w-sm text-[14px] text-akua-gray-500">Vous avez acheté ce produit chez AKUA.SERVICE ? Partagez votre expérience avec les autres clients.</p>

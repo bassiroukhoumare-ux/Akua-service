@@ -85,7 +85,7 @@ function validate(d: CheckoutDraft): Errors {
 
 function Section({ step, title, subtitle, children, id }: { step: number; title: string; subtitle?: string; children: React.ReactNode; id?: string }) {
   return (
-    <section id={id} className="scroll-mt-28 md:scroll-mt-36 rounded-[28px] border border-akua-gray-200 bg-akua-white p-5 md:p-7">
+    <section id={id} className="scroll-mt-28 md:scroll-mt-36 rounded-[12px] border border-akua-gray-200 bg-akua-white p-5 md:p-7">
       <div className="flex items-start gap-3.5">
         <span className="grid size-8 shrink-0 place-items-center rounded-full bg-akua-ink font-display text-[14px] font-semibold text-akua-white">{step}</span>
         <div>
@@ -335,7 +335,7 @@ export function CheckoutView() {
   if (done) {
     return (
       <div className="container-akua pt-6 pb-10 md:pt-12">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }} className="mx-auto max-w-xl rounded-[32px] border border-akua-gray-200 p-8 text-center md:p-12">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }} className="mx-auto max-w-xl rounded-[12px] border border-akua-gray-200 p-8 text-center md:p-12">
           <motion.span initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 300, damping: 14, delay: 0.15 }} className="mx-auto block w-fit">
             <CheckCircle2 aria-hidden className="size-20 text-akua-blue" strokeWidth={1.2} />
           </motion.span>
@@ -373,7 +373,7 @@ export function CheckoutView() {
   if (hydrated && items.length === 0) {
     return (
       <div className="container-akua pt-6 pb-10 md:pt-12">
-        <div className="mx-auto flex max-w-xl flex-col items-center rounded-[32px] bg-akua-tile px-6 py-16 text-center">
+        <div className="mx-auto flex max-w-xl flex-col items-center rounded-[12px] bg-akua-tile px-6 py-16 text-center">
           <ShoppingBag aria-hidden className="size-14 text-akua-blue" strokeWidth={1.2} />
           <h1 className="mt-6 font-display text-[28px] font-semibold">Votre panier est vide</h1>
           <p className="mt-2 max-w-sm text-[15px] text-akua-gray-500">Ajoutez vos consoles, jeux ou manettes, puis finalisez votre commande ici en quelques secondes.</p>
@@ -424,7 +424,7 @@ export function CheckoutView() {
                     aria-checked={on}
                     onClick={() => setDraft({ mode: o.id })}
                     className={cn(
-                      "relative flex items-start gap-3.5 rounded-[22px] border-2 p-4 text-left transition-all duration-200 md:p-5",
+                      "relative flex items-start gap-3.5 rounded-[12px] border-2 p-4 text-left transition-all duration-200 md:p-5",
                       on ? "border-akua-blue bg-akua-blue-100/50" : "border-akua-gray-200 hover:border-akua-gray-500/40",
                     )}
                   >
@@ -599,7 +599,7 @@ export function CheckoutView() {
                   </div>
 
                   {/* Acompte */}
-                  <div className="mt-6 rounded-[22px] border border-akua-gray-200 p-4 md:p-5">
+                  <div className="mt-6 rounded-[12px] border border-akua-gray-200 p-4 md:p-5">
                     <button type="button" role="switch" aria-checked={draft.deposit !== "none"} onClick={() => setDraft({ deposit: draft.deposit === "none" ? "50" : "none" })} className="flex w-full items-center gap-4 text-left">
                       <span className="min-w-0 flex-1">
                         <span className="block font-display text-[16px] font-semibold">Réserver avec un acompte</span>
@@ -647,7 +647,7 @@ export function CheckoutView() {
 
         {/* Récapitulatif */}
         <aside aria-label="Récapitulatif" className="min-w-0 lg:sticky lg:top-[144px] lg:self-start">
-          <div className="rounded-[28px] bg-akua-tile p-5 md:p-7">
+          <div className="rounded-[12px] bg-akua-tile p-5 md:p-7">
             <h2 className="font-display text-[22px] font-semibold">Récapitulatif</h2>
             <ul className="mt-4 space-y-3">
               {hydrated &&
@@ -763,7 +763,7 @@ export function CheckoutView() {
       </div>
 
       {/* Barre d'envoi mobile */}
-      <div className="fixed inset-x-2.5 bottom-[calc(74px+env(safe-area-inset-bottom))] z-30 rounded-[22px] border border-akua-gray-200 bg-akua-white/95 shadow-[0_18px_40px_-18px_rgb(11_16_32/0.35)] px-4 py-3 backdrop-blur-xl lg:hidden">
+      <div className="fixed inset-x-2.5 bottom-[calc(76px+env(safe-area-inset-bottom))] z-30 rounded-[12px] border border-akua-gray-200 bg-akua-white/95 shadow-[0_18px_40px_-18px_rgb(11_16_32/0.35)] px-4 py-3 backdrop-blur-xl lg:hidden">
         <div className="flex items-center gap-3">
           <div className="min-w-0">
             <p className="text-[12px] text-akua-gray-500">Total{depositPct > 0 ? ` · acompte ${formatFCFA(depositAmount)}` : ""}</p>

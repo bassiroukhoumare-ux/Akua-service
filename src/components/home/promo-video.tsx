@@ -170,7 +170,7 @@ export function PromoVideo({ videos, className }: { videos: string[]; className?
   };
 
   return (
-    <div ref={box} className={cn("group/video relative isolate overflow-hidden rounded-[24px] bg-akua-ink", className)}>
+    <div ref={box} className={cn("group/video relative isolate overflow-hidden rounded-[12px] bg-akua-ink", className)}>
       {load && src.kind === "file" && (
         <video
           key={src.src}

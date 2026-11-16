@@ -122,7 +122,7 @@ function StatusDialog({ order, target, onClose, onDone }: { order: OrderRecord |
       <DialogContent
         showCloseButton={false}
         overlayClassName="bg-akua-ink/35 backdrop-blur-[6px] supports-backdrop-filter:backdrop-blur-[6px]"
-        className="w-[calc(100%-24px)] max-w-[480px] gap-0 overflow-hidden rounded-[28px] border border-akua-gray-200 bg-akua-white p-0 text-akua-ink shadow-[0_40px_80px_-30px_rgb(11_16_32/0.45)] ring-0 sm:max-w-[480px]"
+        className="w-[calc(100%-24px)] max-w-[480px] gap-0 overflow-hidden rounded-[12px] border border-akua-gray-200 bg-akua-white p-0 text-akua-ink shadow-[0_40px_80px_-30px_rgb(11_16_32/0.45)] ring-0 sm:max-w-[480px]"
       >
         <div className="px-6 pt-6 pb-5 sm:px-7">
           <DialogTitle className="text-[19px] font-extrabold tracking-[-0.02em]">{title}</DialogTitle>
@@ -147,7 +147,7 @@ function StatusDialog({ order, target, onClose, onDone }: { order: OrderRecord |
               </ul>
             </div>
           )}
-          {error && <p className="mt-4 rounded-2xl bg-akua-red/8 px-4 py-3 text-[13.5px] font-medium text-akua-red">{error}</p>}
+          {error && <p className="mt-4 rounded-[10px] bg-akua-red/8 px-4 py-3 text-[13.5px] font-medium text-akua-red">{error}</p>}
         </div>
         <div className="flex gap-2.5 border-t border-akua-gray-200 px-6 py-4 sm:px-7">
           <button type="button" onClick={onClose} className="h-11 flex-1 rounded-full border border-akua-gray-200 text-[14px] font-semibold hover:border-akua-ink">
@@ -205,7 +205,7 @@ function OrderCard({ o, onStatus, onDelete }: { o: OrderRecord; onStatus: (s: Or
   const S = STATUS[status];
   const count = o.items.reduce((a, i) => a + i.quantity, 0);
   return (
-    <li className={cn("overflow-hidden rounded-[24px] border bg-akua-white transition-colors", status === "pending" ? "border-[#f0d58a]" : "border-akua-gray-200")}>
+    <li className={cn("overflow-hidden rounded-[12px] border bg-akua-white transition-colors", status === "pending" ? "border-[#f0d58a]" : "border-akua-gray-200")}>
       {/* en-tête */}
       <div className="flex flex-wrap items-start justify-between gap-3 p-4 sm:p-5">
         <div className="min-w-0">
@@ -395,7 +395,7 @@ export function OrdersView() {
           { label: "Chiffre d'affaires", value: formatFCFA(sold.reduce((a, o) => a + o.total, 0)), hint: "sur les commandes vendues" },
           { label: "Taux de vente", value: decided ? `${Math.round((sold.length / decided) * 100)} %` : "–", hint: "vendues / traitées" },
         ].map((k) => (
-          <div key={k.label} className="rounded-[24px] border border-akua-gray-200/90 bg-akua-white p-5">
+          <div key={k.label} className="rounded-[12px] border border-akua-gray-200/90 bg-akua-white p-5">
             <p className="text-[13px] font-medium text-akua-gray-500">{k.label}</p>
             <p className={cn("mt-2 text-[24px] leading-none font-extrabold tracking-[-0.03em] tabular-nums md:text-[28px]", k.tone)}>{k.value}</p>
             <p className="mt-2 text-[12.5px] text-akua-gray-500">{k.hint}</p>
@@ -422,14 +422,14 @@ export function OrdersView() {
         </div>
         <div className="relative md:ml-auto md:w-[340px]">
           <Search aria-hidden className="pointer-events-none absolute top-1/2 left-4 size-[18px] -translate-y-1/2 text-akua-gray-500" />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Référence, client, téléphone, produit…" aria-label="Rechercher une commande" className="h-11 w-full rounded-2xl border border-akua-gray-200 bg-akua-white pr-4 pl-11 text-[16px] outline-none focus:border-akua-blue focus:ring-4 focus:ring-akua-blue/10 sm:text-[14.5px]" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Référence, client, téléphone, produit…" aria-label="Rechercher une commande" className="h-11 w-full rounded-[10px] border border-akua-gray-200 bg-akua-white pr-4 pl-11 text-[16px] outline-none focus:border-akua-blue focus:ring-4 focus:ring-akua-blue/10 sm:text-[14.5px]" />
         </div>
       </div>
 
       {!orders ? (
         <div className="flex flex-col gap-3">
           {[0, 1].map((i) => (
-            <div key={i} className="h-72 animate-pulse rounded-[24px] bg-akua-white" />
+            <div key={i} className="h-72 animate-pulse rounded-[12px] bg-akua-white" />
           ))}
         </div>
       ) : list.length ? (
@@ -439,7 +439,7 @@ export function OrdersView() {
           ))}
         </ul>
       ) : (
-        <div className="flex flex-col items-center rounded-[24px] border border-dashed border-akua-gray-200 bg-akua-white px-6 py-16 text-center">
+        <div className="flex flex-col items-center rounded-[12px] border border-dashed border-akua-gray-200 bg-akua-white px-6 py-16 text-center">
           <Receipt aria-hidden className="size-10 text-akua-gray-200" strokeWidth={1.3} />
           <p className="mt-3 text-[16px] font-bold">{all.length ? "Aucune commande ici" : "Aucune commande pour le moment"}</p>
           <p className="mt-1 max-w-sm text-[14px] text-akua-gray-500">{all.length ? "Aucune commande ne correspond à ce filtre." : "Dès qu'un client enverra sa commande sur WhatsApp depuis le panier, elle apparaîtra ici."}</p>

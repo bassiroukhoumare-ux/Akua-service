@@ -84,7 +84,7 @@ export function TeamDashboard({ name, memberId }: { name: string; memberId: stri
   return (
     <div className="flex flex-col gap-5 md:gap-6">
       {/* accueil */}
-      <section className="relative overflow-hidden rounded-[28px] border border-akua-gray-200/90 bg-akua-white p-5 md:p-7">
+      <section className="relative overflow-hidden rounded-[12px] border border-akua-gray-200/90 bg-akua-white p-5 md:p-7">
         <div aria-hidden className="absolute -top-24 -right-24 size-72 rounded-full bg-akua-blue/10 blur-3xl" />
         <p className="relative text-[13px] font-medium text-akua-gray-500 first-letter:uppercase">{TODAY.format(new Date())}</p>
         <h1 className="relative mt-1 text-[28px] leading-tight font-extrabold tracking-[-0.03em] md:text-[34px]">
@@ -103,7 +103,7 @@ export function TeamDashboard({ name, memberId }: { name: string; memberId: stri
               <li key={m.id}>
                 <Link
                   href={moduleHref(base, m)}
-                  className="group flex h-full flex-col rounded-[22px] border border-akua-gray-200/90 bg-akua-white p-4 transition-all hover:-translate-y-0.5 hover:border-akua-blue/40 hover:shadow-[0_20px_40px_-28px_rgb(31_91_255/0.5)] active:scale-[0.98] md:p-5"
+                  className="group flex h-full flex-col rounded-[12px] border border-akua-gray-200/90 bg-akua-white p-4 transition-all hover:-translate-y-0.5 hover:border-akua-blue/40 hover:shadow-[0_20px_40px_-28px_rgb(31_91_255/0.5)] active:scale-[0.98] md:p-5"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <m.icon aria-hidden className="size-6 text-akua-ink transition-colors group-hover:text-akua-blue" strokeWidth={1.6} />
@@ -121,7 +121,7 @@ export function TeamDashboard({ name, memberId }: { name: string; memberId: stri
 
       <div className="grid gap-4 lg:grid-cols-2 [&>*]:min-w-0">
         {/* à faire */}
-        <section className="rounded-[26px] border border-akua-gray-200/90 bg-akua-white p-4 md:p-6">
+        <section className="rounded-[12px] border border-akua-gray-200/90 bg-akua-white p-4 md:p-6">
           <h2 className="px-1 text-[16.5px] font-bold">À faire</h2>
           {todos.length ? (
             <ul className="mt-3 flex flex-col">
@@ -156,7 +156,7 @@ export function TeamDashboard({ name, memberId }: { name: string; memberId: stri
         </section>
 
         {/* dernières actions */}
-        <section className="rounded-[26px] border border-akua-gray-200/90 bg-akua-white p-4 md:p-6">
+        <section className="rounded-[12px] border border-akua-gray-200/90 bg-akua-white p-4 md:p-6">
           <h2 className="mb-4 px-1 text-[16.5px] font-bold">Vos dernières actions</h2>
           <MyActivity memberId={memberId} />
         </section>

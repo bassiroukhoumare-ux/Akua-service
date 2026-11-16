@@ -167,7 +167,7 @@ export function SearchSelect({
             (withSearch ? inputRef.current : listRef.current)?.focus({ preventScroll: true });
           }}
           onKeyDown={onKeyDown}
-          className="z-[80] flex w-[max(var(--radix-popover-trigger-width),232px)] max-w-[calc(100vw-24px)] origin-(--radix-popover-content-transform-origin) flex-col overflow-hidden rounded-[20px] border border-akua-gray-200 bg-akua-white shadow-[0_24px_60px_-24px_rgb(11_16_32/0.35),0_2px_6px_rgb(11_16_32/0.05)] outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-1 data-[side=top]:slide-in-from-bottom-1"
+          className="z-[80] flex w-[max(var(--radix-popover-trigger-width),232px)] max-w-[calc(100vw-24px)] origin-(--radix-popover-content-transform-origin) flex-col overflow-hidden rounded-[12px] border border-akua-gray-200 bg-akua-white shadow-[0_24px_60px_-24px_rgb(11_16_32/0.35),0_2px_6px_rgb(11_16_32/0.05)] outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-1 data-[side=top]:slide-in-from-bottom-1"
           style={{ maxHeight: "min(380px, var(--radix-popover-content-available-height))" }}
         >
           {withSearch && (

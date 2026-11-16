@@ -40,7 +40,7 @@ const NETWORKS: Record<SocialNetwork, { label: string; icon: React.ComponentType
 
 function Section({ icon: Icon, title, description, children }: { icon: React.ComponentType<{ className?: string; strokeWidth?: number }>; title: string; description?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
+    <section className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
       <div className="mb-5 flex items-start gap-3">
         <span className="grid size-10 shrink-0 place-items-center rounded-[14px] bg-akua-page">
           <Icon className="size-5 text-akua-ink" strokeWidth={1.7} />
@@ -171,7 +171,7 @@ export function SettingsView() {
     window.setTimeout(() => setToast(""), 3000);
   }
 
-  if (!hydrated) return <div className="h-[60vh] animate-pulse rounded-[24px] bg-akua-white" />;
+  if (!hydrated) return <div className="h-[60vh] animate-pulse rounded-[12px] bg-akua-white" />;
 
   const waDigits = digits(s.whatsapp);
 
@@ -337,7 +337,7 @@ export function SettingsView() {
 
         {/* aperçu */}
         <aside className="flex flex-col gap-4 xl:sticky xl:top-[96px]">
-          <div className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5">
+          <div className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-5">
             <div className="flex items-center justify-between gap-3">
               <p className="text-[11px] font-bold tracking-[0.12em] text-akua-gray-500 uppercase">Horaires sur le site</p>
               <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold", open ? "bg-akua-whatsapp/12 text-[#128c4a]" : "bg-akua-red/10 text-akua-red")}>
@@ -353,7 +353,7 @@ export function SettingsView() {
               ))}
             </ul>
           </div>
-          <div className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5">
+          <div className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-5">
             <p className="text-[11px] font-bold tracking-[0.12em] text-akua-gray-500 uppercase">Pied de page</p>
             <p className="mt-3 text-[12.5px] font-semibold">Livraison et expédition possibles</p>
             <p className="mt-1 text-[12px] text-akua-gray-500">Aucun pays n&apos;est listé sur le site : l&apos;envoi est confirmé avec chaque client sur WhatsApp.</p>

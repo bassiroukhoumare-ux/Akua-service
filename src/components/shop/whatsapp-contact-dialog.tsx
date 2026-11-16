@@ -120,7 +120,7 @@ export function WhatsAppContactButton({
         <DialogContent
           showCloseButton={false}
           overlayClassName="bg-akua-ink/35 backdrop-blur-[6px] supports-backdrop-filter:backdrop-blur-[6px]"
-          className="flex max-h-[calc(100dvh-24px)] w-[calc(100%-24px)] max-w-[560px] flex-col sm:max-w-[560px] gap-0 overflow-hidden rounded-[28px] border border-akua-gray-200 bg-akua-white p-0 text-akua-ink shadow-[0_40px_80px_-30px_rgb(11_16_32/0.45)] ring-0"
+          className="flex max-h-[calc(100dvh-24px)] w-[calc(100%-24px)] max-w-[560px] flex-col sm:max-w-[560px] gap-0 overflow-hidden rounded-[12px] border border-akua-gray-200 bg-akua-white p-0 text-akua-ink shadow-[0_40px_80px_-30px_rgb(11_16_32/0.45)] ring-0"
         >
           {/* en-tête */}
           <div className="relative flex items-start gap-3.5 bg-akua-whatsapp px-5 py-5 text-akua-white sm:px-7 sm:py-6">

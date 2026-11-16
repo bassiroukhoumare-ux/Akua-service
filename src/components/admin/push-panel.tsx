@@ -153,7 +153,7 @@ export function PushPanel() {
   const on = !!endpoint && permission === "granted";
 
   return (
-    <section id="notifications" className="scroll-mt-28 overflow-hidden rounded-[26px] border border-akua-gray-200/90 bg-akua-white shadow-[0_1px_2px_rgb(11_16_32/0.03),0_14px_34px_-28px_rgb(11_16_32/0.22)]">
+    <section id="notifications" className="scroll-mt-28 overflow-hidden rounded-[12px] border border-akua-gray-200/90 bg-akua-white shadow-[0_1px_2px_rgb(11_16_32/0.03),0_14px_34px_-28px_rgb(11_16_32/0.22)]">
       <div className="flex flex-col gap-4 p-5 md:flex-row md:items-start md:justify-between md:p-6">
         <div className="flex items-start gap-3.5">
           {on ? <BellRing aria-hidden className="mt-0.5 size-7 shrink-0 text-akua-blue" strokeWidth={1.6} /> : <Bell aria-hidden className="mt-0.5 size-7 shrink-0 text-akua-ink" strokeWidth={1.6} />}

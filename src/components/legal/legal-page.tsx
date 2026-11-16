@@ -65,7 +65,7 @@ export function LegalPage({ eyebrow, title, intro, updated, sections, related }:
       <div className="container-akua mt-8 grid gap-8 md:mt-12 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-14">
         {/* Sommaire */}
         <aside className="lg:sticky lg:top-36 lg:self-start">
-          <details className="group rounded-[24px] border border-akua-gray-200 bg-akua-white lg:hidden">
+          <details className="group rounded-[12px] border border-akua-gray-200 bg-akua-white lg:hidden">
             <summary className="flex list-none items-center justify-between px-5 py-4 text-[14.5px] font-bold [&::-webkit-details-marker]:hidden">
               Sommaire
               <ChevronDown aria-hidden className="size-4 text-akua-gray-500 transition-transform group-open:rotate-180" />
@@ -92,7 +92,7 @@ export function LegalPage({ eyebrow, title, intro, updated, sections, related }:
             </section>
           ))}
 
-          <div className="mt-4 flex flex-col gap-4 rounded-[28px] bg-akua-page p-6 sm:flex-row sm:items-center sm:justify-between md:p-7">
+          <div className="mt-4 flex flex-col gap-4 rounded-[12px] bg-akua-page p-6 sm:flex-row sm:items-center sm:justify-between md:p-7">
             <div className="flex items-start gap-4">
               <MessageCircleMore aria-hidden className="mt-0.5 size-7 shrink-0 text-akua-blue" strokeWidth={1.4} />
               <div>

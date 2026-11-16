@@ -27,6 +27,8 @@ const LINKS = [
 ];
 
 
+const heading = "text-[12px] font-extrabold tracking-[0.06em] text-akua-ink uppercase";
+
 /** Menu latéral mobile (ouvert depuis l'onglet « Menu » de la barre du bas). */
 export function MobileMenu() {
   const settings = useShopSettings();
@@ -48,21 +50,21 @@ export function MobileMenu() {
 
         <div className="flex items-center justify-between border-b border-akua-gray-200 px-5 py-3">
           <Logo className="h-10" />
-          <button type="button" onClick={close} aria-label="Fermer le menu" className="grid size-10 place-items-center rounded-full border border-akua-gray-200 transition-colors hover:border-akua-ink">
+          <button type="button" onClick={close} aria-label="Fermer le menu" className="glow-soft grid size-10 place-items-center rounded-[10px] border border-akua-gray-200">
             <X aria-hidden className="size-5" />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6">
           {/* devise d'affichage des prix (sur téléphone, uniquement ici) */}
-          <div className="mb-5 rounded-2xl bg-akua-page p-3.5">
-            <p className="text-[11.5px] font-semibold tracking-[0.14em] text-akua-gray-500 uppercase">Afficher les prix en</p>
-            <CurrencySwitch className="mt-2.5 flex w-full bg-akua-white [&>button]:h-10 [&>button]:flex-1 [&>button]:text-[13.5px]" />
+          <div className="mb-6 rounded-[12px] border border-akua-gray-200 bg-akua-white p-3.5">
+            <p className={heading}>Afficher les prix en</p>
+            <CurrencySwitch className="mt-3 flex w-full bg-akua-white [&>button]:h-10 [&>button]:flex-1 [&>button]:text-[13.5px]" />
             <p className="mt-2 text-[11.5px] leading-snug text-akua-gray-500">Euro et dollar à titre indicatif : le paiement se fait en F CFA.</p>
           </div>
 
-          <p className="px-2 text-[11.5px] font-semibold tracking-[0.14em] text-akua-gray-500 uppercase">Navigation</p>
-          <nav aria-label="Menu" className="mt-2 space-y-1">
+          <p className={heading}>Navigation</p>
+          <nav aria-label="Menu" className="mt-1">
             {LINKS.map(({ label, href, icon: Icon }) => {
               const on = isActive(href);
               return (
@@ -71,9 +73,10 @@ export function MobileMenu() {
                   href={href}
                   onClick={close}
                   aria-current={on ? "page" : undefined}
-                  className={cn("group flex items-center gap-4 rounded-2xl px-3.5 py-3.5 text-[15.5px] font-semibold transition-colors", on ? "bg-akua-blue-100 text-akua-blue" : "hover:bg-akua-page")}
+                  className={cn("group relative flex items-center gap-3.5 border-b border-akua-gray-200 px-2 py-3.5 text-[15px] font-semibold transition-colors", on ? "text-akua-blue" : "text-akua-ink active:bg-akua-blue-100/50")}
                 >
-                  <Icon aria-hidden className={cn("size-[22px] shrink-0 transition-colors", on ? "text-akua-blue" : "text-akua-ink")} strokeWidth={1.5} />
+                  {on && <span aria-hidden className="absolute inset-y-2.5 -left-4 w-[3px] bg-akua-blue" />}
+                  <Icon aria-hidden className={cn("size-[22px] shrink-0 transition-colors", on ? "text-akua-blue" : "text-akua-ink")} strokeWidth={1.6} />
                   {label}
                   <ChevronRight aria-hidden className={cn("ml-auto size-4 transition-transform group-hover:translate-x-0.5", on ? "text-akua-blue" : "text-akua-gray-500")} />
                 </Link>
@@ -81,14 +84,14 @@ export function MobileMenu() {
             })}
           </nav>
 
-          <div className="mt-6 flex items-center justify-between px-2">
-            <p className="text-[11.5px] font-semibold tracking-[0.14em] text-akua-gray-500 uppercase">Nos catégories</p>
-            <Link href="/boutique" onClick={close} className="flex items-center gap-0.5 text-[12.5px] font-semibold text-akua-blue">
+          <div className="mt-7 flex items-end justify-between border-b border-akua-gray-200">
+            <p className={cn(heading, "-mb-px border-b-2 border-akua-blue pb-2")}>Nos catégories</p>
+            <Link href="/boutique" onClick={close} className="flex items-center gap-0.5 pb-2 text-[12px] font-bold tracking-[0.02em] text-akua-blue uppercase">
               Tout voir <ArrowUpRight aria-hidden className="size-3.5" />
             </Link>
           </div>
           {/* 3 colonnes régulières : photo de la catégorie puis nom (les promos sont déjà dans la navigation) */}
-          <ul className="mt-2.5 grid grid-cols-3 gap-2">
+          <ul className="mt-4 grid grid-cols-3 gap-x-2 gap-y-4">
             {categories
               .filter((c) => c.slug !== "promos")
               .map((c) => {
@@ -96,11 +99,11 @@ export function MobileMenu() {
                 const Icon = getCategoryIcon(c.icon);
                 return (
                   <li key={c.id} className="min-w-0">
-                    <Link href={`/boutique/${c.slug}`} onClick={close} className="group flex h-full flex-col items-center gap-1.5 rounded-2xl border border-akua-gray-200 p-1 pb-2 text-center transition-colors hover:border-akua-ink active:bg-akua-page">
-                      <span className="relative grid aspect-square w-full place-items-center overflow-hidden rounded-xl bg-akua-tile">
+                    <Link href={`/boutique/${c.slug}`} onClick={close} className="group flex h-full flex-col items-center gap-2 text-center">
+                      <span className="relative grid size-[68px] place-items-center overflow-hidden rounded-full bg-akua-tile ring-1 ring-akua-gray-200 transition-shadow group-active:ring-akua-blue">
                         {img ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={img} alt="" loading="lazy" className="absolute inset-0 size-full object-contain p-1.5" />
+                          <img src={img} alt="" loading="lazy" className="absolute inset-0 size-full object-contain p-3" />
                         ) : (
                           <Icon aria-hidden className="size-5 text-akua-ink" strokeWidth={1.5} />
                         )}
@@ -112,7 +115,7 @@ export function MobileMenu() {
               })}
           </ul>
 
-          <div className="mt-6 rounded-[22px] bg-akua-page p-4">
+          <div className="mt-7 rounded-[12px] border border-akua-gray-200 bg-akua-white p-4">
             <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
               <p className="text-[14px] font-bold whitespace-nowrap">Horaires d&apos;ouverture</p>
               <OpenStatus />

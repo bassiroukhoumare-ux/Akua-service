@@ -33,7 +33,7 @@ export function AddedToast() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.98 }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="pointer-events-auto w-full max-w-[420px] rounded-[22px] border border-akua-gray-200 bg-akua-white p-3 shadow-[0_24px_60px_-20px_rgb(11_16_32/0.5)] lg:w-[380px]"
+            className="pointer-events-auto w-full max-w-[420px] rounded-[12px] border border-akua-gray-200 bg-akua-white p-3 shadow-[0_24px_60px_-20px_rgb(11_16_32/0.5)] lg:w-[380px]"
           >
             <div className="flex items-center gap-3">
               <span className="relative size-14 shrink-0 overflow-hidden rounded-2xl bg-akua-tile">

@@ -29,7 +29,7 @@ export default async function DeliveryPage() {
         <h2 className="font-display text-[26px] font-semibold md:text-[32px]">Comment ça se passe</h2>
         <ol className="mt-6 grid gap-3 md:grid-cols-3">
           {STEPS.map((x, i) => (
-            <li key={x.t} className="rounded-[22px] border border-akua-gray-200 p-5 md:p-6">
+            <li key={x.t} className="rounded-[12px] border border-akua-gray-200 p-5 md:p-6">
               <div className="flex items-center justify-between">
                 <x.icon aria-hidden className="size-8 text-akua-blue" strokeWidth={1.5} />
                 <span className="grid size-7 place-items-center rounded-full bg-akua-ink text-[12.5px] font-bold text-akua-white">{i + 1}</span>
@@ -40,7 +40,7 @@ export default async function DeliveryPage() {
           ))}
         </ol>
 
-        <div id="garantie" className="mt-12 flex flex-col gap-5 rounded-[28px] bg-akua-tile p-8 md:flex-row md:items-center">
+        <div id="garantie" className="mt-12 flex flex-col gap-5 rounded-[12px] bg-akua-tile p-8 md:flex-row md:items-center">
           <IconTile icon={ShieldCheck} tone="solid" size="lg" shape="squircle" />
           <div>
             <h2 className="font-display text-[24px] font-semibold">Garantie AKUA.SERVICE</h2>

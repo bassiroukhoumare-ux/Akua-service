@@ -6,8 +6,8 @@ import { btn } from "@/lib/btn";
 /** Module non attribué à l'équipier connecté. */
 export function Denied() {
   return (
-    <div className="flex flex-col items-center rounded-[28px] border border-akua-gray-200 bg-akua-white px-6 py-16 text-center md:py-24">
-      <span className="grid size-16 place-items-center rounded-[20px] bg-akua-page">
+    <div className="flex flex-col items-center rounded-[12px] border border-akua-gray-200 bg-akua-white px-6 py-16 text-center md:py-24">
+      <span className="grid size-16 place-items-center rounded-[12px] bg-akua-page">
         <Lock aria-hidden className="size-7 text-akua-ink" strokeWidth={1.5} />
       </span>
       <p className="mt-5 text-[20px] font-extrabold tracking-[-0.02em]">Accès non autorisé</p>

@@ -27,7 +27,7 @@ export function LoginScreen({ kind }: { kind: PortalKind }) {
           <Logo href={null} priority className="h-12" />
         </Reveal>
         <Reveal delay={0.08} className="mt-8">
-          <div className="rounded-[30px] border border-akua-gray-200/80 bg-akua-white/90 p-7 shadow-[0_40px_90px_-40px_rgb(23_45_120/0.4)] backdrop-blur-2xl sm:p-9">
+          <div className="rounded-[12px] border border-akua-gray-200/80 bg-akua-white/90 p-7 shadow-[0_40px_90px_-40px_rgb(23_45_120/0.4)] backdrop-blur-2xl sm:p-9">
             <p className="flex items-center gap-2 text-[12px] font-bold tracking-[0.14em] text-akua-blue uppercase">
               <ShieldCheck aria-hidden className="size-[18px]" strokeWidth={1.8} />
               {c.eyebrow}

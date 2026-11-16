@@ -270,7 +270,7 @@ export function WholesaleForm() {
           "noopener",
         );
       }}
-      className="overflow-hidden rounded-[28px] border border-akua-gray-200 bg-akua-white shadow-card"
+      className="overflow-hidden rounded-[12px] border border-akua-gray-200 bg-akua-white shadow-card"
     >
       {/* 1. Produits */}
       <fieldset className="min-w-0 p-5 md:p-8">
@@ -411,7 +411,7 @@ export function WholesaleForm() {
           </span>
         </legend>
         <textarea value={f.message} onChange={up("message")} rows={4} className={`${field} mt-3 h-auto py-3`} placeholder="Ex. livraison souhaitée avant la fin du mois, commande régulière chaque trimestre, budget…" />
-        <button type="submit" className="btn-shine mt-5 flex h-[56px] w-full items-center justify-center gap-2.5 rounded-full bg-akua-whatsapp text-[15.5px] font-semibold text-akua-white">
+        <button type="submit" className="btn-shine mt-5 flex h-[56px] w-full items-center justify-center gap-2.5 rounded-[10px] bg-akua-whatsapp text-[15.5px] font-semibold text-akua-white">
           <WhatsAppIcon size={20} /> Envoyer ma demande sur WhatsApp
         </button>
         <p className="mt-3 text-center text-[12.5px] text-akua-gray-500">Votre demande s&apos;ouvre dans WhatsApp, prête à être envoyée. Nous vous répondons avec nos meilleurs tarifs.</p>

@@ -114,7 +114,7 @@ export function CartsView() {
     else setStatus(c.id, status, actor.name);
   };
 
-  if (!hydrated) return <div className="h-[60vh] animate-pulse rounded-[24px] bg-akua-white" />;
+  if (!hydrated) return <div className="h-[60vh] animate-pulse rounded-[12px] bg-akua-white" />;
 
   return (
     <div className="flex flex-col gap-5 md:gap-6">
@@ -128,7 +128,7 @@ export function CartsView() {
           { t: "Relancés", v: String(count("contacted")) },
           { t: "Commandés ensuite", v: String(count("ordered")) },
         ].map((x) => (
-          <div key={x.t} className="rounded-[20px] border border-akua-gray-200 bg-akua-white p-4">
+          <div key={x.t} className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-4">
             <p className="text-[12.5px] text-akua-gray-500">{x.t}</p>
             <p className="mt-1 text-[22px] font-extrabold tracking-[-0.02em] tabular-nums">{x.v}</p>
           </div>
@@ -152,7 +152,7 @@ export function CartsView() {
       </div>
 
       {list.length === 0 ? (
-        <div className="flex flex-col items-center rounded-[24px] border border-dashed border-akua-gray-200 bg-akua-white px-6 py-16 text-center">
+        <div className="flex flex-col items-center rounded-[12px] border border-dashed border-akua-gray-200 bg-akua-white px-6 py-16 text-center">
           <ShoppingBag aria-hidden className="size-10 text-akua-gray-200" strokeWidth={1.3} />
           <p className="mt-3 text-[16px] font-bold">Aucun panier ici</p>
           <p className="mt-1 text-[14px] text-akua-gray-500">Les paniers enregistrés depuis la page Panier du site apparaîtront ici.</p>
@@ -160,7 +160,7 @@ export function CartsView() {
       ) : (
         <ul className="flex flex-col gap-3">
           {list.map((c) => (
-            <li key={c.id} className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5">
+            <li key={c.id} className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-5">
               <div className="flex flex-col gap-5 lg:flex-row">
                 {/* client */}
                 <div className="min-w-0 lg:w-[300px] lg:shrink-0">

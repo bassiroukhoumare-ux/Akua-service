@@ -100,7 +100,7 @@ function CategoryDialog({ open, onOpenChange, initial }: { open: boolean; onOpen
       <DialogContent
         showCloseButton={false}
         overlayClassName="bg-akua-ink/35 backdrop-blur-[6px] supports-backdrop-filter:backdrop-blur-[6px]"
-        className="flex max-h-[calc(100dvh-24px)] w-[calc(100%-24px)] max-w-[600px] flex-col gap-0 overflow-hidden rounded-[28px] border border-akua-gray-200 bg-akua-white p-0 text-akua-ink shadow-[0_40px_80px_-30px_rgb(11_16_32/0.45)] ring-0 sm:max-w-[600px]"
+        className="flex max-h-[calc(100dvh-24px)] w-[calc(100%-24px)] max-w-[600px] flex-col gap-0 overflow-hidden rounded-[12px] border border-akua-gray-200 bg-akua-white p-0 text-akua-ink shadow-[0_40px_80px_-30px_rgb(11_16_32/0.45)] ring-0 sm:max-w-[600px]"
       >
         <div className="flex items-start justify-between gap-4 border-b border-akua-gray-200 px-5 py-5 sm:px-7">
           <div>
@@ -115,7 +115,7 @@ function CategoryDialog({ open, onOpenChange, initial }: { open: boolean; onOpen
         <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5 sm:px-7">
             <div className="flex items-start gap-4">
-              <span className={cn("grid size-[72px] shrink-0 place-items-center rounded-[22px] transition-colors", icon ? "bg-akua-blue-100 text-akua-blue" : "bg-akua-page text-akua-gray-500")}>
+              <span className={cn("grid size-[72px] shrink-0 place-items-center rounded-[12px] transition-colors", icon ? "bg-akua-blue-100 text-akua-blue" : "bg-akua-page text-akua-gray-500")}>
                 <Preview aria-hidden className="size-9" strokeWidth={1.4} />
               </span>
               <div className="min-w-0 flex-1">
@@ -249,7 +249,7 @@ function DeleteDialog({ category, onClose }: { category: Category | null; onClos
       <DialogContent
         showCloseButton={false}
         overlayClassName="bg-akua-ink/35 backdrop-blur-[6px] supports-backdrop-filter:backdrop-blur-[6px]"
-        className="w-[calc(100%-24px)] max-w-[440px] gap-0 rounded-[28px] border border-akua-gray-200 bg-akua-white p-6 text-akua-ink shadow-[0_40px_80px_-30px_rgb(11_16_32/0.45)] ring-0 sm:max-w-[440px] sm:p-7"
+        className="w-[calc(100%-24px)] max-w-[440px] gap-0 rounded-[12px] border border-akua-gray-200 bg-akua-white p-6 text-akua-ink shadow-[0_40px_80px_-30px_rgb(11_16_32/0.45)] ring-0 sm:max-w-[440px] sm:p-7"
       >
         <Trash2 aria-hidden className="size-8 text-akua-red" strokeWidth={1.4} />
         <DialogTitle className="mt-4 text-[19px] font-extrabold tracking-[-0.02em]">Supprimer « {category.name} » ?</DialogTitle>
@@ -323,7 +323,7 @@ export function CategoriesView() {
       <ReadOnlyNotice module="categories" />
 
       {!hydrated ? (
-        <div className="h-80 animate-pulse rounded-[24px] bg-akua-white" />
+        <div className="h-80 animate-pulse rounded-[12px] bg-akua-white" />
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {sorted.map((c, i) => {
@@ -335,7 +335,7 @@ export function CategoriesView() {
               <li
                 key={c.id}
                 id={`cat-${c.id}`}
-                className="group flex scroll-mt-28 flex-col rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 transition-colors target:border-akua-blue target:ring-4 target:ring-akua-blue/15 hover:border-akua-gray-500/40"
+                className="group flex scroll-mt-28 flex-col rounded-[12px] border border-akua-gray-200 bg-akua-white p-5 transition-colors target:border-akua-blue target:ring-4 target:ring-akua-blue/15 hover:border-akua-gray-500/40"
               >
                 <div className="flex items-start gap-4">
                   <span className="relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-[18px] bg-akua-tile transition-colors group-hover:bg-akua-blue-100">

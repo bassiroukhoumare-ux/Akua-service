@@ -68,7 +68,7 @@ export function SearchDialog() {
         overlayClassName="bg-akua-ink/30 backdrop-blur-[6px] supports-backdrop-filter:backdrop-blur-[6px] duration-200"
         className={cn(
           // mobile : panneau flottant en haut, la page reste visible en dessous
-          "top-3 left-3 flex max-h-[min(72dvh,620px)] w-[calc(100%-24px)] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-[26px] border border-akua-white/60 bg-akua-white p-0 text-akua-ink shadow-[0_30px_80px_-24px_rgb(11_16_32/0.45),0_2px_8px_rgb(11_16_32/0.06)] ring-0",
+          "top-3 left-3 flex max-h-[min(72dvh,620px)] w-[calc(100%-24px)] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-[12px] border border-akua-white/60 bg-akua-white p-0 text-akua-ink shadow-[0_30px_80px_-24px_rgb(11_16_32/0.45),0_2px_8px_rgb(11_16_32/0.06)] ring-0",
           "data-[state=open]:animate-[akua-search-in_0.32s_cubic-bezier(0.22,1,0.36,1)]",
           "sm:top-[76px] sm:left-1/2 sm:max-h-[min(78vh,680px)] sm:w-[calc(100%-32px)] sm:max-w-[660px] sm:-translate-x-1/2",
         )}

@@ -31,7 +31,7 @@ const fDate = new Intl.DateTimeFormat("fr-FR", { weekday: "short", day: "numeric
 function OrderCard({ o }: { o: OrderRecord }) {
   const count = o.items.reduce((a, i) => a + i.quantity, 0);
   return (
-    <li className="rounded-[20px] border border-akua-gray-200 p-4 sm:p-5">
+    <li className="rounded-[12px] border border-akua-gray-200 p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <p className="flex items-center gap-2 text-[14.5px] font-bold">
@@ -137,7 +137,7 @@ export function UsageDialog({ code, onClose }: { code: string | null; onClose: (
       <DialogContent
         showCloseButton={false}
         overlayClassName="bg-akua-ink/35 backdrop-blur-[6px] supports-backdrop-filter:backdrop-blur-[6px]"
-        className="flex max-h-[calc(100dvh-24px)] w-[calc(100%-24px)] max-w-[720px] flex-col gap-0 overflow-hidden rounded-[28px] border border-akua-gray-200 bg-akua-white p-0 text-akua-ink shadow-[0_40px_80px_-30px_rgb(11_16_32/0.45)] ring-0 sm:max-w-[720px]"
+        className="flex max-h-[calc(100dvh-24px)] w-[calc(100%-24px)] max-w-[720px] flex-col gap-0 overflow-hidden rounded-[12px] border border-akua-gray-200 bg-akua-white p-0 text-akua-ink shadow-[0_40px_80px_-30px_rgb(11_16_32/0.45)] ring-0 sm:max-w-[720px]"
       >
         <div className="flex items-start justify-between gap-4 border-b border-akua-gray-200 px-5 py-5 sm:px-7">
           <div>
@@ -166,7 +166,7 @@ export function UsageDialog({ code, onClose }: { code: string | null; onClose: (
           {!orders ? (
             <div className="flex flex-col gap-3">
               {[0, 1].map((i) => (
-                <div key={i} className="h-40 animate-pulse rounded-[20px] bg-akua-page" />
+                <div key={i} className="h-40 animate-pulse rounded-[12px] bg-akua-page" />
               ))}
             </div>
           ) : orders.length ? (

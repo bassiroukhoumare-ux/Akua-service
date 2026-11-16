@@ -22,7 +22,7 @@ export function FavoritesView({ products }: { products: Product[] }) {
           ))}
         </div>
       ) : (
-        <div className="mt-8 flex flex-col items-center rounded-[28px] bg-akua-tile px-6 py-20 text-center">
+        <div className="mt-8 flex flex-col items-center rounded-[12px] bg-akua-tile px-6 py-20 text-center">
           <Heart aria-hidden className="size-14 text-akua-red" strokeWidth={1.2} />
           <p className="mt-5 font-display text-[22px] font-semibold">Aucun favori pour l&apos;instant</p>
           <p className="mt-2 max-w-sm text-[14px] text-akua-gray-500">Touchez le cœur sur un produit pour le retrouver ici.</p>

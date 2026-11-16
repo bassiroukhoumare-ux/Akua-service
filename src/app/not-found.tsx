@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function NotFound() {
   return (
     <div className="container-akua pt-8 md:pt-14">
-      <div className="relative overflow-hidden rounded-[32px] bg-akua-tile px-6 py-14 text-center md:py-20">
+      <div className="relative overflow-hidden rounded-[12px] bg-akua-tile px-6 py-14 text-center md:py-20">
         <p aria-hidden className="text-mega pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-[clamp(120px,30vw,380px)] text-akua-white select-none">
           404
         </p>

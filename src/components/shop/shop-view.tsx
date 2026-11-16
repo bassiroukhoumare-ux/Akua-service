@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, PackageSearch, Search, SlidersHorizontal, X } fr
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useUI } from "@/store/ui";
 import { useEffect, useState, useTransition } from "react";
 import { ProductCard } from "@/components/product/product-card";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -60,7 +61,7 @@ function ShopFilters({ category, inSheet }: { category: Category | null; inSheet
 function EmptyState() {
   const { reset } = useParamsUpdater();
   return (
-    <div className="col-span-full flex flex-col items-center rounded-[28px] bg-akua-tile px-6 py-16 text-center">
+    <div className="col-span-full flex flex-col items-center rounded-[12px] bg-akua-tile px-6 py-16 text-center">
       <PackageSearch aria-hidden className="size-14 text-akua-blue" strokeWidth={1.2} />
       <p className="mt-5 font-display text-[22px] font-semibold">Aucun produit trouvé</p>
       <p className="mt-2 max-w-sm text-[14.5px] text-akua-gray-500">Essayez d&apos;autres filtres, ou demandez-nous sur WhatsApp : nous avons souvent le produit en stock.</p>
@@ -87,6 +88,15 @@ export function ShopView({ products, category, query }: { products: Product[]; c
   const { categories } = useCatalog();
   const { sp, set, pending } = useParamsUpdater();
   const [sheet, setSheet] = useState(false);
+
+  // bouton « Filtrer » de l'en-tête (téléphone) : ouvre ce panneau
+  const filtersAsked = useUI((s) => s.filtersOpen);
+  const setFiltersAsked = useUI((s) => s.setFiltersOpen);
+  useEffect(() => {
+    if (!filtersAsked) return;
+    setSheet(true);
+    setFiltersAsked(false);
+  }, [filtersAsked, setFiltersAsked]);
   const [page, setPage] = useState(1);
   const [q, setQ] = useState(query ?? "");
   const router = useRouter();
@@ -177,14 +187,14 @@ export function ShopView({ products, category, query }: { products: Product[]; c
       <section id="resultats" className="scroll-mt-32 bg-akua-white pt-5 pb-10 md:pt-8"><div className="container-akua">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[272px_minmax(0,1fr)] lg:gap-8">
           <aside className="hidden lg:block" aria-label="Filtres">
-            <div className="sticky top-[140px] max-h-[calc(100vh-160px)] overflow-y-auto overscroll-contain rounded-[24px] bg-akua-white p-5 pb-2 ring-1 ring-akua-gray-200 no-scrollbar">
+            <div className="sticky top-[140px] max-h-[calc(100vh-160px)] overflow-y-auto overscroll-contain rounded-[12px] bg-akua-white p-5 pb-2 ring-1 ring-akua-gray-200 no-scrollbar">
               <ShopFilters category={category} />
             </div>
           </aside>
 
           <div className="min-w-0">
             {/* barre d'outils */}
-            <div className="flex items-center justify-between gap-2 rounded-[20px] bg-akua-page p-1.5 sm:pl-5">
+            <div className="flex items-center justify-between gap-2 rounded-[12px] bg-akua-page p-1.5 sm:pl-5">
               <p className="hidden text-[14px] text-akua-gray-500 sm:block">
                 <span className="font-semibold text-akua-ink">{products.length}</span> produit{products.length > 1 ? "s" : ""}
               </p>
@@ -269,7 +279,7 @@ export function ShopView({ products, category, query }: { products: Product[]; c
       </section>
 
       <Sheet open={sheet} onOpenChange={setSheet}>
-        <SheetContent side="bottom" className="max-h-[88vh] gap-0 rounded-t-[28px] border-0 p-0 [&>button]:hidden">
+        <SheetContent side="bottom" className="max-h-[88vh] gap-0 rounded-t-[12px] border-0 p-0 [&>button]:hidden">
           <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-akua-gray-200" />
           <div className="flex items-center justify-between px-5 pt-3 pb-2">
             <SheetTitle className="font-display text-[20px] font-semibold">Filtres</SheetTitle>
@@ -281,7 +291,7 @@ export function ShopView({ products, category, query }: { products: Product[]; c
             <ShopFilters category={category} inSheet />
           </div>
           <div className="border-t border-akua-gray-200 p-4">
-            <button type="button" onClick={() => setSheet(false)} className="btn-shine h-12 w-full rounded-full bg-akua-ink font-semibold text-akua-white">
+            <button type="button" onClick={() => setSheet(false)} className="btn-shine h-12 w-full rounded-[10px] bg-akua-ink font-semibold text-akua-white">
               Voir {products.length} produits
             </button>
           </div>

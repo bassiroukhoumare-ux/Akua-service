@@ -41,7 +41,7 @@ export function PasswordForm({ first = false }: { first?: boolean }) {
     if (first) window.setTimeout(() => router.refresh(), 1400);
   }
 
-  const field = "h-12 w-full rounded-2xl border border-akua-gray-200 bg-akua-white px-4 text-[16px] outline-none transition-colors focus:border-akua-blue focus:ring-4 focus:ring-akua-blue/10 sm:text-[15px]";
+  const field = "h-12 w-full rounded-[10px] border border-akua-gray-200 bg-akua-white px-4 text-[16px] outline-none transition-colors focus:border-akua-blue focus:ring-4 focus:ring-akua-blue/10 sm:text-[15px]";
 
   if (done) {
     return (
@@ -58,7 +58,7 @@ export function PasswordForm({ first = false }: { first?: boolean }) {
   return (
     <form onSubmit={submit} noValidate className="flex flex-col gap-4">
       {error && (
-        <p role="alert" className="rounded-2xl bg-akua-red/8 px-4 py-3 text-[13.5px] font-medium text-akua-red">
+        <p role="alert" className="rounded-[10px] bg-akua-red/8 px-4 py-3 text-[13.5px] font-medium text-akua-red">
           {error}
         </p>
       )}

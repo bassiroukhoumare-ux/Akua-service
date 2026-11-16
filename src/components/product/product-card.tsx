@@ -72,24 +72,23 @@ export function ProductCard({ product, className, priority, sizes = "(min-width:
   return (
     <article
       className={cn(
-        "group @container relative flex h-full flex-col rounded-[20px] border border-akua-gray-200 bg-akua-white p-1.5 transition-[border-color,box-shadow,transform] duration-500 ease-akua md:p-2",
-        "hover:-translate-y-0.5 hover:border-akua-ink/15 hover:shadow-[0_22px_44px_-26px_rgb(11_16_32/0.4)]",
+        "glow-card group @container flex h-full flex-col overflow-hidden rounded-[12px] border border-akua-gray-200 bg-akua-white",
         className,
       )}
     >
       {/* visuel */}
-      <div className="relative aspect-square overflow-hidden rounded-[15px] bg-[radial-gradient(circle_at_50%_40%,var(--akua-white)_0%,var(--akua-tile)_72%)]">
-        <Link href={href} aria-label={product.name} className="absolute inset-0 transition-transform duration-700 ease-akua group-hover:scale-[1.05]">
+      <div className="relative aspect-square overflow-hidden border-b border-akua-gray-200 bg-akua-tile">
+        <Link href={href} aria-label={product.name} className="absolute inset-0 transition-transform duration-700 ease-akua group-hover:scale-[1.07]">
           <ProductVisual product={product} sizes={sizes} priority={priority} inset="p-[11%]" />
         </Link>
         <CardBadges product={product} className="pointer-events-none absolute top-2.5 left-2.5" />
-        <FavoriteButton productId={product.id} className="absolute top-2 right-2 size-8 rounded-full @min-[250px]:size-9" />
+        <FavoriteButton productId={product.id} className="absolute top-2 right-2 size-8 rounded-full" />
       </div>
 
       {/* informations */}
-      <div className="flex flex-1 flex-col px-1.5 pt-3 pb-1 @min-[250px]:px-2 @min-[250px]:pt-3.5">
-        <p className="truncate text-[10px] font-medium tracking-[0.08em] text-akua-gray-500/90 uppercase @min-[250px]:text-[10.5px]">{shelfLabel(product, categories)}</p>
-        <h3 className="mt-1 line-clamp-2 min-h-[2.6em] text-[15px] leading-[1.28] font-bold tracking-[-0.015em] text-akua-ink @min-[250px]:text-[17px]">
+      <div className="flex flex-1 flex-col p-3 @min-[250px]:p-4">
+        <p className="truncate text-[10px] font-semibold tracking-[0.1em] text-akua-gray-500 uppercase @min-[250px]:text-[10.5px]">{shelfLabel(product, categories)}</p>
+        <h3 className="mt-1 line-clamp-2 min-h-[2.6em] text-[13.5px] leading-[1.3] font-semibold text-akua-ink @min-[250px]:text-[15px]">
           <Link href={href} className="transition-colors hover:text-akua-blue">
             {product.name}
           </Link>
@@ -98,12 +97,12 @@ export function ProductCard({ product, className, priority, sizes = "(min-width:
           <ProductRating productId={product.id} className="text-[12px]" size="size-3.5" fallback={<StockText product={product} className="text-[12px]" />} />
         </div>
 
-        <div className="mt-auto flex items-center justify-between gap-2 pt-3">
-          <div className="min-w-0">
-            <p className={cn("truncate text-[18px] leading-tight font-extrabold tracking-[-0.02em] tabular-nums @min-[250px]:text-[22px]", promo ? "text-akua-blue" : "text-akua-ink")}>{money(product.price)}</p>
-            {promo && <p className="mt-0.5 text-[11.5px] leading-tight text-akua-gray-500 line-through tabular-nums @min-[250px]:text-[12.5px]">{money(product.compareAtPrice!)}</p>}
-          </div>
-          <AddToCartButton product={product} variant="compact" label="Ajouter" />
+        <div className="mt-auto pt-3">
+          <p className="flex flex-wrap items-baseline gap-x-2">
+            <span className="font-num text-[17px] leading-tight font-extrabold tracking-[-0.03em] text-akua-blue tabular-nums @min-[250px]:text-[20px]">{money(product.price)}</span>
+            {promo && <span className="text-[11.5px] leading-tight text-akua-gray-500 line-through tabular-nums @min-[250px]:text-[12.5px]">{money(product.compareAtPrice!)}</span>}
+          </p>
+          <AddToCartButton product={product} variant="block" label="Ajouter au panier" className="mt-3" />
         </div>
       </div>
     </article>

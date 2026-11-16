@@ -15,7 +15,7 @@ import { getCategoryIcon } from "@/lib/icons";
 import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
 import { useAdminCatalog } from "@/store/admin-catalog";
-import { HOME_SECTION_META, type HomeSection, type LinkKind, newSlideId, ORIGINAL_SLIDES, type Slide, SLOTS, type SlotId, useAdminHome } from "@/store/admin-home";
+import { HERO_FORMAT, HERO_SLOTS, HOME_SECTION_META, type HomeSection, type LinkKind, newSlideId, ORIGINAL_SLIDES, type Slide, SLOTS, type SlotId, useAdminHome } from "@/store/admin-home";
 import { useAdmin, useCan } from "../actor-context";
 import { ReadOnlyNotice } from "../read-only";
 import { Field, inputCls, Segmented } from "../form";
@@ -55,21 +55,22 @@ function useLinkLabel() {
 type Source = "upload" | "link";
 
 /**
- * Remplacement d'un visuel image ou vidéo de l'accueil. Plus affiché : la bannière est désormais automatique.
- * Conservé pour pouvoir revenir facilement à une bannière image si besoin.
+ * Ajout ou remplacement d'un visuel (image ou vidéo) de l'accueil : une des 3 bannières.
+ * Un emplacement vide n'affiche rien ; l'image importée est recadrée au format de l'emplacement.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function SlotEditor({ slot }: { slot: SlotId }) {
   const { actor, base } = useAdmin();
   const canReplace = useCan()("home", "replace");
-  const current = useAdminHome((s) => s.slides[slot][0]);
+  const current = useAdminHome((s) => s.slides[slot]?.[0]);
   const setSlot = useAdminHome((s) => s.setSlot);
   const categories = useAdminCatalog((s) => s.categories);
   const products = useAdminCatalog((s) => s.products);
   const linkLabel = useLinkLabel();
   const meta = SLOTS[slot];
-  const original = ORIGINAL_SLIDES[slot][0];
-  const isOriginal = current?.image === original.image && (current?.media ?? "image") === "image";
+  // les bannières n'ont pas de visuel de départ : l'emplacement est simplement vide
+  const original = ORIGINAL_SLIDES[slot][0] as Slide | undefined;
+  const empty = !current && !original;
+  const isOriginal = original ? current?.image === original.image && (current?.media ?? "image") === "image" : !current;
   const input = useRef<HTMLInputElement>(null);
 
   const [editing, setEditing] = useState(false);
@@ -127,7 +128,7 @@ function SlotEditor({ slot }: { slot: SlotId }) {
     setError("");
     if ((linkKind === "category" || linkKind === "product" || linkKind === "page") && !link) return setError("Choisissez la destination du lien au clic.");
     if (linkKind === "url" && !/^https?:\/\/\S+\.\S+/.test(link.trim())) return setError("Lien au clic : saisissez une adresse complète, commençant par https://");
-    let src = current?.image ?? original.image;
+    let src = current?.image ?? original?.image ?? "";
     const changingMedia = source === "upload" ? !!file : !!url.trim();
     if (source === "link" && url.trim() && !linkOk)
       return setError(media === "image" ? "Saisissez l'adresse complète d'une image, commençant par https://" : "Saisissez un lien YouTube ou l'adresse directe d'un fichier vidéo (.mp4, .webm).");
@@ -142,6 +143,7 @@ function SlotEditor({ slot }: { slot: SlotId }) {
       setProgress(null);
       return setError((e as Error).message || "Envoi impossible. Vérifiez votre connexion et réessayez.");
     }
+    if (!src) return setError(media === "video" ? "Importez une vidéo ou collez son lien." : "Importez une image ou collez son lien.");
     setSlot(slot, { id: current?.id ?? newSlideId(), media, image: src, alt: alt.trim(), linkKind, link: linkKind === "url" ? link.trim() : link, active: true }, actor);
     setProgress(null);
     setEditing(false);
@@ -149,12 +151,12 @@ function SlotEditor({ slot }: { slot: SlotId }) {
     window.setTimeout(() => setSaved(false), 2600);
   }
 
-  const shown = editing && preview ? { src: preview, media: source === "upload" ? (file?.kind ?? media) : media } : { src: current?.image ?? original.image, media: current?.media ?? "image" };
+  const shown = editing && preview ? { src: preview, media: source === "upload" ? (file?.kind ?? media) : media } : { src: current?.image ?? original?.image ?? "", media: current?.media ?? "image" };
   const pos = axis === "x" ? `${focus}% 50%` : `50% ${focus}%`;
   const MediaIcon = shown.media === "video" ? Film : ImageIcon;
 
   return (
-    <section className="rounded-[26px] border border-akua-gray-200/90 bg-akua-white p-5 shadow-[0_1px_2px_rgb(11_16_32/0.03),0_14px_34px_-28px_rgb(11_16_32/0.22)] md:p-6">
+    <section className="rounded-[12px] border border-akua-gray-200/90 bg-akua-white p-5 shadow-[0_1px_2px_rgb(11_16_32/0.03),0_14px_34px_-28px_rgb(11_16_32/0.22)] md:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="flex flex-wrap items-center gap-2 text-[17px] font-bold">
@@ -164,19 +166,29 @@ function SlotEditor({ slot }: { slot: SlotId }) {
         </div>
         <span className={cn("inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 text-[12px] font-semibold", saved ? "bg-akua-whatsapp/12 text-[#128c4a]" : "bg-akua-page text-akua-gray-500")}>
           {saved ? <Check aria-hidden className="size-3.5" strokeWidth={2.6} /> : <MediaIcon aria-hidden className="size-3.5" strokeWidth={2} />}
-          {saved ? "Enregistré" : `${shown.media === "video" ? "Vidéo" : "Image"}${isOriginal ? " d'origine" : ""}`}
+          {saved ? "Enregistré" : empty ? "Emplacement vide" : original ? `${shown.media === "video" ? "Vidéo" : "Image"}${isOriginal ? " d'origine" : ""}` : "En ligne sur l'accueil"}
         </span>
       </div>
 
       <div className={cn("mt-5 grid gap-5", slot === "poster" ? "md:grid-cols-[260px_minmax(0,1fr)]" : "")}>
         {/* aperçu */}
         <div>
-          <div className="relative overflow-hidden rounded-[20px] border border-akua-gray-200 bg-akua-page" style={{ aspectRatio: String(meta.ratio) }}>
+          <div className="relative overflow-hidden rounded-[12px] border border-akua-gray-200 bg-akua-page" style={{ aspectRatio: String(meta.ratio) }}>
             {editing && source === "upload" && file?.kind === "image" ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={file.preview} alt="" className="absolute inset-0 size-full object-cover" style={{ objectPosition: pos }} />
-            ) : (
+            ) : shown.src ? (
               <HomeMedia key={shown.src} src={shown.src} alt="" media={shown.media} fit={slot === "poster" && shown.media === "image" ? "contain" : "cover"} sizes="600px" />
+            ) : (
+              <div className="absolute inset-0 grid place-items-center text-center text-akua-gray-500">
+                <span>
+                  <ImageIcon aria-hidden className="mx-auto size-7" strokeWidth={1.5} />
+                  <span className="mt-1.5 block text-[13px] font-semibold text-akua-ink">Aucun visuel</span>
+                  <span className="block text-[12px] tabular-nums">
+                    {meta.width} × {meta.height} px · {meta.ratioLabel}
+                  </span>
+                </span>
+              </div>
             )}
             {progress !== null && (
               <div className="absolute inset-0 grid place-items-center bg-akua-ink/55 backdrop-blur-[2px]">
@@ -212,11 +224,11 @@ function SlotEditor({ slot }: { slot: SlotId }) {
             </p>
             <div className={cn("flex flex-wrap gap-2", !canReplace && "hidden")}>
               <button type="button" onClick={start} className={btn({ variant: "primary", size: "md" })}>
-                <RefreshCw aria-hidden className="size-4" /> Remplacer
+                {empty ? <Upload aria-hidden className="size-4" /> : <RefreshCw aria-hidden className="size-4" />} {empty ? "Ajouter un visuel" : "Remplacer"}
               </button>
               {!isOriginal && (
                 <button type="button" onClick={() => setConfirmReset(true)} className={btn({ variant: "outline", size: "md" })}>
-                  <RotateCcw aria-hidden className="size-4" /> Visuel d&apos;origine
+                  <RotateCcw aria-hidden className="size-4" /> {original ? "Visuel d'origine" : "Retirer"}
                 </button>
               )}
             </div>
@@ -331,7 +343,7 @@ function SlotEditor({ slot }: { slot: SlotId }) {
               <input id={`alt-${slot}`} value={alt} onChange={(e) => setAlt(e.target.value)} className={inputCls()} />
             </Field>
 
-            {error && <p className="rounded-2xl bg-akua-red/8 px-4 py-3 text-[13.5px] font-medium text-akua-red">{error}</p>}
+            {error && <p className="rounded-[10px] bg-akua-red/8 px-4 py-3 text-[13.5px] font-medium text-akua-red">{error}</p>}
             <div className="flex flex-wrap gap-2 pt-1">
               <button type="button" onClick={() => void save()} disabled={progress !== null} className={btn({ variant: "primary", size: "md" })}>
                 <Check aria-hidden className="size-4" /> {progress !== null ? "Envoi en cours…" : "Enregistrer"}
@@ -347,9 +359,9 @@ function SlotEditor({ slot }: { slot: SlotId }) {
       <ConfirmDialog
         open={confirmReset}
         onOpenChange={setConfirmReset}
-        title="Remettre le visuel d'origine ?"
-        description={`${meta.label} reprendra son visuel de départ sur l'accueil.`}
-        confirmLabel="Remettre"
+        title={original ? "Remettre le visuel d'origine ?" : `Retirer ${meta.label} ?`}
+        description={original ? `${meta.label} reprendra son visuel de départ sur l'accueil.` : "Ce visuel ne sera plus affiché sur l'accueil. S'il ne reste aucune bannière, le site reprend ses bannières automatiques."}
+        confirmLabel={original ? "Remettre" : "Retirer"}
         onConfirm={() => {
           setSlot(slot, null, actor);
           setConfirmReset(false);
@@ -366,8 +378,9 @@ function LayoutPreview() {
   const categories = useAdminCatalog((s) => s.categories);
   // les promos ne sont pas une tuile sur l'accueil
   const cats = [...categories].filter((c) => c.slug !== "promos").sort((a, b) => a.order - b.order).slice(0, 8);
+  const custom = useAdminHome((s) => HERO_SLOTS.filter((k) => s.slides[k]?.[0]?.active && s.slides[k]?.[0]?.image).length);
   return (
-    <div className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
+    <div className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
       <div className="flex items-center justify-between gap-3">
         <p className="text-[11px] font-bold tracking-[0.12em] text-akua-gray-500 uppercase">Haut de l&apos;accueil sur ordinateur</p>
         <Link href="/" target="_blank" className="inline-flex items-center gap-1 text-[13px] font-semibold text-akua-blue">
@@ -392,12 +405,12 @@ function LayoutPreview() {
             );
           })}
         </div>
-        <div className="mt-2.5 flex aspect-[4/1] items-center justify-between gap-3 overflow-hidden rounded-[12px] bg-[radial-gradient(120%_140%_at_85%_50%,#3b7bff_0%,var(--akua-blue)_45%,#0b3fd1_100%)] px-4 text-akua-white">
+        <div className="mt-2.5 flex aspect-[16/5] items-center justify-between gap-3 overflow-hidden rounded-[10px] bg-akua-blue-100 px-4 text-akua-ink">
           <span>
-            <span className="block text-[8px] font-bold tracking-[0.14em] uppercase opacity-80">Bannière automatique</span>
-            <span className="block text-[13px] font-extrabold">Offre du jour · Saison · Confiance</span>
+            <span className="block text-[8px] font-bold tracking-[0.14em] text-akua-blue uppercase">Bannières de l&apos;accueil</span>
+            <span className="block text-[13px] font-extrabold">{custom ? `${custom} visuel${custom > 1 ? "s" : ""} ajouté${custom > 1 ? "s" : ""}` : "Bannières automatiques du site"}</span>
           </span>
-          <span className="text-[9px] font-semibold opacity-80">3 visuels · 5 s chacun</span>
+          <span className="text-[9px] font-semibold text-akua-gray-500">Défilement toutes les 5 s</span>
         </div>
       </div>
     </div>
@@ -470,37 +483,38 @@ export function HomeEditor() {
   const sections = useAdminHome((s) => s.sections);
   // la FAQ et le bloc « Écrivez-nous » sont sur la page Contact : plus gérés ici
   const ordered = useMemo(() => sections.filter((s) => s.id !== "faq"), [sections]);
-  if (!hydrated) return <div className="h-[60vh] animate-pulse rounded-[24px] bg-akua-white" />;
+  if (!hydrated) return <div className="h-[60vh] animate-pulse rounded-[12px] bg-akua-white" />;
   return (
     <div className="flex flex-col gap-5 md:gap-6">
-      <PageHeader title="Accueil et bannières" description="Aperçu du haut de l'accueil, bannière automatique et sections de la page." />
+      <PageHeader title="Accueil et bannières" description="Aperçu du haut de l'accueil, bannières (jusqu'à 3) et sections de la page." />
       <ReadOnlyNotice module="home" />
       <LayoutPreview />
-      <section className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
-        <h2 className="text-[16.5px] font-bold">Bannière de l&apos;accueil</h2>
+      <section className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
+        <h2 className="text-[16.5px] font-bold">Bannières de l&apos;accueil</h2>
         <p className="mt-1 text-[13.5px] leading-relaxed text-akua-gray-500">
-          La bannière se compose toute seule de 3 visuels qui défilent toutes les 5 secondes, avec les vraies données du site : aucune image à préparer.
+          Ajoutez jusqu&apos;à 3 bannières : elles défilent toutes les 5 secondes, en glissant de droite à gauche. Tant qu&apos;aucun visuel n&apos;est ajouté, le site affiche ses 3 bannières automatiques (promotion, saison,
+          confiance). Dès qu&apos;un visuel est ajouté, les bannières automatiques disparaissent et seuls vos visuels s&apos;affichent.
         </p>
-        <ul className="mt-4 grid gap-2.5 md:grid-cols-3">
+        <dl className="mt-4 grid gap-2.5 sm:grid-cols-3">
           {[
-            { t: "Offre du jour", d: "Le produit le plus remisé parmi ceux choisis dans « Offre spéciale », avec un compte à rebours qui repart chaque nuit à minuit." },
-            { t: "Catégorie de saison", d: "Change selon le mois : fêtes en novembre et décembre, nouvelle année, rentrée… avec 3 produits et le prix de départ." },
-            { t: "Confiance", d: "Produits testés et garantis, livraison et expédition, retrait en boutique, avec « Découvrir la boutique » et « Nous écrire »." },
-          ].map((x, i) => (
-            <li key={x.t} className="rounded-2xl bg-akua-page p-4">
-              <p className="flex items-center gap-2 text-[14px] font-bold">
-                <span className="grid size-6 place-items-center rounded-full bg-akua-ink text-[12px] text-akua-white">{i + 1}</span>
-                {x.t}
-              </p>
-              <p className="mt-1.5 text-[12.5px] leading-snug text-akua-gray-500">{x.d}</p>
-            </li>
+            { t: "Format à créer", d: `${HERO_FORMAT.width} × ${HERO_FORMAT.height} px` },
+            { t: "Proportion", d: `${HERO_FORMAT.ratioLabel} (paysage)` },
+            { t: "Fichier", d: "JPG, PNG ou WebP" },
+          ].map((x) => (
+            <div key={x.t} className="rounded-[12px] border border-akua-gray-200 px-4 py-3">
+              <dt className="text-[11px] font-bold tracking-[0.1em] text-akua-gray-500 uppercase">{x.t}</dt>
+              <dd className="mt-0.5 text-[15px] font-bold tabular-nums">{x.d}</dd>
+            </div>
           ))}
-        </ul>
-        <Link href="/spaceakua/offre-speciale" className="mt-4 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-akua-blue">
-          Choisir les produits de l&apos;offre du jour <ArrowUpRight aria-hidden className="size-3.5" />
-        </Link>
+        </dl>
+        <p className="mt-3 text-[12.5px] leading-snug text-akua-gray-500">
+          Conseil pour la création : gardez le texte et les éléments importants au centre de l&apos;affiche. Sur téléphone, la bannière garde exactement la même forme, en plus petit : évitez donc les petits textes.
+        </p>
       </section>
-      <section className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
+      {HERO_SLOTS.map((slot) => (
+        <SlotEditor key={slot} slot={slot} />
+      ))}
+      <section className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
         <h2 className="text-[16.5px] font-bold">Sections de l&apos;accueil</h2>
         <p className="mt-0.5 text-[13px] text-akua-gray-500">Affichez ou masquez chaque section, et modifiez leurs titres.</p>
         <ul className="mt-5 divide-y divide-akua-gray-200">

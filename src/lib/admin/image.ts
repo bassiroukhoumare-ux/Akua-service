@@ -44,7 +44,9 @@ export async function cropToRatio(src: string, ratio: number, outW: number, focu
   const ctx = c.getContext("2d")!;
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(img, sx, sy, sw, sh, 0, 0, c.width, c.height);
-  return c.toDataURL("image/webp", 0.85);
+  // Safari ne sait pas produire du WebP et renvoie alors un PNG très lourd : on passe en JPEG
+  const webp = c.toDataURL("image/webp", 0.85);
+  return webp.startsWith("data:image/webp") ? webp : c.toDataURL("image/jpeg", 0.88);
 }
 
 /** Axe qui dépasse du cadre : la position se règle sur cet axe. */

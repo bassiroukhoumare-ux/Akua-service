@@ -1,11 +1,10 @@
 "use client";
 
-import { ArrowUpRight, Clock, Globe2, MapPin, Navigation } from "lucide-react";
+import { ArrowUpRight, Clock, Globe2, MapPin, MessagesSquare, Navigation } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/ui/logo";
 import { useCatalog } from "@/components/catalog-provider";
 import { useShopSettings } from "@/components/shop-settings-provider";
-import { WhatsAppContactButton } from "@/components/shop/whatsapp-contact-dialog";
 import { SocialBrandBadge } from "@/components/ui/social-brand";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import { summarizeHours } from "@/lib/shop-settings";
@@ -30,7 +29,7 @@ const LEGAL = [
   { label: "Politique de confidentialité", href: "/politique-de-confidentialite" },
 ];
 
-const cardCls = "flex min-w-0 flex-col rounded-[22px] border border-akua-gray-200 bg-akua-white p-5";
+const cardCls = "glow-card flex min-w-0 flex-col rounded-[12px] border border-akua-gray-200 bg-akua-white p-5 md:p-6";
 const cardTitle = "flex items-center gap-2.5 text-[12px] font-semibold tracking-[0.12em] text-akua-gray-500 uppercase";
 
 function LinkCol({ title, links }: { title: string; links: { label: string; href: string }[] }) {
@@ -59,9 +58,30 @@ export function Footer() {
   const universes = categories.filter((c) => c.slug !== "promos").map((c) => ({ label: c.name, href: `/boutique/${c.slug}` }));
 
   return (
-    <footer className="mt-16 bg-akua-page pb-[calc(80px+env(safe-area-inset-bottom))] md:mt-24 lg:pb-0">
+    <footer className="mt-12 bg-akua-white pb-[calc(80px+env(safe-area-inset-bottom))] md:mt-16 lg:pb-0">
+      {/* 0. Bande bleue : une question, un bouton */}
+      <div className="bg-akua-blue">
+        <div className="container-akua flex flex-col items-start gap-4 py-6 sm:flex-row sm:items-center sm:justify-between md:py-7">
+          <div className="flex items-center gap-4 text-akua-white">
+            <MessagesSquare aria-hidden className="hidden size-10 shrink-0 sm:block" strokeWidth={1.4} />
+            <div>
+              <p className="font-num text-[17px] leading-tight font-extrabold tracking-[-0.01em] uppercase md:text-[20px]">Une question avant de commander ?</p>
+              <p className="mt-1 text-[13.5px] text-akua-white/85">Commandes, devis et conseils : on vous répond vite sur WhatsApp.</p>
+            </div>
+          </div>
+          <a
+            href={`https://wa.me/${s.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent("Bonjour AKUA.SERVICE, j'ai une question.")}`}
+            target="_blank"
+            rel="noopener"
+            className="btn-shine inline-flex h-12 w-full shrink-0 items-center justify-center gap-2.5 rounded-[10px] bg-akua-white px-5 text-[14px] font-bold text-akua-ink transition-shadow [--shine:rgb(31_91_255/0.25)] hover:shadow-[0_0_0_4px_rgb(255_255_255/0.25),0_14px_30px_-12px_rgb(7_8_12/0.6)] sm:w-auto"
+          >
+            <WhatsAppIcon size={20} variant="color" /> <span className="relative z-[2]">Écrivez-nous sur WhatsApp</span>
+          </a>
+        </div>
+      </div>
+
       {/* 1. Infos pratiques */}
-      <div className="container-akua grid gap-3 pt-10 md:grid-cols-3 md:pt-14">
+      <div className="container-akua grid gap-3 pt-10 md:grid-cols-2 md:pt-12">
         <div className={cardCls}>
           <p className={cardTitle}>
             <MapPin aria-hidden className="size-4 text-akua-blue" strokeWidth={2} /> Notre boutique
@@ -87,18 +107,6 @@ export function Footer() {
           </ul>
         </div>
 
-        <div className={cardCls}>
-          <p className={cardTitle}>
-            <WhatsAppIcon size={16} variant="color" /> Une question ?
-          </p>
-          <p className="mt-3 text-[17px] font-bold text-akua-ink tabular-nums">{s.whatsapp}</p>
-          <p className="mt-1 text-[13px] text-akua-gray-500">Commandes, devis et conseils : on vous répond vite.</p>
-          <div className="mt-auto pt-4">
-            <WhatsAppContactButton className="inline-flex h-10 items-center gap-2 rounded-full bg-akua-whatsapp px-4 text-[13.5px] font-semibold text-akua-white transition-shadow hover:shadow-[0_10px_24px_-10px_rgb(37_211_102/0.7)]">
-              <WhatsAppIcon size={16} /> Écrire sur WhatsApp
-            </WhatsAppContactButton>
-          </div>
-        </div>
       </div>
 
       {/* 2. Marque et liens */}

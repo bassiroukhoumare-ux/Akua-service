@@ -12,7 +12,7 @@ import { btn } from "@/lib/btn";
 
 export const metadata: Metadata = { title: "Contact", description: "Contactez AKUA.SERVICE sur WhatsApp : notre équipe vous répond rapidement." };
 
-const card = "rounded-[28px] border border-akua-gray-200 bg-akua-white";
+const card = "rounded-[12px] border border-akua-gray-200 bg-akua-white";
 
 export default async function ContactPage() {
   const s = await loadSettings();
@@ -38,7 +38,7 @@ export default async function ContactPage() {
 
       {/* 1. Écrivez-nous */}
       <section className="container-akua pt-5 md:pt-8">
-        <div className="relative overflow-hidden rounded-[30px] bg-akua-blue-100 px-6 py-9 md:px-12 md:py-14">
+        <div className="relative overflow-hidden rounded-[12px] bg-akua-blue-100 px-6 py-9 md:px-12 md:py-14">
           <div aria-hidden className="bg-grid absolute inset-0 opacity-60 [mask-image:radial-gradient(ellipse_at_top_right,black,transparent_70%)]" />
           <div className="relative grid items-end gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-12">
             <div>
@@ -126,10 +126,9 @@ export default async function ContactPage() {
 
       {/* 4. Devis */}
       <section className="container-akua pt-4 md:pt-5">
-        <div className="relative flex flex-col gap-6 overflow-hidden rounded-[28px] bg-akua-ink p-6 text-akua-white md:flex-row md:items-center md:justify-between md:p-10">
-          <div aria-hidden className="absolute -top-24 -right-24 size-72 rounded-full bg-akua-blue/25 blur-3xl" />
+        <div className="relative flex flex-col gap-6 overflow-hidden rounded-[12px] bg-akua-ink p-6 text-akua-white md:flex-row md:items-center md:justify-between md:p-10">
           <div className="relative">
-            <p className="text-[24px] leading-tight font-extrabold tracking-[-0.03em] md:text-[30px]">Vous voulez acheter en gros ?</p>
+            <p className="text-[24px] leading-tight font-extrabold tracking-[-0.03em] md:text-[30px]">Vous voulez acheter en&nbsp;gros&nbsp;?</p>
             <p className="mt-2 max-w-xl text-[14.5px] text-akua-white/70">Revendeur, entreprise ou école : choisissez vos produits et vos quantités, nous vous envoyons nos meilleurs tarifs.</p>
           </div>
           <Link href="/vente-en-gros" className={btn({ variant: "primary", size: "lg", className: "relative h-14 w-full shrink-0 px-7 md:w-auto" })}>

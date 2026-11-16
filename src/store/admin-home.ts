@@ -14,10 +14,18 @@ import type { AdminModuleId } from "@/config/admin";
 import { type Actor, type StoredActivity, useAdminCatalog } from "./admin-catalog";
 
 /** Emplacements d'image de l'accueil et leur format imposé. */
-export type SlotId = "poster" | "banner";
+export type SlotId = "poster" | "banner" | "hero1" | "hero2" | "hero3";
+/** Les 3 bannières de l'accueil, dans l'ordre de défilement. */
+export const HERO_SLOTS = ["hero1", "hero2", "hero3"] as const;
+/** Format des bannières de l'accueil : 16:5, soit 1920 × 600 px. */
+export const HERO_FORMAT = { ratio: 16 / 5, ratioLabel: "16:5", width: 1920, height: 600 };
+const heroHint = "Format 1920 × 600 px (16:5). L'image est recadrée automatiquement à ce format.";
 export const SLOTS: Record<SlotId, { label: string; ratio: number; ratioLabel: string; width: number; height: number; hint: string }> = {
   poster: { label: "Affiche portrait", ratio: 4 / 5, ratioLabel: "4:5", width: 1200, height: 1500, hint: "À droite de la bannière sur ordinateur, sous la bannière sur mobile." },
   banner: { label: "Bannière horizontale", ratio: 3, ratioLabel: "3:1", width: 1500, height: 500, hint: "Juste sous les catégories, sur ordinateur et sur mobile." },
+  hero1: { label: "Bannière 1", ...HERO_FORMAT, hint: heroHint },
+  hero2: { label: "Bannière 2", ...HERO_FORMAT, hint: heroHint },
+  hero3: { label: "Bannière 3", ...HERO_FORMAT, hint: heroHint },
 };
 
 export type LinkKind = "category" | "product" | "page" | "url" | "none";
@@ -121,9 +129,13 @@ const initialSections: HomeSection[] = [
 export const ORIGINAL_SLIDES: Record<SlotId, Slide[]> = {
   poster: [{ id: "s-poster-1", image: HOME_VISUAL.src, alt: HOME_VISUAL.alt, linkKind: "category", link: "consoles", active: true }],
   banner: [{ id: "s-banner-1", image: HOME_BANNER.src, alt: HOME_BANNER.alt, linkKind: "page", link: "/boutique", active: true }],
+  // vides au départ : tant qu'aucun visuel n'est ajouté, le site garde ses bannières automatiques
+  hero1: [],
+  hero2: [],
+  hero3: [],
 };
 
-const slotName = (slot: SlotId) => (slot === "poster" ? "Affiche portrait" : "Bannière horizontale");
+const slotName = (slot: SlotId) => SLOTS[slot].label;
 
 export const useAdminHome = create<AdminHome>()(
   persist(

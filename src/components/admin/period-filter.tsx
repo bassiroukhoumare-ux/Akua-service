@@ -305,7 +305,7 @@ export function PeriodFilter({ value, onChange, className }: { value: PeriodValu
             align="end"
             sideOffset={10}
             collisionPadding={12}
-            className="z-50 w-[calc(100vw-24px)] max-w-[780px] overflow-hidden rounded-[26px] border border-akua-gray-200 bg-akua-white text-akua-ink shadow-[0_40px_90px_-30px_rgb(11_16_32/0.45)] outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-[0.97] md:w-auto"
+            className="z-50 w-[calc(100vw-24px)] max-w-[780px] overflow-hidden rounded-[12px] border border-akua-gray-200 bg-akua-white text-akua-ink shadow-[0_40px_90px_-30px_rgb(11_16_32/0.45)] outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-[0.97] md:w-auto"
           >
             <CalendarPanel
               value={value}

@@ -111,7 +111,7 @@ function toDraft(p?: Product, pack?: boolean): Draft {
 
 function Section({ n, title, description, children }: { n: number; title: string; description?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
+    <section className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
       <div className="mb-5 flex items-start gap-3">
         <span className="grid size-7 shrink-0 place-items-center rounded-full bg-akua-ink text-[12.5px] font-bold text-akua-white">{n}</span>
         <div>
@@ -242,11 +242,11 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
   }
 
   if (!hydrated || !loaded) {
-    return <div className="h-[60vh] animate-pulse rounded-[24px] bg-akua-white" />;
+    return <div className="h-[60vh] animate-pulse rounded-[12px] bg-akua-white" />;
   }
   if (productId && !existing) {
     return (
-      <div className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-10 text-center">
+      <div className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-10 text-center">
         <p className="text-[18px] font-bold">Produit introuvable</p>
         <p className="mt-1 text-[14px] text-akua-gray-500">Il a peut-être été supprimé.</p>
         <Link href={listHref} className={btn({ variant: "outline", size: "md", className: "mt-5" })}>
@@ -261,7 +261,7 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
   const canDelete = !!existing && can("products", "delete");
   if (!existing && !canSave) {
     return (
-      <div className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-10 text-center">
+      <div className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-10 text-center">
         <p className="text-[18px] font-bold">Ajout réservé au responsable</p>
         <p className="mt-1 text-[14px] text-akua-gray-500">Vous n&apos;avez pas le droit d&apos;ajouter des produits ou des packs.</p>
         <Link href={listHref} className={btn({ variant: "outline", size: "md", className: "mt-5" })}>
@@ -554,13 +554,13 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
         {/* aperçu */}
         <aside className="lg:sticky lg:top-[96px]">
           <fieldset disabled={!canSave} className="m-0 flex min-w-0 flex-col gap-4 border-0 p-0">
-          <div className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5">
+          <div className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-5">
             <p className="text-[11px] font-bold tracking-[0.12em] text-akua-gray-500 uppercase">Aperçu sur le site</p>
             <div className="pointer-events-none mx-auto mt-3 max-w-[260px] select-none" aria-hidden>
               <ProductCard product={{ ...preview, name: preview.name || (d.isPack ? "Nom du pack" : "Nom du produit"), images: d.images }} sizes="260px" />
             </div>
           </div>
-          <div className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5">
+          <div className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-5">
             <Toggle
               checked={d.published}
               onChange={(v) => set("published", v)}

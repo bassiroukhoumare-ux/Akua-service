@@ -175,7 +175,7 @@ function MemberDialog({
 
   const field = (err?: string) =>
     cn(
-      "h-12 w-full rounded-2xl border bg-akua-white px-4 text-[16px] outline-none transition-colors placeholder:text-akua-gray-500 focus:border-akua-blue focus:ring-4 focus:ring-akua-blue/10 sm:text-[15px]",
+      "h-12 w-full rounded-[10px] border bg-akua-white px-4 text-[16px] outline-none transition-colors placeholder:text-akua-gray-500 focus:border-akua-blue focus:ring-4 focus:ring-akua-blue/10 sm:text-[15px]",
       err ? "border-akua-red" : "border-akua-gray-200",
     );
 
@@ -184,7 +184,7 @@ function MemberDialog({
       <DialogContent
         showCloseButton={false}
         overlayClassName="bg-akua-ink/35 backdrop-blur-[6px] supports-backdrop-filter:backdrop-blur-[6px]"
-        className="flex max-h-[calc(100dvh-24px)] w-[calc(100%-24px)] max-w-[640px] flex-col gap-0 overflow-hidden rounded-[28px] border border-akua-gray-200 bg-akua-white p-0 text-akua-ink shadow-[0_40px_80px_-30px_rgb(11_16_32/0.45)] ring-0 sm:max-w-[640px]"
+        className="flex max-h-[calc(100dvh-24px)] w-[calc(100%-24px)] max-w-[640px] flex-col gap-0 overflow-hidden rounded-[12px] border border-akua-gray-200 bg-akua-white p-0 text-akua-ink shadow-[0_40px_80px_-30px_rgb(11_16_32/0.45)] ring-0 sm:max-w-[640px]"
       >
         <div className="flex items-start justify-between gap-4 border-b border-akua-gray-200 px-5 py-5 sm:px-7">
           <div>
@@ -313,7 +313,7 @@ function CredentialsDialog({ member, password, onClose }: { member: TeamMember |
       <DialogContent
         showCloseButton={false}
         overlayClassName="bg-akua-ink/35 backdrop-blur-[6px] supports-backdrop-filter:backdrop-blur-[6px]"
-        className="w-[calc(100%-24px)] max-w-[460px] gap-0 overflow-hidden rounded-[28px] border border-akua-gray-200 bg-akua-white p-0 text-akua-ink shadow-[0_40px_80px_-30px_rgb(11_16_32/0.45)] ring-0 sm:max-w-[460px]"
+        className="w-[calc(100%-24px)] max-w-[460px] gap-0 overflow-hidden rounded-[12px] border border-akua-gray-200 bg-akua-white p-0 text-akua-ink shadow-[0_40px_80px_-30px_rgb(11_16_32/0.45)] ring-0 sm:max-w-[460px]"
       >
         <div className="px-6 pt-7 pb-6 text-center sm:px-8">
           <span className="mx-auto grid size-14 place-items-center rounded-full bg-akua-blue-100">
@@ -397,7 +397,7 @@ function PortalLink() {
   useEffect(() => setOrigin(window.location.origin), []);
   const url = `${origin}${TEAM_BASE}`;
   return (
-    <div className="flex flex-col gap-3 rounded-[20px] border border-akua-gray-200 bg-akua-white p-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 rounded-[12px] border border-akua-gray-200 bg-akua-white p-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
         <p className="text-[13px] font-medium text-akua-gray-500">Portail de connexion des équipiers</p>
         <p className="truncate text-[15px] font-bold">{url.replace(/^https?:\/\//, "")}</p>
@@ -491,7 +491,7 @@ export function TeamView() {
           { t: "Envoyez-le sur WhatsApp", d: "Un mot de passe provisoire est créé, à lui transmettre en un clic." },
           { t: "Il choisit son mot de passe", d: "À sa première connexion, il remplace le mot de passe provisoire." },
         ].map((s, i) => (
-          <li key={s.t} className="flex gap-3.5 rounded-[20px] border border-akua-gray-200 bg-akua-white p-4">
+          <li key={s.t} className="flex gap-3.5 rounded-[12px] border border-akua-gray-200 bg-akua-white p-4">
             <span className="grid size-8 shrink-0 place-items-center rounded-full bg-akua-ink text-[13px] font-bold text-akua-white">{i + 1}</span>
             <div>
               <p className="text-[14.5px] font-bold">{s.t}</p>

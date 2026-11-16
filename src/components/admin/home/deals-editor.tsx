@@ -89,7 +89,7 @@ function ProductPicker({ open, onOpenChange, selected, onAdd }: { open: boolean;
       <DialogContent
         showCloseButton={false}
         overlayClassName="bg-akua-ink/35 backdrop-blur-[6px] supports-backdrop-filter:backdrop-blur-[6px]"
-        className="flex max-h-[calc(100dvh-24px)] w-[calc(100%-24px)] max-w-[560px] flex-col gap-0 overflow-hidden rounded-[28px] border border-akua-gray-200 bg-akua-white p-0 text-akua-ink shadow-[0_40px_80px_-30px_rgb(11_16_32/0.45)] ring-0 sm:max-w-[560px]"
+        className="flex max-h-[calc(100dvh-24px)] w-[calc(100%-24px)] max-w-[560px] flex-col gap-0 overflow-hidden rounded-[12px] border border-akua-gray-200 bg-akua-white p-0 text-akua-ink shadow-[0_40px_80px_-30px_rgb(11_16_32/0.45)] ring-0 sm:max-w-[560px]"
       >
         <div className="border-b border-akua-gray-200 px-5 pt-5 pb-4 sm:px-6">
           <div className="flex items-start justify-between gap-3">
@@ -190,7 +190,7 @@ function VideoCard({ title, value, onChange }: { title: string; value: string[];
     return s?.kind === "tiktok" ? `TikTok · ${s.id.slice(-6)}` : `Fichier vidéo · ${v.split("/").pop()}`;
   };
   return (
-    <div className="flex flex-col rounded-[20px] border border-akua-gray-200 p-4">
+    <div className="flex flex-col rounded-[12px] border border-akua-gray-200 p-4">
       <p className="flex items-center gap-2 text-[14.5px] font-bold">
         <Video aria-hidden className="size-4 text-akua-gray-500" /> {title}
       </p>
@@ -235,7 +235,7 @@ function VideoCard({ title, value, onChange }: { title: string; value: string[];
           aria-label={`Ajouter une vidéo à la ${title.toLowerCase()}`}
           className={cn(inputCls(error), "h-11 text-[14px]")}
         />
-        <button type="button" onClick={add} disabled={!draft.trim()} aria-label="Ajouter la vidéo" className="grid size-11 shrink-0 place-items-center rounded-2xl bg-akua-ink text-akua-white disabled:opacity-30">
+        <button type="button" onClick={add} disabled={!draft.trim()} aria-label="Ajouter la vidéo" className="grid size-11 shrink-0 place-items-center rounded-[10px] bg-akua-ink text-akua-white disabled:opacity-30">
           <Plus aria-hidden className="size-5" />
         </button>
       </div>
@@ -245,7 +245,7 @@ function VideoCard({ title, value, onChange }: { title: string; value: string[];
         <DialogContent
           showCloseButton={false}
           overlayClassName="bg-akua-ink/60 backdrop-blur-[6px] supports-backdrop-filter:backdrop-blur-[6px]"
-          className="w-[min(340px,calc(100%-32px))] max-w-none gap-0 overflow-hidden rounded-[24px] border-0 bg-akua-ink p-0 ring-0 sm:max-w-none"
+          className="w-[min(340px,calc(100%-32px))] max-w-none gap-0 overflow-hidden rounded-[12px] border-0 bg-akua-ink p-0 ring-0 sm:max-w-none"
         >
           <DialogTitle className="sr-only">Aperçu de la vidéo</DialogTitle>
           {preview && (
@@ -331,7 +331,7 @@ export function DealsEditor() {
     set("productIds", ids);
   };
 
-  if (!hydrated) return <div className="h-[60vh] animate-pulse rounded-[24px] bg-akua-white" />;
+  if (!hydrated) return <div className="h-[60vh] animate-pulse rounded-[12px] bg-akua-white" />;
 
   return (
     <div className="flex flex-col gap-5 pb-24 md:gap-6">
@@ -348,7 +348,7 @@ export function DealsEditor() {
 
       {/* état */}
       <fieldset disabled={!canTiming} className="m-0 min-w-0 border-0 p-0 disabled:opacity-70">
-        <section className="grid gap-4 rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:items-center md:p-6">
+        <section className="grid gap-4 rounded-[12px] border border-akua-gray-200 bg-akua-white p-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:items-center md:p-6">
           <div>
             <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold", status.tone)}>
               <span className="size-1.5 rounded-full bg-current" /> {status.label}
@@ -363,7 +363,7 @@ export function DealsEditor() {
 
       {/* durée */}
       <fieldset disabled={!canTiming} className="m-0 min-w-0 border-0 p-0 disabled:opacity-70">
-        <section className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
+        <section className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
           <h2 className="text-[16.5px] font-bold">Durée de l&apos;offre</h2>
           <p className="mt-0.5 text-[13px] text-akua-gray-500">Le compte à rebours affiché aux clients.</p>
           <div className="mt-5 grid gap-5">
@@ -437,7 +437,7 @@ export function DealsEditor() {
 
       {/* textes */}
       <fieldset disabled={!canTiming} className="m-0 min-w-0 border-0 p-0 disabled:opacity-70">
-        <section className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
+        <section className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
           <h2 className="text-[16.5px] font-bold">Textes</h2>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <Field label="Titre">
@@ -463,7 +463,7 @@ export function DealsEditor() {
 
       {/* produits */}
       <fieldset disabled={!canProducts} className="m-0 min-w-0 border-0 p-0 disabled:opacity-70">
-        <section className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
+        <section className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h2 className="text-[16.5px] font-bold">
@@ -556,7 +556,7 @@ export function DealsEditor() {
       {/* vidéos : retirées de l'accueil (seuls les produits en promo s'affichent), bloc gardé pour plus tard */}
       {SHOW_VIDEOS && (
         <fieldset disabled={!canVideos} className="m-0 min-w-0 border-0 p-0 disabled:opacity-70">
-          <section className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
+          <section className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
             <h2 className="text-[16.5px] font-bold">Vidéos TikTok</h2>
             <p className="mt-0.5 text-[13px] text-akua-gray-500">Deux cartes vidéo encadrent les produits. Collez le lien d&apos;une vidéo TikTok publique, ou l&apos;adresse d&apos;un fichier .mp4.</p>
             <div className="mt-5 grid gap-3 md:grid-cols-2">

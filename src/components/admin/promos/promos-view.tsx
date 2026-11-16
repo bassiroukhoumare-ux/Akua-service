@@ -129,7 +129,7 @@ function CodeDialog({ open, onOpenChange, initial }: { open: boolean; onOpenChan
       <DialogContent
         showCloseButton={false}
         overlayClassName="bg-akua-ink/35 backdrop-blur-[6px] supports-backdrop-filter:backdrop-blur-[6px]"
-        className="flex max-h-[calc(100dvh-24px)] w-[calc(100%-24px)] max-w-[600px] flex-col gap-0 overflow-hidden rounded-[28px] border border-akua-gray-200 bg-akua-white p-0 text-akua-ink shadow-[0_40px_80px_-30px_rgb(11_16_32/0.45)] ring-0 sm:max-w-[600px]"
+        className="flex max-h-[calc(100dvh-24px)] w-[calc(100%-24px)] max-w-[600px] flex-col gap-0 overflow-hidden rounded-[12px] border border-akua-gray-200 bg-akua-white p-0 text-akua-ink shadow-[0_40px_80px_-30px_rgb(11_16_32/0.45)] ring-0 sm:max-w-[600px]"
       >
         <div className="flex items-start justify-between gap-4 border-b border-akua-gray-200 px-5 py-5 sm:px-7">
           <div>
@@ -159,7 +159,7 @@ function CodeDialog({ open, onOpenChange, initial }: { open: boolean; onOpenChan
                   onClick={() => setCode(randomCode())}
                   title="Générer un code"
                   aria-label="Générer un code"
-                  className={btn({ variant: "outline", size: "icon", className: "size-12 rounded-2xl" })}
+                  className={btn({ variant: "outline", size: "icon", className: "size-12 rounded-[10px]" })}
                 >
                   <Shuffle aria-hidden className="size-[18px]" />
                 </button>
@@ -288,7 +288,7 @@ function AnnouncementPanel() {
   const codeStatus = code ? promoStatus(code) : null;
 
   return (
-    <section className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
+    <section className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
           <span className="grid size-11 shrink-0 place-items-center rounded-[14px] bg-akua-blue-100 text-akua-blue">
@@ -484,7 +484,7 @@ export function PromosView() {
     return [...codes].sort((a, b) => rank[promoStatus(a)] - rank[promoStatus(b)]);
   }, [codes]);
 
-  if (!hydrated) return <div className="h-[60vh] animate-pulse rounded-[24px] bg-akua-white" />;
+  if (!hydrated) return <div className="h-[60vh] animate-pulse rounded-[12px] bg-akua-white" />;
 
   return (
     <div className="flex flex-col gap-5 md:gap-6">
@@ -508,7 +508,7 @@ export function PromosView() {
       />
       <ReadOnlyNotice module="promos" />
 
-      <section className="overflow-hidden rounded-[24px] border border-akua-gray-200 bg-akua-white">
+      <section className="overflow-hidden rounded-[12px] border border-akua-gray-200 bg-akua-white">
         <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-4 md:px-6">
           <h2 className="text-[16.5px] font-bold">
             {codes.length} code{codes.length > 1 ? "s" : ""}

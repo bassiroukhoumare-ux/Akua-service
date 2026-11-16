@@ -47,7 +47,7 @@ export function FavoritesView() {
   const total = rows.reduce((s, r) => s + r.total, 0);
   const max = Math.max(1, ...rows.map((r) => r.total));
 
-  if (!hydrated) return <div className="h-[60vh] animate-pulse rounded-[24px] bg-akua-white" />;
+  if (!hydrated) return <div className="h-[60vh] animate-pulse rounded-[12px] bg-akua-white" />;
 
   return (
     <div className="flex flex-col gap-5 md:gap-6">
@@ -55,15 +55,15 @@ export function FavoritesView() {
       <DemoNotice>Les chiffres marqués « Exemple » montrent le design. Les favoris ajoutés sur ce navigateur sont comptés en plus ; ceux de tous vos visiteurs le seront dès que la base de données sera branchée.</DemoNotice>
 
       <div className="grid gap-3 md:grid-cols-3">
-        <div className="rounded-[20px] border border-akua-gray-200 bg-akua-white p-4">
+        <div className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-4">
           <p className="text-[12.5px] text-akua-gray-500">Ajouts aux favoris</p>
           <p className="mt-1 text-[24px] font-extrabold tabular-nums">{total}</p>
         </div>
-        <div className="rounded-[20px] border border-akua-gray-200 bg-akua-white p-4">
+        <div className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-4">
           <p className="text-[12.5px] text-akua-gray-500">Produits concernés</p>
           <p className="mt-1 text-[24px] font-extrabold tabular-nums">{rows.length}</p>
         </div>
-        <div className="flex items-start gap-3 rounded-[20px] bg-akua-blue-100/60 p-4 text-[13px]">
+        <div className="flex items-start gap-3 rounded-[12px] bg-akua-blue-100/60 p-4 text-[13px]">
           <Info aria-hidden className="mt-0.5 size-4 shrink-0 text-akua-blue" />
           <p>
             <span className="font-semibold">Astuce :</span> un produit très mis en favori mais peu commandé ? Une petite promotion peut déclencher l&apos;achat.
@@ -76,7 +76,7 @@ export function FavoritesView() {
           const p = r.product;
           const pct = discountPercent(p.price, p.compareAtPrice) ?? 0;
           return (
-            <li key={p.id} className="flex flex-col gap-4 rounded-[22px] border border-akua-gray-200 bg-akua-white p-4 md:flex-row md:items-center md:gap-6">
+            <li key={p.id} className="flex flex-col gap-4 rounded-[12px] border border-akua-gray-200 bg-akua-white p-4 md:flex-row md:items-center md:gap-6">
               <div className="flex min-w-0 flex-1 items-center gap-3.5">
                 <span className={cn("grid size-8 shrink-0 place-items-center rounded-full text-[13px] font-bold tabular-nums", i < 3 ? "bg-akua-ink text-akua-white" : "bg-akua-page")}>{i + 1}</span>
                 <span className="relative size-14 shrink-0 overflow-hidden rounded-[14px] bg-akua-tile">

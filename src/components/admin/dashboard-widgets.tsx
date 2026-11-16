@@ -106,7 +106,7 @@ export function LiveMini() {
   }, [base]);
 
   return (
-    <Link href={`${base}/statistiques`} className="group relative block overflow-hidden rounded-[26px] border border-akua-gray-200/90 bg-akua-white p-5 shadow-[0_1px_2px_rgb(11_16_32/0.03),0_14px_34px_-28px_rgb(11_16_32/0.22)] transition-all hover:-translate-y-0.5 hover:shadow-[0_24px_44px_-28px_rgb(37_211_102/0.45)]">
+    <Link href={`${base}/statistiques`} className="group relative block overflow-hidden rounded-[12px] border border-akua-gray-200/90 bg-akua-white p-5 shadow-[0_1px_2px_rgb(11_16_32/0.03),0_14px_34px_-28px_rgb(11_16_32/0.22)] transition-all hover:-translate-y-0.5 hover:shadow-[0_24px_44px_-28px_rgb(37_211_102/0.45)]">
       <div aria-hidden className="absolute -top-16 -right-16 size-44 rounded-full bg-akua-whatsapp/12 blur-3xl" />
       <p className="relative inline-flex items-center gap-2 text-[11.5px] font-bold tracking-[0.14em] text-[#128c4a] uppercase">
         <span className="relative flex size-2">

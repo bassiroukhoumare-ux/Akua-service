@@ -9,6 +9,7 @@ import { loadCatalog, loadSettings } from "@/lib/catalog";
 import { setWhatsAppNumber } from "@/lib/whatsapp";
 import { RatesProvider } from "@/components/currency";
 import { getRates } from "@/lib/rates";
+import { GlowTracker } from "@/components/ui/glow-tracker";
 import "./globals.css";
 
 // Inter auto-hébergée (variable 400–800) : aucune dépendance réseau au build.
@@ -20,6 +21,14 @@ const inter = localFont({
     { path: "./fonts/inter-latin-var.woff2", style: "normal" },
     { path: "./fonts/inter-latin-ext-var.woff2", style: "normal" },
   ],
+});
+
+// Sora auto-hébergée (variable 400–800) : titres, prix et chiffres clés.
+const sora = localFont({
+  variable: "--font-sora",
+  display: "swap",
+  weight: "400 800",
+  src: [{ path: "./fonts/sora-latin-var.woff2", style: "normal" }],
 });
 
 export const metadata: Metadata = {
@@ -41,8 +50,9 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const [{ products, categories }, settings, rates] = await Promise.all([loadCatalog(), loadSettings(), getRates()]);
   setWhatsAppNumber(settings.whatsapp);
   return (
-    <html lang="fr" className={`${inter.variable}`}>
+    <html lang="fr" className={`${inter.variable} ${sora.variable}`}>
       <body>
+        <GlowTracker />
         <TooltipProvider>
           <CatalogProvider value={{ products, categories: [...categories].sort((a, b) => a.order - b.order) }}>
             <ShopSettingsProvider value={settings}>

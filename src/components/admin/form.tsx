@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 export const inputCls = (err?: string) =>
   cn(
-    "h-12 w-full rounded-2xl border bg-akua-white px-4 text-[16px] text-akua-ink outline-none transition-colors placeholder:text-akua-gray-500 focus:border-akua-blue focus:ring-4 focus:ring-akua-blue/10 sm:text-[15px]",
+    "h-12 w-full rounded-[10px] border bg-akua-white px-4 text-[16px] text-akua-ink outline-none transition-colors placeholder:text-akua-gray-500 focus:border-akua-blue focus:ring-4 focus:ring-akua-blue/10 sm:text-[15px]",
     err ? "border-akua-red" : "border-akua-gray-200 hover:border-akua-gray-500/40",
   );
 
@@ -136,7 +136,7 @@ export function TagInput({ id, value, onChange, placeholder, suggestions = [], o
           }}
           disabled={!draft.trim()}
           aria-label="Ajouter"
-          className="grid size-12 shrink-0 place-items-center rounded-2xl bg-akua-ink text-akua-white transition-opacity disabled:opacity-30"
+          className="grid size-12 shrink-0 place-items-center rounded-[10px] bg-akua-ink text-akua-white transition-opacity disabled:opacity-30"
         >
           <Plus aria-hidden className="size-5" />
         </button>

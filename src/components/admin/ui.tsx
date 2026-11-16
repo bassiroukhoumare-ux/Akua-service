@@ -17,7 +17,7 @@ export function PageHeader({ title, description, actions, className }: { title: 
 /** Carte blanche de l'espace admin. */
 export function Panel({ title, description, action, children, className, bodyClassName }: { title?: string; description?: string; action?: React.ReactNode; children: React.ReactNode; className?: string; bodyClassName?: string }) {
   return (
-    <section className={cn("rounded-[26px] border border-akua-gray-200/90 bg-akua-white shadow-[0_1px_2px_rgb(11_16_32/0.03),0_14px_34px_-28px_rgb(11_16_32/0.22)]", className)}>
+    <section className={cn("rounded-[12px] border border-akua-gray-200/90 bg-akua-white shadow-[0_1px_2px_rgb(11_16_32/0.03),0_14px_34px_-28px_rgb(11_16_32/0.22)]", className)}>
       {(title || action) && (
         <div className="flex items-start justify-between gap-3 px-5 pt-5 md:px-6 md:pt-6">
           <div className="min-w-0">
@@ -57,7 +57,7 @@ export function StatTile({ icon: Icon, label, value, delta, hint, invert }: { ic
   // invert : une hausse est une mauvaise nouvelle (ex. paniers abandonnés)
   const good = delta === undefined ? true : invert ? delta <= 0 : delta >= 0;
   return (
-    <div className="group rounded-[26px] border border-akua-gray-200/90 bg-akua-white p-5 shadow-[0_1px_2px_rgb(11_16_32/0.03),0_14px_34px_-28px_rgb(11_16_32/0.22)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_44px_-28px_rgb(31_91_255/0.4)]">
+    <div className="group rounded-[12px] border border-akua-gray-200/90 bg-akua-white p-5 shadow-[0_1px_2px_rgb(11_16_32/0.03),0_14px_34px_-28px_rgb(11_16_32/0.22)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_44px_-28px_rgb(31_91_255/0.4)]">
       <div className="flex items-center justify-between gap-2">
         <p className="text-[13px] font-medium text-akua-gray-500">{label}</p>
         <span className="grid size-10 place-items-center rounded-[14px] bg-akua-page transition-colors group-hover:bg-akua-blue-100">

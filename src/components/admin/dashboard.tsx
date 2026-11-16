@@ -93,7 +93,7 @@ export function Dashboard() {
           <Panel title="Actions rapides">
             <div className="grid grid-cols-2 gap-2.5">
               {QUICK.map((q) => (
-                <Link key={q.label} href={q.href} className="group flex min-h-[96px] flex-col justify-between rounded-[20px] border border-transparent bg-akua-page p-4 transition-all hover:-translate-y-0.5 hover:border-akua-blue/25 hover:bg-akua-blue-100/70">
+                <Link key={q.label} href={q.href} className="group flex min-h-[96px] flex-col justify-between rounded-[12px] border border-transparent bg-akua-page p-4 transition-all hover:-translate-y-0.5 hover:border-akua-blue/25 hover:bg-akua-blue-100/70">
                   <q.icon aria-hidden className="size-6 text-akua-ink transition-colors group-hover:text-akua-blue" strokeWidth={1.5} />
                   <span className="text-[13.5px] leading-tight font-semibold">{q.label}</span>
                 </Link>

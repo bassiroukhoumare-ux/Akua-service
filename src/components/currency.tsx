@@ -44,7 +44,7 @@ export function CurrencySwitch({ className, size = "md" }: { className?: string;
   const { currency, setCurrency } = useCurrency();
   const cur = hydrated ? currency : "XOF";
   return (
-    <div role="radiogroup" aria-label="Devise d'affichage des prix" className={cn("inline-flex shrink-0 items-center rounded-full bg-akua-page p-0.5 ring-1 ring-akua-gray-200", className)}>
+    <div role="radiogroup" aria-label="Devise d'affichage des prix" className={cn("inline-flex shrink-0 items-stretch overflow-hidden rounded-[8px] border border-akua-gray-200 bg-akua-white", className)}>
       {CURRENCIES.map((c) => {
         const on = cur === c.id;
         return (
@@ -56,9 +56,9 @@ export function CurrencySwitch({ className, size = "md" }: { className?: string;
             title={c.label}
             onClick={() => setCurrency(c.id)}
             className={cn(
-              "rounded-full font-bold tabular-nums transition-colors",
-              size === "sm" ? "h-7 min-w-8 px-2 text-[11.5px]" : "h-9 min-w-10 px-3 text-[12.5px]",
-              on ? "bg-akua-ink text-akua-white shadow-sm" : "text-akua-gray-500 hover:text-akua-ink",
+              "border-l border-akua-gray-200 font-bold tabular-nums transition-colors first:border-l-0",
+              size === "sm" ? "h-[26px] min-w-8 px-2 text-[11px]" : "h-9 min-w-10 px-3 text-[12.5px]",
+              on ? "bg-akua-blue text-akua-white" : "text-akua-ink hover:bg-akua-blue-100 hover:text-akua-blue",
             )}
           >
             {c.short}

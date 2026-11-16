@@ -23,6 +23,7 @@ export function FeedControls({
   total,
   onOpenFilters,
   className,
+  alwaysFilters,
 }: {
   filters: FilterState;
   onFilters: (f: FilterState) => void;
@@ -31,6 +32,8 @@ export function FeedControls({
   total: number;
   onOpenFilters: () => void;
   className?: string;
+  /** bouton « Filtres » visible aussi sur ordinateur (accueil sans colonne de filtres) */
+  alwaysFilters?: boolean;
 }) {
   const { categories } = useCatalog();
   const realCats = categories.filter((c) => c.slug !== "promos");
@@ -51,12 +54,12 @@ export function FeedControls({
   return (
     <div className={className}>
       {/* barre d'outils */}
-      <div className="flex items-center justify-between gap-2 rounded-[20px] bg-akua-page p-1.5 sm:pl-5">
+      <div className="flex items-center justify-between gap-2 rounded-[10px] border border-akua-gray-200 bg-akua-white p-1.5 sm:pl-4">
         <p className="hidden min-w-0 truncate text-[14px] text-akua-gray-500 sm:block">
           <span className="font-semibold text-akua-ink">{catLabel}</span> · {total} produit{total > 1 ? "s" : ""}
         </p>
         <div className="flex w-full items-center gap-2 sm:w-auto">
-          <button type="button" onClick={onOpenFilters} className="flex h-10 shrink-0 items-center gap-2 rounded-full border border-akua-gray-200 bg-akua-white px-4 text-[13.5px] font-semibold lg:hidden">
+          <button type="button" onClick={onOpenFilters} className={cn("glow-soft flex h-10 shrink-0 items-center gap-2 rounded-[8px] border border-akua-ink bg-akua-white px-4 text-[13.5px] font-semibold", !alwaysFilters && "lg:hidden")}>
             <SlidersHorizontal aria-hidden className="size-4" /> Filtres
             {count > 0 && <span className="grid size-5 place-items-center rounded-full bg-akua-blue text-[11px] text-akua-white">{count}</span>}
           </button>
@@ -73,7 +76,7 @@ export function FeedControls({
       </div>
 
       {/* catégories rapides (téléphone et tablette) */}
-      <div className="no-scrollbar -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 lg:hidden" role="tablist" aria-label="Catégories">
+      <div className={cn("no-scrollbar -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 md:mx-0 md:px-0", !alwaysFilters && "lg:hidden")} role="tablist" aria-label="Catégories">
         {[{ id: null as string | null, label: "Tout" }, ...realCats.map((c) => ({ id: c.id as string | null, label: c.shortName ?? c.name })), { id: "promo", label: "Promos" }].map((c) => {
           const on = f.category === c.id;
           return (

@@ -85,11 +85,11 @@ export function LivePanel() {
     };
   }, [base]);
 
-  if (!live) return <div className="h-[340px] animate-pulse rounded-[28px] bg-akua-white ring-1 ring-akua-gray-200" />;
+  if (!live) return <div className="h-[340px] animate-pulse rounded-[12px] bg-akua-white ring-1 ring-akua-gray-200" />;
   const now = Math.max(tick, live.now);
 
   return (
-    <section aria-label="En direct" className="overflow-hidden rounded-[28px] border border-akua-gray-200/90 bg-akua-white shadow-[0_1px_2px_rgb(11_16_32/0.03),0_24px_50px_-36px_rgb(31_91_255/0.45)]">
+    <section aria-label="En direct" className="overflow-hidden rounded-[12px] border border-akua-gray-200/90 bg-akua-white shadow-[0_1px_2px_rgb(11_16_32/0.03),0_24px_50px_-36px_rgb(31_91_255/0.45)]">
       <div className="grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
         {/* compteur */}
         <div className="relative overflow-hidden p-6 md:p-8">

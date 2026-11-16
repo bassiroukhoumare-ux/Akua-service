@@ -144,7 +144,7 @@ export default async function ProductPage({ params }: Props) {
 
         {/* Description détaillée */}
         <section aria-labelledby="description" className="mt-14 grid gap-4 md:mt-20 lg:grid-cols-[1.4fr_1fr]">
-          <div className="rounded-[28px] border border-akua-gray-200 p-6 md:p-8">
+          <div className="rounded-[12px] border border-akua-gray-200 p-6 md:p-8">
             <h2 id="description" className="text-[22px] font-extrabold tracking-[-0.02em] md:text-[26px]">
               Description du produit
             </h2>
@@ -163,7 +163,7 @@ export default async function ProductPage({ params }: Props) {
               </>
             ) : null}
           </div>
-          <div className="rounded-[28px] bg-akua-page p-6 md:p-8">
+          <div className="rounded-[12px] bg-akua-page p-6 md:p-8">
             <p className="text-[18px] font-bold">Caractéristiques</p>
             <dl className="mt-4 divide-y divide-akua-gray-200">
               {specs.map((s) => (
@@ -179,7 +179,7 @@ export default async function ProductPage({ params }: Props) {
         {/* Infos ouvertes directement */}
         <section aria-label="Informations pratiques" className="mt-4 grid gap-4 md:grid-cols-3">
           {infos.map(({ icon: Icon, t, d }) => (
-            <div key={t} className="rounded-[28px] border border-akua-gray-200 p-6">
+            <div key={t} className="rounded-[12px] border border-akua-gray-200 p-6">
               <Icon aria-hidden className="size-8 text-akua-ink" strokeWidth={1.4} />
               <p className="mt-4 text-[16.5px] font-bold">{t}</p>
               <p className="mt-2 text-[14px] leading-relaxed text-akua-gray-500">{d}</p>

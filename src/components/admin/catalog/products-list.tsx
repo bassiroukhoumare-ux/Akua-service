@@ -229,7 +229,7 @@ export function ProductsList() {
               onChange={(e) => setQ(e.target.value)}
               placeholder="Rechercher un produit…"
               aria-label="Rechercher un produit"
-              className="h-12 w-full rounded-2xl border border-akua-gray-200 bg-akua-white pr-10 pl-11 text-[16px] outline-none focus:border-akua-blue focus:ring-4 focus:ring-akua-blue/10 sm:text-[15px]"
+              className="h-12 w-full rounded-[10px] border border-akua-gray-200 bg-akua-white pr-10 pl-11 text-[16px] outline-none focus:border-akua-blue focus:ring-4 focus:ring-akua-blue/10 sm:text-[15px]"
             />
             {q && (
               <button
@@ -253,15 +253,15 @@ export function ProductsList() {
       </div>
 
       {!hydrated ? (
-        <div className="h-80 animate-pulse rounded-[24px] bg-akua-white" />
+        <div className="h-80 animate-pulse rounded-[12px] bg-akua-white" />
       ) : list.length === 0 ? (
-        <div className="flex flex-col items-center rounded-[24px] border border-dashed border-akua-gray-200 bg-akua-white px-6 py-16 text-center">
+        <div className="flex flex-col items-center rounded-[12px] border border-dashed border-akua-gray-200 bg-akua-white px-6 py-16 text-center">
           <PackageOpen aria-hidden className="size-10 text-akua-gray-200" strokeWidth={1.3} />
           <p className="mt-3 text-[16px] font-bold">Aucun produit trouvé</p>
           <p className="mt-1 text-[14px] text-akua-gray-500">Modifiez les filtres ou ajoutez un nouveau produit.</p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-[24px] border border-akua-gray-200 bg-akua-white">
+        <div className="overflow-hidden rounded-[12px] border border-akua-gray-200 bg-akua-white">
           {/* ordinateur : tableau */}
           <table className="hidden w-full text-left md:table">
             <thead>

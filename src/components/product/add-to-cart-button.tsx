@@ -22,7 +22,7 @@ export function useAddToCart() {
 
 interface AddToCartButtonProps {
   product: CartProduct;
-  variant?: "icon" | "outline" | "full" | "compact";
+  variant?: "icon" | "outline" | "full" | "compact" | "block";
   quantity?: number;
   className?: string;
   label?: string;
@@ -49,13 +49,32 @@ export function AddToCartButton({ product, variant = "outline", quantity = 1, cl
         onClick={onClick}
         aria-label={`Ajouter ${product.name} au panier`}
         className={cn(
-          "relative inline-flex h-10 min-w-10 shrink-0 items-center justify-center gap-1.5 rounded-full px-0 text-[13px] font-semibold text-akua-white transition-colors duration-300 @min-[250px]:px-4",
+          "glow-ink relative inline-flex h-10 min-w-10 shrink-0 items-center justify-center gap-1.5 rounded-full px-0 text-[13px] font-semibold text-akua-white transition-[background-color,box-shadow,transform] duration-300 active:scale-95 @min-[250px]:px-4",
           done ? "bg-akua-blue" : "bg-akua-ink hover:bg-akua-blue",
           className,
         )}
       >
         {done ? <Check aria-hidden className="size-[18px]" strokeWidth={2.5} /> : <ShoppingBag aria-hidden className="size-[17px]" strokeWidth={2} />}
         <span className="hidden @min-[250px]:inline">{done ? "Ajouté" : label}</span>
+      </button>
+    );
+  }
+
+  // carte produit : bouton sur toute la largeur, contour bleu qui se remplit au survol
+  if (variant === "block") {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={`Ajouter ${product.name} au panier`}
+        className={cn(
+          "glow-blue flex h-10 w-full items-center justify-center gap-2 rounded-[8px] border text-[13px] font-semibold transition-[background-color,color,border-color,box-shadow,transform] duration-300 active:scale-[0.98]",
+          done ? "border-akua-blue bg-akua-blue text-akua-white" : "border-akua-ink bg-akua-white text-akua-ink hover:border-akua-blue hover:bg-akua-blue hover:text-akua-white",
+          className,
+        )}
+      >
+        {done ? <Check aria-hidden className="size-4 shrink-0" strokeWidth={2.5} /> : <ShoppingBag aria-hidden className="size-4 shrink-0" strokeWidth={2} />}
+        <span className="truncate">{done ? "Ajouté" : label}</span>
       </button>
     );
   }

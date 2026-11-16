@@ -23,6 +23,8 @@ function Digit({ value }: { value: string }) {
   );
 }
 
+const UNITS = ["h", "min", "s"];
+
 /** Compte à rebours : uniquement des chiffres qui défilent (HH:MM:SS). */
 export function PromoTimer({ timing }: { timing?: DealTiming }) {
   const [s, setS] = useState<number | null>(null);
@@ -37,18 +39,16 @@ export function PromoTimer({ timing }: { timing?: DealTiming }) {
   const parts = s == null ? ["--", "--", "--"] : [pad(Math.floor(s / 3600)), pad(Math.floor((s % 3600) / 60)), pad(s % 60)];
 
   return (
-    <div
-      role="timer"
-      aria-label={s == null ? "Compte à rebours" : `Fin dans ${parts[0]} heures ${parts[1]} minutes ${parts[2]} secondes`}
-      className="flex items-center text-[54px] leading-none font-extrabold tracking-[-0.04em] text-akua-ink tabular-nums md:text-[84px]"
-    >
+    <span role="timer" aria-label={s == null ? "Compte à rebours" : `Fin dans ${parts[0]} heures ${parts[1]} minutes ${parts[2]} secondes`} className="inline-flex items-center gap-1 normal-case">
       {parts.map((p, i) => (
-        <span key={i} className="flex items-center">
-          <Digit value={p[0]} />
-          <Digit value={p[1]} />
-          {i < 2 && <span className="mx-[0.06em] -translate-y-[0.06em] text-akua-blue">:</span>}
+        <span key={i} className="flex items-center gap-1">
+          <span className="font-num flex h-8 min-w-[38px] items-center justify-center rounded-[6px] bg-akua-ink px-1.5 text-[15px] leading-none font-bold tracking-normal text-akua-white tabular-nums md:h-9 md:min-w-[44px] md:text-[17px]">
+            <Digit value={p[0]} />
+            <Digit value={p[1]} />
+          </span>
+          <span className="text-[11px] font-semibold tracking-normal text-akua-gray-500">{UNITS[i]}</span>
         </span>
       ))}
-    </div>
+    </span>
   );
 }

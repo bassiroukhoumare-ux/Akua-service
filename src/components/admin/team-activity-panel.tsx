@@ -46,7 +46,7 @@ export function TeamActivityPanel({ entries, members, href, periodText }: { entr
   const max = Math.max(1, ...people.map((p) => p.n));
 
   return (
-    <section className="overflow-hidden rounded-[28px] border border-akua-gray-200 bg-akua-white">
+    <section className="overflow-hidden rounded-[12px] border border-akua-gray-200 bg-akua-white">
       <header className="flex flex-col gap-4 border-b border-akua-gray-200 px-5 pt-5 pb-5 md:flex-row md:items-end md:justify-between md:px-7 md:pt-6">
         <div className="flex items-start gap-3.5">
           <span className="grid size-11 shrink-0 place-items-center rounded-[14px] bg-akua-ink text-akua-white">

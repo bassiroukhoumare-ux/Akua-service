@@ -5,7 +5,7 @@ import { PasswordForm } from "./password-form";
 export function FirstPassword({ name }: { name: string }) {
   return (
     <div className="mx-auto w-full max-w-[560px] py-4 md:py-10">
-      <div className="rounded-[28px] border border-akua-gray-200 bg-akua-white p-6 shadow-[0_30px_70px_-40px_rgb(11_16_32/0.35)] md:p-9">
+      <div className="rounded-[12px] border border-akua-gray-200 bg-akua-white p-6 shadow-[0_30px_70px_-40px_rgb(11_16_32/0.35)] md:p-9">
         <span className="grid size-14 place-items-center rounded-[18px] bg-akua-blue-100">
           <KeyRound aria-hidden className="size-6 text-akua-blue" strokeWidth={1.7} />
         </span>

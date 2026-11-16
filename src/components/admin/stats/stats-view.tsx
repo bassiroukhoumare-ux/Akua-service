@@ -90,7 +90,7 @@ function TrackingLinks() {
 }
 
 function Skeleton({ className }: { className?: string }) {
-  return <div className={cn("animate-pulse rounded-[24px] bg-akua-white ring-1 ring-akua-gray-200", className)} />;
+  return <div className={cn("animate-pulse rounded-[12px] bg-akua-white ring-1 ring-akua-gray-200", className)} />;
 }
 
 /** Barres par heure : la plus fréquentée est mise en avant. */

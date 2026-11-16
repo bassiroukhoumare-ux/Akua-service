@@ -9,8 +9,8 @@ export function ComingSoon({ module: m, base }: { module: AdminModule; base: str
   return (
     <div className="flex flex-col gap-6">
       <PageHeader title={m.label} description={m.description} />
-      <div className="flex flex-col items-center rounded-[28px] border border-dashed border-akua-gray-200 bg-akua-white px-6 py-16 text-center md:py-24">
-        <span className="relative grid size-16 place-items-center rounded-[20px] bg-akua-page">
+      <div className="flex flex-col items-center rounded-[12px] border border-dashed border-akua-gray-200 bg-akua-white px-6 py-16 text-center md:py-24">
+        <span className="relative grid size-16 place-items-center rounded-[12px] bg-akua-page">
           <m.icon aria-hidden className="size-7 text-akua-ink" strokeWidth={1.5} />
           <span className="absolute -right-1.5 -bottom-1.5 grid size-7 place-items-center rounded-full bg-akua-blue text-akua-white ring-4 ring-akua-white">
             <Hammer aria-hidden className="size-3.5" strokeWidth={2} />

@@ -51,7 +51,7 @@ export function LoginForm({ kind }: { kind: PortalKind }) {
     <form onSubmit={submit} method="post" action={`${base}/api/session`} noValidate className="flex flex-col gap-4">
       <input type="hidden" name="suite" value={params.get("suite") ?? ""} />
       {error && (
-        <p role="alert" className="flex items-start gap-2.5 rounded-2xl bg-akua-red/8 px-4 py-3 text-[13.5px] font-medium text-akua-red">
+        <p role="alert" className="flex items-start gap-2.5 rounded-[10px] bg-akua-red/8 px-4 py-3 text-[13.5px] font-medium text-akua-red">
           <AlertCircle aria-hidden className="mt-0.5 size-4 shrink-0" /> {error}
         </p>
       )}

@@ -333,7 +333,7 @@ export function AdminShell({ kind, user, actor, allowed, perms, children }: { ki
             ) : (
               <div aria-busy className="flex flex-col gap-5">
                 <div className="h-10 w-64 animate-pulse rounded-xl bg-akua-white" />
-                <div className="h-[50vh] animate-pulse rounded-[24px] bg-akua-white" />
+                <div className="h-[50vh] animate-pulse rounded-[12px] bg-akua-white" />
               </div>
             )}
           </AdminProvider>

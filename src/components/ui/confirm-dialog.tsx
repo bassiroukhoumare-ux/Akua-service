@@ -21,7 +21,7 @@ export function ConfirmDialog({ open, onOpenChange, title, description, confirmL
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="w-[calc(100%-32px)] max-w-[400px] gap-0 rounded-[28px] border border-akua-gray-200 bg-akua-white p-6 text-center shadow-[0_40px_80px_-40px_rgb(11_16_32/0.45)] sm:p-7"
+        className="w-[calc(100%-32px)] max-w-[400px] gap-0 rounded-[12px] border border-akua-gray-200 bg-akua-white p-6 text-center shadow-[0_40px_80px_-40px_rgb(11_16_32/0.45)] sm:p-7"
       >
         <Trash2 aria-hidden className="mx-auto size-8 text-akua-red" strokeWidth={1.4} />
         <DialogTitle className="mt-4 text-[19px] leading-snug font-extrabold tracking-[-0.02em] text-akua-ink">{title}</DialogTitle>
