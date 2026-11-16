@@ -1,6 +1,8 @@
 export const SITE_NAME = "AKUA.SERVICE";
 export const SITE_TAGLINE = "La technologie à votre service";
-export const SITE_URL = "https://akuaservice.com"; // TODO domaine définitif
+// Adresse réelle du site (aperçus de partage, liens des messages WhatsApp, plan du site).
+// À remplacer par le nom de domaine définitif le jour où il sera branché.
+export const SITE_URL = "https://akua-service.vercel.app";
 
 // format international sans « + » (utilisé dans les liens wa.me)
 export const WHATSAPP_NUMBER = "22893569542";

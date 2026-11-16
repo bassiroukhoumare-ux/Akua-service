@@ -40,7 +40,9 @@ export const metadata: Metadata = {
   title: { default: `${SITE_NAME} · ${SITE_TAGLINE}`, template: `%s | ${SITE_NAME}` },
   description:
     "Consoles et jeux vidéo, ordinateurs, tablettes, accessoires informatiques et équipements électroniques, testés et garantis. Vente en gros et au détail, livraison et expédition possibles.",
-  openGraph: { type: "website", locale: "fr_FR", siteName: SITE_NAME },
+  // image affichée quand on partage un lien du site (WhatsApp, Facebook…) : 1200 × 630 px
+  openGraph: { type: "website", locale: "fr_FR", siteName: SITE_NAME, url: "/", images: [{ url: "/og-akua-service.jpg", width: 1200, height: 630, alt: `${SITE_NAME} · ${SITE_TAGLINE}`, type: "image/jpeg" }] },
+  twitter: { card: "summary_large_image", images: ["/og-akua-service.jpg"] },
 };
 
 export const viewport: Viewport = {
