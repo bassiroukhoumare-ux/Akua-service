@@ -31,6 +31,10 @@ const sora = localFont({
   src: [{ path: "./fonts/sora-latin-var.woff2", style: "normal" }],
 });
 
+// Les pages publiques se régénèrent toutes seules au plus tard une minute après un changement de contenu
+// (bannières, catalogue, promos, réglages), même si le signal de rafraîchissement n'est pas parti.
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: `${SITE_NAME} · ${SITE_TAGLINE}`, template: `%s | ${SITE_NAME}` },

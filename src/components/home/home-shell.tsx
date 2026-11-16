@@ -86,18 +86,18 @@ export function HomeShell({ children }: { children: React.ReactNode }) {
 
       {/* filtres sur téléphone et tablette */}
       <Sheet open={sheet} onOpenChange={setSheet}>
-        <SheetContent side={wide ? "right" : "bottom"} className={cn("gap-0 border-0 p-0 [&>button]:hidden", wide ? "w-[400px] max-w-[92vw] sm:max-w-[400px]" : "max-h-[88vh] rounded-t-[12px]")}>
+        <SheetContent side={wide ? "right" : "bottom"} className={cn("gap-0 border-0 p-0 [&>button]:hidden", wide ? "w-[400px] max-w-[92vw] sm:max-w-[400px]" : "max-h-[85dvh] rounded-t-[12px]")}>
           <div className={cn("mx-auto mt-3 h-1.5 w-12 rounded-full bg-akua-gray-200", wide && "hidden")} />
-          <div className="flex items-center justify-between px-5 pt-3 pb-2">
+          <div className="flex shrink-0 items-center justify-between px-5 pt-3 pb-2">
             <SheetTitle className="text-[20px] font-bold">Filtres</SheetTitle>
-            <button type="button" onClick={() => setSheet(false)} aria-label="Fermer" className="grid size-10 place-items-center rounded-full bg-akua-page">
+            <button type="button" onClick={() => setSheet(false)} aria-label="Fermer" className="grid size-10 shrink-0 place-items-center rounded-[10px] border border-akua-gray-200 bg-akua-white">
               <X aria-hidden className="size-5" />
             </button>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-4">
             <FilterPanel value={filters} onChange={setFilters} inSheet />
           </div>
-          <div className="border-t border-akua-gray-200 p-4">
+          <div className="shrink-0 border-t border-akua-gray-200 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <button
               type="button"
               onClick={() => {

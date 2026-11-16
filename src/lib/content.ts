@@ -31,7 +31,7 @@ export async function writeState(key: ContentKey, value: unknown, by: string) {
 }
 
 /** Lecture mise en cache pour le site public (rafraîchie dès qu'un contenu est enregistré). */
-export const readState = unstable_cache(async (key: ContentKey) => readStateRaw<unknown>(key), ["app-state", SUFFIX], { tags: [CONTENT_TAG], revalidate: 600 }) as <T>(key: ContentKey) => Promise<Stored<T> | null>;
+export const readState = unstable_cache(async (key: ContentKey) => readStateRaw<unknown>(key), ["app-state", SUFFIX], { tags: [CONTENT_TAG], revalidate: 60 }) as <T>(key: ContentKey) => Promise<Stored<T> | null>;
 
 /** Ce que le public peut voir : jamais le journal de l'équipe ni les produits masqués. */
 export function publicView(key: ContentKey, v: Stored<Record<string, unknown>> | null) {

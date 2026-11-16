@@ -244,14 +244,14 @@ export function ShopView({ products, category, query }: { products: Product[]; c
             </div>
 
             {pages > 1 && (
-              <nav aria-label="Pagination" className="mt-8 flex items-center justify-between rounded-2xl bg-akua-white px-3 py-2.5 ring-1 ring-akua-gray-200">
-                <button type="button" onClick={() => go(page - 1)} disabled={page === 1} className="flex h-10 items-center gap-2 rounded-full px-3 text-[13.5px] font-medium disabled:opacity-35">
+              <nav aria-label="Pagination" className="mt-8 flex items-center justify-between rounded-[12px] bg-akua-white px-1.5 py-2.5 ring-1 ring-akua-gray-200 min-[380px]:px-3">
+                <button type="button" onClick={() => go(page - 1)} disabled={page === 1} className="flex h-10 shrink-0 items-center gap-2 rounded-full px-2 text-[13.5px] font-medium disabled:opacity-35 min-[380px]:px-3">
                   <ArrowLeft aria-hidden className="size-4" /> <span className="hidden sm:inline">Précédent</span>
                 </button>
-                <ul className="flex items-center gap-1">
+                <ul className="flex min-w-0 items-center gap-0.5 min-[380px]:gap-1">
                   {pageList(page, pages).map((n, i) =>
                     n === "…" ? (
-                      <li key={`e${i}`} className="px-2 text-akua-gray-500">
+                      <li key={`e${i}`} className="px-1 text-akua-gray-500 min-[380px]:px-2">
                         …
                       </li>
                     ) : (
@@ -260,7 +260,7 @@ export function ShopView({ products, category, query }: { products: Product[]; c
                           type="button"
                           onClick={() => go(n)}
                           aria-current={page === n ? "page" : undefined}
-                          className={cn("grid size-10 place-items-center rounded-full text-[13.5px] font-medium transition-colors", page === n ? "bg-akua-ink text-akua-white" : "hover:bg-akua-tile")}
+                          className={cn("grid size-8 place-items-center rounded-full text-[13.5px] min-[380px]:size-10 font-medium transition-colors", page === n ? "bg-akua-ink text-akua-white" : "hover:bg-akua-tile")}
                         >
                           {n}
                         </button>
@@ -268,7 +268,7 @@ export function ShopView({ products, category, query }: { products: Product[]; c
                     ),
                   )}
                 </ul>
-                <button type="button" onClick={() => go(page + 1)} disabled={page === pages} className="flex h-10 items-center gap-2 rounded-full px-3 text-[13.5px] font-medium disabled:opacity-35">
+                <button type="button" onClick={() => go(page + 1)} disabled={page === pages} className="flex h-10 shrink-0 items-center gap-2 rounded-full px-2 text-[13.5px] font-medium disabled:opacity-35 min-[380px]:px-3">
                   <span className="hidden sm:inline">Suivant</span> <ArrowRight aria-hidden className="size-4" />
                 </button>
               </nav>
@@ -279,18 +279,18 @@ export function ShopView({ products, category, query }: { products: Product[]; c
       </section>
 
       <Sheet open={sheet} onOpenChange={setSheet}>
-        <SheetContent side="bottom" className="max-h-[88vh] gap-0 rounded-t-[12px] border-0 p-0 [&>button]:hidden">
+        <SheetContent side="bottom" className="max-h-[85dvh] gap-0 rounded-t-[12px] border-0 p-0 [&>button]:hidden">
           <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-akua-gray-200" />
-          <div className="flex items-center justify-between px-5 pt-3 pb-2">
+          <div className="flex shrink-0 items-center justify-between px-5 pt-3 pb-2">
             <SheetTitle className="font-display text-[20px] font-semibold">Filtres</SheetTitle>
-            <button type="button" onClick={() => setSheet(false)} aria-label="Fermer" className="grid size-10 place-items-center rounded-full bg-akua-tile">
+            <button type="button" onClick={() => setSheet(false)} aria-label="Fermer" className="grid size-10 shrink-0 place-items-center rounded-[10px] border border-akua-gray-200 bg-akua-white">
               <X aria-hidden className="size-5" />
             </button>
           </div>
-          <div className="overflow-y-auto px-5 pb-4">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-4">
             <ShopFilters category={category} inSheet />
           </div>
-          <div className="border-t border-akua-gray-200 p-4">
+          <div className="shrink-0 border-t border-akua-gray-200 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <button type="button" onClick={() => setSheet(false)} className="btn-shine h-12 w-full rounded-[10px] bg-akua-ink font-semibold text-akua-white">
               Voir {products.length} produits
             </button>

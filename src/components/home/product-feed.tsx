@@ -134,18 +134,18 @@ export function ProductFeed({ products, eyebrow = "Catalogue", title = "Nos prod
 
       {/* filtres sur téléphone */}
       <Sheet open={!shared && sheet} onOpenChange={setSheet}>
-        <SheetContent side="bottom" className="max-h-[88vh] gap-0 rounded-t-[12px] border-0 p-0 [&>button]:hidden">
+        <SheetContent side="bottom" className="max-h-[85dvh] gap-0 rounded-t-[12px] border-0 p-0 [&>button]:hidden">
           <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-akua-gray-200" />
-          <div className="flex items-center justify-between px-5 pt-3 pb-2">
+          <div className="flex shrink-0 items-center justify-between px-5 pt-3 pb-2">
             <SheetTitle className="text-[20px] font-bold">Filtres</SheetTitle>
-            <button type="button" onClick={() => setSheet(false)} aria-label="Fermer" className="grid size-10 place-items-center rounded-full bg-akua-page">
+            <button type="button" onClick={() => setSheet(false)} aria-label="Fermer" className="grid size-10 shrink-0 place-items-center rounded-[10px] border border-akua-gray-200 bg-akua-white">
               <X aria-hidden className="size-5" />
             </button>
           </div>
-          <div className="overflow-y-auto px-5 pb-4">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-4">
             <FilterPanel value={f} onChange={setF} inSheet />
           </div>
-          <div className="border-t border-akua-gray-200 p-4">
+          <div className="shrink-0 border-t border-akua-gray-200 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <button type="button" onClick={() => setSheet(false)} className="h-12 w-full rounded-[10px] bg-akua-ink font-semibold text-akua-white">
               Voir {list.length} produit{list.length > 1 ? "s" : ""}
             </button>

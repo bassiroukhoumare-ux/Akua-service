@@ -1,4 +1,4 @@
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import type { PortalKind } from "@/config/admin-base";
 import { CONTENT_TAG, isContentKey, readStateRaw, writeState } from "@/lib/content";
@@ -37,5 +37,7 @@ export async function putState(kind: PortalKind, key: string, req: Request) {
   if (refused) return NextResponse.json({ error: refused }, { status: 403 });
   await writeState(key, value, who);
   revalidateTag(CONTENT_TAG);
+  // toutes les pages publiques sont régénérées tout de suite (accueil, boutique, fiches…)
+  revalidatePath("/", "layout");
   return NextResponse.json({ ok: true });
 }

@@ -73,7 +73,7 @@ export function PurchaseBox({ product }: { product: Product }) {
             <Plus aria-hidden className="size-4" />
           </button>
         </div>
-        <AddToCartButton product={product} quantity={qty} label="Ajouter au panier" className="h-[52px] flex-1 px-6 text-[15px]" />
+        <AddToCartButton product={product} quantity={qty} label="Ajouter au panier" className="h-[52px] min-w-[190px] flex-1 px-5 text-[15px] whitespace-nowrap" />
       </div>
       <BuyNowButton product={product} quantity={qty} label="Commander maintenant" className="mt-3 h-[56px] w-full text-[15.5px]" />
       <a href={wa} target="_blank" rel="noopener" className="mt-3 flex h-11 items-center justify-center gap-2 text-[14px] font-semibold text-akua-ink transition-colors hover:text-akua-blue">
