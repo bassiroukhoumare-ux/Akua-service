@@ -160,7 +160,7 @@ export function PushPanel() {
           <div>
             <h2 className="text-[17px] font-bold">Notifications sur cet appareil</h2>
             <p className="mt-0.5 max-w-xl text-[13.5px] text-akua-gray-500">
-              Recevez une notification avec le logo AKUA Service à chaque nouvelle commande ou nouvel avis, et des rappels pour les paniers et les favoris. Un toucher ouvre directement la bonne page.
+              Recevez une notification avec le logo AKUA.SERVICE à chaque nouvelle commande ou nouvel avis, et des rappels pour les paniers et les favoris. Un toucher ouvre directement la bonne page.
             </p>
             <p className={cn("mt-2 inline-flex items-center gap-1.5 text-[12.5px] font-semibold", on ? "text-akua-blue" : "text-akua-gray-500")}>
               <span className={cn("size-2 rounded-full", on ? "bg-akua-blue" : "bg-akua-gray-200")} />

@@ -281,7 +281,7 @@ export function ReviewsSection({ productId, productName }: { productId: string; 
               <div className="flex flex-col items-center rounded-[28px] border border-dashed border-akua-gray-200 px-6 py-12 text-center">
                 <Stars value={0} size="size-6" />
                 <p className="mt-4 text-[17px] font-bold">Soyez le premier à donner votre avis</p>
-                <p className="mt-1 max-w-sm text-[14px] text-akua-gray-500">Vous avez acheté ce produit chez AKUA Service ? Partagez votre expérience avec les autres clients.</p>
+                <p className="mt-1 max-w-sm text-[14px] text-akua-gray-500">Vous avez acheté ce produit chez AKUA.SERVICE ? Partagez votre expérience avec les autres clients.</p>
                 <button type="button" onClick={() => setOpen(true)} className={btn({ variant: "primary", size: "md", className: "mt-5" })}>
                   Laisser un avis
                 </button>

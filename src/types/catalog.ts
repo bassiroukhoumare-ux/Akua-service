@@ -53,6 +53,8 @@ export interface Product {
   categoryId: string;
   /** sous-rayon dans la catégorie (slug d'un CategoryGroup) */
   group?: string;
+  /** marque (id de src/data/brands.ts) ; si absente, reconnue d'après le nom */
+  brand?: string;
   platforms: Platform[];
   /** plateformes hors liste, saisies librement (« Autre ») */
   otherPlatforms?: string[];

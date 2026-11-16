@@ -3,7 +3,7 @@ import { WholesaleForm } from "@/components/shop/wholesale-form";
 
 export const metadata: Metadata = {
   title: "Vente en gros",
-  description: "Demandez un devis en gros : consoles, ordinateurs, tablettes, accessoires et équipements, à prix revendeur. Livraison au Togo et dans la sous-région.",
+  description: "Demandez un devis en gros : consoles, ordinateurs, tablettes, accessoires et équipements, à prix revendeur. Livraison et expédition possibles.",
 };
 
 export default function WholesalePage() {

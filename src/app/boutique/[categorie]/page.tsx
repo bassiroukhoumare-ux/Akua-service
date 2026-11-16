@@ -28,7 +28,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       <Suspense>
         <ShopView products={products} category={category} />
       </Suspense>
-      <ProductCarousel eyebrow="Sélection AKUA" title="Explorez nos recommandations" products={featured.filter((p) => p.categoryId !== category.id)} />
+      <ProductCarousel eyebrow="Sélection AKUA.SERVICE" title="Explorez nos recommandations" products={featured.filter((p) => p.categoryId !== category.id)} />
       <FaqCta />
     </>
   );

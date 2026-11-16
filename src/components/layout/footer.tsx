@@ -2,19 +2,18 @@
 
 import { ArrowUpRight, Clock, Globe2, MapPin, Navigation } from "lucide-react";
 import Link from "next/link";
-import { Flag } from "@/components/ui/flag";
 import { Logo } from "@/components/ui/logo";
 import { useCatalog } from "@/components/catalog-provider";
 import { useShopSettings } from "@/components/shop-settings-provider";
 import { WhatsAppContactButton } from "@/components/shop/whatsapp-contact-dialog";
-import { SocialLinkIcon } from "@/components/ui/social-link-icon";
+import { SocialBrandBadge } from "@/components/ui/social-brand";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import { summarizeHours } from "@/lib/shop-settings";
 
 const ORDER = [
   { label: "Toute la boutique", href: "/boutique" },
   { label: "Promotions", href: "/boutique/promos" },
-  { label: "Packs prêts à jouer", href: "/packs" },
+  { label: "Packs prêts à l'emploi", href: "/packs" },
   { label: "Mon panier", href: "/panier" },
   { label: "Mes favoris", href: "/favoris" },
 ];
@@ -57,7 +56,6 @@ export function Footer() {
   const { categories } = useCatalog();
   const hours = summarizeHours(s.hours);
   const socials = s.socials.filter((x) => /^https?:\/\//.test(x.url));
-  const delivery = s.delivery.filter((c) => c.enabled);
   const universes = categories.filter((c) => c.slug !== "promos").map((c) => ({ label: c.name, href: `/boutique/${c.slug}` }));
 
   return (
@@ -118,11 +116,11 @@ export function Footer() {
                     href={url}
                     target="_blank"
                     rel="noopener"
-                    aria-label={`${label} : AKUA Service`}
+                    aria-label={`${label} : AKUA.SERVICE`}
                     title={label}
-                    className="grid size-10 place-items-center rounded-full bg-akua-ink text-akua-white transition-colors hover:bg-akua-blue"
+                    className="block rounded-full transition-transform duration-300 hover:-translate-y-0.5"
                   >
-                    <SocialLinkIcon network={network} className="size-[18px]" />
+                    <SocialBrandBadge network={network} className="size-10" />
                   </a>
                 </li>
               ))}
@@ -140,27 +138,18 @@ export function Footer() {
 
       {/* 3. Livraison */}
       <div className="border-t border-akua-gray-200">
-        <div className="container-akua flex flex-col gap-3 py-5 md:flex-row md:items-center md:gap-4">
-          <p className="shrink-0 text-[13px] font-semibold text-akua-ink">Nous livrons</p>
-          <ul className="flex flex-wrap gap-2">
-            {delivery.map((c) => (
-              <li key={c.code} className="inline-flex items-center gap-1.5 rounded-full bg-akua-white px-3 py-1.5 text-[12.5px] font-medium ring-1 ring-akua-gray-200">
-                <Flag code={c.code} /> {c.name}
-              </li>
-            ))}
-            {s.deliveryOthers && (
-              <li className="inline-flex items-center gap-1.5 rounded-full bg-akua-white px-3 py-1.5 text-[12.5px] font-medium text-akua-gray-500 ring-1 ring-akua-gray-200">
-                <Globe2 aria-hidden className="size-3.5" strokeWidth={1.8} /> et autres pays
-              </li>
-            )}
-          </ul>
+        <div className="container-akua flex flex-col gap-1.5 py-5 sm:flex-row sm:items-center sm:gap-3">
+          <p className="flex items-center gap-2 text-[13.5px] font-semibold text-akua-ink">
+            <Globe2 aria-hidden className="size-[18px] text-akua-blue" strokeWidth={1.8} /> Livraison et expédition possibles
+          </p>
+          <p className="text-[13px] text-akua-gray-500">Indiquez-nous votre pays : nous confirmons l&apos;envoi, les frais et le délai sur WhatsApp.</p>
         </div>
       </div>
 
       {/* 4. Mentions */}
       <div className="border-t border-akua-gray-200">
         <div className="container-akua flex flex-col items-center justify-between gap-2 py-5 text-center text-[12.5px] text-akua-gray-500 sm:flex-row sm:text-left">
-          <p>© {new Date().getFullYear()} AKUA SERVICE. Tous droits réservés.</p>
+          <p>© {new Date().getFullYear()} AKUA.SERVICE. Tous droits réservés.</p>
           <nav aria-label="Informations légales">
             <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
               {LEGAL.map((l) => (

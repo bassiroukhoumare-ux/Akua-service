@@ -272,7 +272,7 @@ export function ReviewsView() {
                         <span />
                       )}
                       <a
-                        href={`mailto:${r.email}?subject=${encodeURIComponent(`Votre avis sur ${p?.name ?? "AKUA Service"}`)}`}
+                        href={`mailto:${r.email}?subject=${encodeURIComponent(`Votre avis sur ${p?.name ?? "AKUA.SERVICE"}`)}`}
                         aria-label={`Répondre à ${r.firstName} par e-mail`}
                         title="Répondre par e-mail"
                         className="grid size-10 shrink-0 place-items-center rounded-full border border-akua-gray-200 transition-colors hover:border-akua-ink"

@@ -33,7 +33,7 @@ import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import { useShopSettings } from "@/components/shop-settings-provider";
 import { summarizeHours } from "@/lib/shop-settings";
 import { categories } from "@/data/categories";
-import { citiesOf, isDeliveryCountry } from "@/data/world-cities";
+import { citiesOf } from "@/data/world-cities";
 import { products } from "@/data/products";
 import { formatFCFA, pluralize } from "@/lib/format";
 import { useCurrency, useMoney } from "@/components/currency";
@@ -49,7 +49,7 @@ const OTHER_CITY = "__autre__";
 const OTHER_COUNTRY = "__autre-pays__";
 const COUNTRY_OPTIONS = allCountryOptions(OTHER_COUNTRY);
 const KNOWN_COUNTRIES = new Set(COUNTRY_OPTIONS.map((o) => o.value));
-const TIMES = ["10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+const TIMES = ["08:00", "09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
 const DEPOSITS: { id: CheckoutDraft["deposit"]; label: string; pct: number }[] = [
   { id: "25", label: "25 %", pct: 25 },
   { id: "50", label: "50 %", pct: 50 },
@@ -412,7 +412,7 @@ export function CheckoutView() {
           <Section step={2} title="Mode de réception" subtitle="Choisissez comment vous souhaitez récupérer votre commande.">
             <div role="radiogroup" aria-label="Mode de réception" className="grid gap-3 sm:grid-cols-2">
               {[
-                { id: "livraison" as const, icon: Truck, title: "Livraison", text: "Livraison disponible au Togo et dans la sous-région. Frais confirmés sur WhatsApp." },
+                { id: "livraison" as const, icon: Truck, title: "Livraison", text: "Livraison et expédition possibles. Frais et délai confirmés sur WhatsApp." },
                 { id: "retrait" as const, icon: Store, title: "Retrait en boutique", text: "Gratuit. Réservez votre jour et votre heure de passage." },
               ].map((o) => {
                 const on = draft.mode === o.id;
@@ -540,9 +540,9 @@ export function CheckoutView() {
                         />
                       )}
                     </Field>
-                    {!!draft.country && !isDeliveryCountry(draft.country) && (
+                    {!!draft.country && draft.country !== "Togo" && (
                       <p className="-mt-1 rounded-xl bg-akua-blue-100/70 px-3.5 py-2.5 text-[12.5px] leading-snug text-akua-ink sm:col-span-2">
-                        Livraison hors du Togo et de la sous-région : les frais et le délai vous sont confirmés sur WhatsApp avant tout paiement.
+                        Expédition vers votre pays : nous confirmons avec vous sur WhatsApp la solution d&apos;envoi, les frais et le délai avant tout paiement.
                       </p>
                     )}
                     <Field label="Adresse exacte" htmlFor="f-address" error={errors.address} className="sm:col-span-2">

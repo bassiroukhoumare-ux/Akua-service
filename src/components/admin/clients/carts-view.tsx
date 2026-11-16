@@ -28,7 +28,7 @@ function relanceLink(c: SavedCart) {
   const lines = [
     `Bonjour ${first},`,
     "",
-    "Merci pour votre visite sur AKUA Service. Vous avez enregistré ce panier :",
+    "Merci pour votre visite sur AKUA.SERVICE. Vous avez enregistré ce panier :",
     ...c.items.map((i) => `- ${i.quantity} × ${i.name} (${formatFCFA(i.price * i.quantity)})`),
     `Total : ${formatFCFA(c.subtotal)}`,
     "",

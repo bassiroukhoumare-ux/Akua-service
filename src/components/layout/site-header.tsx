@@ -82,7 +82,7 @@ function MegaMenu({ onClose }: { onClose: () => void }) {
     <motion.div {...motionProps} className={panelWrap}>
       <div className={panel}>
         <MenuHead title="Catégories" href="/boutique" label="Voir toute la boutique" onClose={onClose} />
-        <ul className="grid grid-cols-6 gap-x-6 gap-y-6 px-6 pt-4 pb-6">
+        <ul className="grid [grid-template-columns:repeat(var(--cols),minmax(0,1fr))] gap-x-6 gap-y-6 px-6 pt-4 pb-6" style={{ "--cols": Math.min(Math.max(categories.filter((c) => c.slug !== "promos").length, 4), 7) } as React.CSSProperties}>
           {categories
             .filter((c) => c.slug !== "promos")
             .map((c) => (
@@ -252,7 +252,7 @@ export function SiteHeader() {
           <div className="relative hidden h-[52px] grid-cols-[1fr_auto_1fr] items-stretch md:grid">
             <p className="hidden min-w-0 items-center gap-2 text-[13px] font-medium text-akua-gray-500 xl:flex">
               <Truck aria-hidden className="size-[18px] shrink-0 text-akua-ink" strokeWidth={1.8} />
-              <span className="truncate">Livraison au Togo et dans la sous-région</span>
+              <span className="truncate">Livraison et expédition possibles</span>
             </p>
             <nav aria-label="Navigation principale" className="col-start-2 flex items-stretch gap-1 lg:gap-2">
               {NAV.map((n) => {

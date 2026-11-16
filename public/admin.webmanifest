@@ -1,7 +1,7 @@
 {
-  "name": "AKUA Service · Admin",
+  "name": "AKUA.SERVICE · Admin",
   "short_name": "AKUA Admin",
-  "description": "Espace administrateur AKUA Service : commandes, avis, paniers et notifications.",
+  "description": "Espace administrateur AKUA.SERVICE : commandes, avis, paniers et notifications.",
   "id": "/spaceakua",
   "start_url": "/spaceakua",
   "scope": "/spaceakua",

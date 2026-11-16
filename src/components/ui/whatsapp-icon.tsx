@@ -14,7 +14,7 @@ const SRC = {
   color: "/brand/whatsapp-color.png",
 };
 
-/** Logo WhatsApp officiel (fichiers fournis par AKUA Service). */
+/** Logo WhatsApp officiel (fichiers fournis par AKUA.SERVICE). */
 export function WhatsAppIcon({ size = 20, className, variant = "white" }: WhatsAppIconProps) {
   return <Image src={SRC[variant]} alt="" aria-hidden width={size} height={size} className={cn("relative z-[2] shrink-0 select-none", className)} />;
 }

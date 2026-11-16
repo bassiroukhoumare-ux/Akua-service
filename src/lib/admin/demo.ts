@@ -100,7 +100,7 @@ export interface TeamMember {
 }
 
 export const DEMO_TEAM: TeamMember[] = [
-  { id: "m0", name: "Propriétaire AKUA Service", identifier: "Connexion par mot de passe seul", owner: true, modules: [], status: "active", lastSeen: ago(1), createdAt: ago(60 * 24 * 90) },
+  { id: "m0", name: "Propriétaire AKUA.SERVICE", identifier: "Connexion par mot de passe seul", owner: true, modules: [], status: "active", lastSeen: ago(1), createdAt: ago(60 * 24 * 90) },
   { id: "m1", name: "Afi Lawson", identifier: "+228 91 23 45 67", modules: ["products", "categories", "deals"], status: "active", lastSeen: ago(60 * 2), createdAt: ago(60 * 24 * 30) },
   { id: "m2", name: "Kodjo Amegah", identifier: "+228 99 87 65 43", modules: ["reviews", "carts", "favorites"], status: "pending", createdAt: ago(60 * 24 * 2) },
 ];
@@ -195,7 +195,7 @@ const item = (i: number, quantity = 1) => {
 };
 
 export const DEMO_REVIEW_ITEMS: Review[] = [
-  { id: "demo-r1", productId: products[0].id, firstName: "Kossi", lastName: "Mensah", country: "Togo", email: "kossi.mensah@exemple.com", rating: 5, comment: "Console en parfait état, livrée rapidement à Lomé. Les 10 jeux étaient bien installés. Je recommande AKUA Service.", createdAt: iso(42), status: "publie" },
+  { id: "demo-r1", productId: products[0].id, firstName: "Kossi", lastName: "Mensah", country: "Togo", email: "kossi.mensah@exemple.com", rating: 5, comment: "Console en parfait état, livrée rapidement à Lomé. Les 10 jeux étaient bien installés. Je recommande AKUA.SERVICE.", createdAt: iso(42), status: "publie" },
   { id: "demo-r2", productId: products[3].id, firstName: "Aïcha", lastName: "Diallo", country: "Bénin", email: "aicha.d@exemple.com", rating: 4, comment: "Très bonne manette, emballage soigné. Livraison à Cotonou en 2 jours.", createdAt: iso(60 * 5), status: "publie" },
   { id: "demo-r3", productId: products[2].id, firstName: "Yao", lastName: "Koffi", country: "Côte d'Ivoire", email: "yao.koffi@exemple.com", rating: 5, comment: "Service sérieux, réponse rapide sur WhatsApp.", createdAt: iso(60 * 26), status: "publie" },
   { id: "demo-r4", productId: products[5].id, firstName: "Mawuli", lastName: "Agbo", country: "Togo", email: "mawuli@exemple.com", rating: 2, comment: "Le produit est bien mais j'ai attendu plus longtemps que prévu pour le retrait.", createdAt: iso(60 * 50), status: "masque" },

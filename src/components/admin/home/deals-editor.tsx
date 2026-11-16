@@ -472,7 +472,7 @@ export function DealsEditor() {
                   · {selected.length}/{MAX_DEAL_PRODUCTS}
                 </span>
               </h2>
-              <p className="mt-0.5 text-[13px] text-akua-gray-500">Chaque carte porte la mention « Exclusif ». Le 4e produit s&apos;affiche sur mobile.</p>
+              <p className="mt-0.5 text-[13px] text-akua-gray-500">Affichés dans cet ordre sur l&apos;accueil : 4 alignés sur ordinateur, 2 par ligne sur téléphone.</p>
             </div>
             <button type="button" onClick={() => setPicker(true)} disabled={selected.length >= MAX_DEAL_PRODUCTS} className={btn({ variant: "outline", size: "sm" })}>
               <Plus aria-hidden className="size-4" /> Ajouter des produits

@@ -16,8 +16,8 @@ import { type Actor, type StoredActivity, useAdminCatalog } from "./admin-catalo
 /** Emplacements d'image de l'accueil et leur format imposé. */
 export type SlotId = "poster" | "banner";
 export const SLOTS: Record<SlotId, { label: string; ratio: number; ratioLabel: string; width: number; height: number; hint: string }> = {
-  poster: { label: "Affiche portrait", ratio: 4 / 5, ratioLabel: "4:5", width: 1200, height: 1500, hint: "À droite des catégories sur ordinateur, sous la bannière sur mobile." },
-  banner: { label: "Bannière horizontale", ratio: 3, ratioLabel: "3:1", width: 1500, height: 500, hint: "Sous les catégories sur ordinateur, en haut de l'accueil sur mobile." },
+  poster: { label: "Affiche portrait", ratio: 4 / 5, ratioLabel: "4:5", width: 1200, height: 1500, hint: "À droite de la bannière sur ordinateur, sous la bannière sur mobile." },
+  banner: { label: "Bannière horizontale", ratio: 3, ratioLabel: "3:1", width: 1500, height: 500, hint: "Juste sous les catégories, sur ordinateur et sur mobile." },
 };
 
 export type LinkKind = "category" | "product" | "page" | "url" | "none";
@@ -103,10 +103,10 @@ const initialDeals: DealsConfig = {
 };
 
 export const HOME_SECTION_META: Record<HomeSectionId, { label: string; description: string; editable?: boolean }> = {
-  platforms: { label: "Bandeau des plateformes", description: "Logos PS5, PS4, Switch, Xbox… qui défilent sous les catégories." },
-  deals: { label: "Offre spéciale", description: "Compte à rebours, produits en promo et vidéos TikTok." },
+  platforms: { label: "Bandeau des plateformes", description: "Logos des marques et plateformes (PS5, Switch, HP, Apple…) qui défilent sous la bannière." },
+  deals: { label: "Offre spéciale", description: "Compte à rebours et 4 produits en promotion, choisis dans « Offre spéciale »." },
   catalogue: { label: "Nos produits disponibles", description: "Le catalogue avec ses onglets par catégorie (16 produits, puis « Afficher plus »).", editable: true },
-  packs: { label: "Packs prêts à jouer", description: "Les consoles complètes, le plus vendu mis en avant.", editable: true },
+  packs: { label: "Packs prêts à l'emploi", description: "Un pack par univers (gaming, informatique, tablettes…), le premier mis en avant.", editable: true },
   faq: { label: "Questions fréquentes et contact", description: "Les questions fréquentes et le bloc « Écrivez-nous ».", editable: true },
 };
 
@@ -114,7 +114,7 @@ const initialSections: HomeSection[] = [
   { id: "platforms", visible: true },
   { id: "deals", visible: true },
   { id: "catalogue", visible: true, eyebrow: "Catalogue", title: "Nos produits disponibles." },
-  { id: "packs", visible: true, eyebrow: "Consoles complètes", title: "Packs prêts à jouer" },
+  { id: "packs", visible: true, eyebrow: "Nos packs", title: "Packs prêts à l'emploi" },
   { id: "faq", visible: true, eyebrow: "Questions fréquentes", title: "On vous répond." },
 ];
 

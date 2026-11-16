@@ -10,7 +10,7 @@ import { loadSettings } from "@/lib/catalog";
 import { mapsDirectionsUrl, mapsEmbedUrl, summarizeHours } from "@/lib/shop-settings";
 import { btn } from "@/lib/btn";
 
-export const metadata: Metadata = { title: "Contact", description: "Contactez AKUA Service sur WhatsApp : notre équipe vous répond rapidement." };
+export const metadata: Metadata = { title: "Contact", description: "Contactez AKUA.SERVICE sur WhatsApp : notre équipe vous répond rapidement." };
 
 const card = "rounded-[28px] border border-akua-gray-200 bg-akua-white";
 
@@ -26,7 +26,8 @@ export default async function ContactPage() {
     name: SITE_NAME,
     url: SITE_URL,
     sameAs: s.socials.filter((x) => x.url).map((x) => x.url),
-    openingHours: "Mo-Sa 10:00-20:00",
+    openingHours: s.hours.filter((h) => h.open).map((h) => `${["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"][h.day]} ${h.from}-${h.to}`),
+    address: { "@type": "PostalAddress", streetAddress: s.address, addressLocality: "Lomé", addressCountry: "TG" },
     hasMap: s.mapsLink,
     geo: { "@type": "GeoCoordinates", latitude: s.lat, longitude: s.lng },
   };
@@ -95,7 +96,7 @@ export default async function ContactPage() {
         <div className={`${card} overflow-hidden`}>
           <iframe
             src={MAPS_EMBED_URL}
-            title="Carte de la boutique AKUA Service à Lomé"
+            title="Carte de la boutique AKUA.SERVICE à Lomé"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
             allowFullScreen

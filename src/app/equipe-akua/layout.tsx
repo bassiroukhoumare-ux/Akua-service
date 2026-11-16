@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: { default: "Espace équipe", template: "%s | Espace équipe AKUA Service" },
+  title: { default: "Espace équipe", template: "%s | Espace équipe AKUA.SERVICE" },
   robots: { index: false, follow: false },
 };
 

@@ -6,7 +6,8 @@ import { clip, pushToOwner } from "@/lib/push";
 
 // Tâche planifiée (chaque matin à 7 h, heure de Lomé) :
 // - paniers enregistrés depuis plus de 24 h sans commande → rappel de relance ;
-// - le lundi : produits ajoutés en favori pendant la semaine → à mettre en avant.
+// - le lundi : produits ajoutés en favori pendant la semaine → à mettre en avant ;
+// - nettoyage : visites et favoris de plus de 24 mois, paniers jamais commandés de plus de 12 mois.
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
@@ -48,6 +49,15 @@ export async function GET(req: Request) {
         tag: "favoris-semaine",
       });
     }
+  }
+  // durées de conservation annoncées dans la politique de confidentialité
+  try {
+    const v = (await sql`delete from visits where t < now() - interval '24 months' returning 1`) as unknown[];
+    const f = (await sql`delete from favorites where created_at < now() - interval '24 months' returning 1`) as unknown[];
+    const c = (await sql`delete from saved_carts where status <> 'ordered' and updated_at < now() - interval '12 months' returning 1`) as unknown[];
+    out.nettoyage = { visites: v.length, favoris: f.length, paniers: c.length };
+  } catch {
+    out.nettoyage = "indisponible";
   }
   return NextResponse.json({ ok: true, ...out });
 }

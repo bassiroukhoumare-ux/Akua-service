@@ -18,7 +18,7 @@ export async function resolveMapsLink(req: Request) {
     return NextResponse.json({ error: "Collez un lien Google Maps." }, { status: 400 });
   }
   try {
-    const res = await fetch(url, { redirect: "follow", headers: { "User-Agent": "Mozilla/5.0 (AKUA Service)" }, signal: AbortSignal.timeout(8000) });
+    const res = await fetch(url, { redirect: "follow", headers: { "User-Agent": "Mozilla/5.0 (AKUA.SERVICE)" }, signal: AbortSignal.timeout(8000) });
     const final = new URL(res.url);
     if (!ALLOWED.test(final.hostname)) return NextResponse.json({ error: "Lien non reconnu." }, { status: 400 });
     return NextResponse.json({ url: res.url });

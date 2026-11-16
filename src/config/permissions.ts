@@ -29,7 +29,6 @@ export const PERMISSIONS: Partial<Record<AdminModuleId, PermDef[]>> = {
   deals: [
     { id: "view", label: "Voir l'offre spéciale" },
     { id: "products", label: "Choisir les produits en promotion" },
-    { id: "videos", label: "Ajouter ou changer les vidéos TikTok" },
     { id: "timing", label: "Modifier la durée, les textes et l'activation" },
   ],
   promos: [

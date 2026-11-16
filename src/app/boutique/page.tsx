@@ -8,7 +8,7 @@ import { parseShopParams, type RawParams } from "@/lib/shop-params";
 
 export const metadata: Metadata = {
   title: "Boutique",
-  description: "Consoles et jeux vidéo, ordinateurs, tablettes, accessoires informatiques et équipements électroniques testés et garantis. Livraison au Togo et dans la sous-région.",
+  description: "Consoles et jeux vidéo, ordinateurs, tablettes, accessoires informatiques et équipements électroniques testés et garantis. Livraison et expédition possibles.",
 };
 
 export default async function ShopPage({ searchParams }: { searchParams: Promise<RawParams> }) {
@@ -23,7 +23,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       <Suspense>
         <ShopView products={products} category={category} query={query.search} />
       </Suspense>
-      <ProductCarousel eyebrow="Sélection AKUA" title="Explorez nos recommandations" products={featured} />
+      <ProductCarousel eyebrow="Sélection AKUA.SERVICE" title="Explorez nos recommandations" products={featured} />
       <FaqCta />
     </>
   );

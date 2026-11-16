@@ -22,7 +22,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const p = await getProductBySlug((await params).slug);
   if (!p) return {};
-  return { title: p.name, description: `${p.shortDescription} ${formatFCFA(p.price)}. Livraison au Togo et dans la sous-région.`, openGraph: { images: p.images[0] ? [p.images[0]] : [] } };
+  return { title: p.name, description: `${p.shortDescription} ${formatFCFA(p.price)}. Livraison et expédition possibles.`, openGraph: { images: p.images[0] ? [p.images[0]] : [] } };
 }
 
 const STOCK_LABEL = { en_stock: "En stock", stock_faible: "Stock limité", rupture: "Rupture", sur_commande: "Sur commande" } as const;
@@ -68,9 +68,9 @@ export default async function ProductPage({ params }: Props) {
   ];
 
   const infos = [
-    { icon: Truck, t: "Livraison ou retrait en boutique", d: "Livraison possible au Togo et dans les pays de la sous-région : Bénin, Ghana, Burkina Faso, Côte d'Ivoire, Niger et Mali." },
+    { icon: Truck, t: "Livraison ou retrait en boutique", d: "Livraison et expédition possibles : nous voyons avec vous sur WhatsApp l'envoi vers votre pays, les frais et le délai." },
     ...(product.warranty === false ? [] : [{ icon: ShieldCheck, t: "Garantie", d: product.warrantyLabel ? `Produit testé et garanti ${product.warrantyLabel}.` : "Tous nos produits sont testés et garantis." }]),
-    ...(product.wholesale === false ? [] : [{ icon: Store, t: "Vente en gros", d: "Revendeur, entreprise ou école ? Demandez un devis : tarifs dégressifs selon les quantités, livraison au Togo et dans la sous-région." }]),
+    ...(product.wholesale === false ? [] : [{ icon: Store, t: "Vente en gros", d: "Revendeur, entreprise ou école ? Demandez un devis : tarifs dégressifs selon les quantités, livraison et expédition possibles." }]),
   ];
 
   return (

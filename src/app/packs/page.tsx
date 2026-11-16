@@ -5,8 +5,8 @@ import { PageHero } from "@/components/ui/page-hero";
 import { getPacks, getProducts } from "@/lib/catalog";
 
 export const metadata: Metadata = {
-  title: "Packs prêts à jouer",
-  description: "PS4 Slim et PS4 Pro complètes avec manettes, jeux et accessoires. Testées et garanties.",
+  title: "Packs prêts à l'emploi",
+  description: "Packs gaming, bureau et études : ordinateur, tablette ou console avec leurs accessoires. Testés et garantis.",
 };
 
 export default async function PacksPage() {
@@ -14,7 +14,7 @@ export default async function PacksPage() {
   const complete = consoles.filter((p) => p.includes?.length);
   return (
     <>
-      <PageHero word="Packs" image="/products/ps4-ds4.webp" icon={PackageOpen} eyebrow="Packs prêts à jouer" title="Déballez, branchez, jouez." text="Console, manettes, jeux et accessoires : tout est inclus, testé et garanti." />
+      <PageHero word="Packs" image="/products/ps4-ds4.webp" icon={PackageOpen} eyebrow="Packs prêts à l'emploi" title="Tout est inclus." text="Gaming, bureau ou études : l'appareil et ses accessoires, testés et garantis." />
       <section className="container-akua pt-10 md:pt-14">
         <div className="grid gap-5 md:grid-cols-3">
           {packs.map((p, i) => (

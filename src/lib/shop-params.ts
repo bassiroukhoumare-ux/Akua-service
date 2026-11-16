@@ -25,10 +25,12 @@ export function parseShopParams(sp: RawParams, categorySlug?: string): ProductQu
   const prix = one(sp.prix);
   const [min, max] = prix ? prix.split("-").map(Number) : [];
   const platforms = (one(sp.plateforme) ?? "").split(",").filter(Boolean) as Platform[];
+  const brands = (one(sp.marque) ?? "").split(",").filter(Boolean);
   return {
     categorySlug: categorySlug ?? one(sp.categorie) ?? undefined,
     group: one(sp.type) || undefined,
     platforms: platforms.length ? platforms : undefined,
+    brands: brands.length ? brands : undefined,
     condition: (one(sp.etat) as Condition) || undefined,
     minPrice: Number.isFinite(min) ? min : undefined,
     maxPrice: Number.isFinite(max) ? max : undefined,

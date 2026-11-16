@@ -13,7 +13,7 @@ export const deliveryCountryOptions = (group?: string): SelectOption[] =>
  */
 export function allCountryOptions(otherValue?: string): SelectOption[] {
   const opts: SelectOption[] = [
-    ...deliveryCountryOptions("Togo et sous-région"),
+    ...deliveryCountryOptions("Les plus demandés"),
     ...OTHER_COUNTRY_NAMES.map((n) => ({ value: n, label: n, group: "Autres pays" })),
   ];
   if (otherValue) opts.push({ value: otherValue, label: "Autre pays (à saisir)", display: "Autre pays", group: "Pays non listé" });

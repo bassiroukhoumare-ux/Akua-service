@@ -1,5 +1,7 @@
 "use client";
 
+import { BRANDS } from "@/data/brands";
+import { brandDef, brandOf } from "@/lib/product-filters";
 import {
   ArrowLeft,
   BadgeCheck,
@@ -52,6 +54,8 @@ type Draft = {
   name: string;
   categoryId: string;
   group: string;
+  /** marque choisie ; « auto » = reconnue d'après le nom */
+  brand: string;
   images: string[];
   shortDescription: string;
   description: string;
@@ -81,6 +85,7 @@ function toDraft(p?: Product, pack?: boolean): Draft {
     name: p?.name ?? "",
     categoryId: p?.categoryId ?? (pack ? "cat-consoles" : ""),
     group: p?.group ?? (pack ? "packs" : ""),
+    brand: p?.brand ?? "auto",
     images: p?.images ?? [],
     shortDescription: p?.shortDescription ?? "",
     description: p?.description ?? "",
@@ -164,7 +169,8 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
   );
 
   function build(): Product {
-    const keep = (existing?.badges ?? []).filter((b): b is ProductBadgeType => b === "best-seller" || b === "premium");
+    // « Premium » n'est plus utilisé sur le site : il disparaît à l'enregistrement
+    const keep = (existing?.badges ?? []).filter((b): b is ProductBadgeType => b === "best-seller");
     const badges: ProductBadgeType[] = [...keep];
     if (d.promo) badges.push("promo");
     if (d.isNew) badges.push("nouveau");
@@ -181,6 +187,7 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
       name: d.name.trim(),
       categoryId: d.categoryId,
       group: categories.find((c) => c.id === d.categoryId)?.groups?.some((g) => g.slug === d.group) ? d.group : undefined,
+      brand: d.brand === "auto" ? undefined : d.brand,
       platforms: d.platforms,
       otherPlatforms: d.otherPlatforms.length ? d.otherPlatforms : undefined,
       condition: d.condition,
@@ -264,6 +271,7 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
     );
   }
 
+  const autoBrand = brandDef(brandOf({ name: d.name }))?.name;
   const groupOptions = (categories.find((c) => c.id === d.categoryId)?.groups ?? []).map((g) => ({ value: g.slug, label: g.name }));
   const preview = build();
   const title = existing ? `${canSave ? "Modifier" : "Fiche"} ${existing.isPack ? "le pack" : "le produit"}`.replace("Fiche le", "Fiche du").replace("Fiche du produit", "Fiche du produit") : d.isPack ? "Nouveau pack" : "Nouveau produit";
@@ -365,6 +373,18 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
                   <SearchSelect id="pe-group" value={d.group} onChange={(v) => set("group", v)} options={groupOptions} placeholder="Choisir un sous-rayon" searchable={false} />
                 </Field>
               )}
+              <Field id="pe-brand" label="Marque" optional hint="Sert au filtre « Marques » du site, avec le logo de la marque. Par défaut, elle est reconnue d'après le nom du produit.">
+                <SearchSelect
+                  id="pe-brand"
+                  value={d.brand}
+                  onChange={(v) => set("brand", v)}
+                  options={[
+                    { value: "auto", label: `Reconnue automatiquement${autoBrand ? ` : ${autoBrand}` : " : aucune"}` },
+                    ...BRANDS.map((b) => ({ value: b.id, label: b.name })),
+                  ]}
+                  searchPlaceholder="Rechercher une marque…"
+                />
+              </Field>
               <Field id="pe-shortDescription" label="Description courte" error={errors.shortDescription} hint={`${d.shortDescription.length}/140 · affichée sous le nom, sur la fiche produit`}>
                 <input
                   id="pe-shortDescription"
@@ -448,7 +468,7 @@ export function ProductEditor({ productId, pack }: { productId?: string; pack?: 
                   ]}
                 />
               </Field>
-              <Field label="Plateformes" optional>
+              <Field label="Compatible avec" optional hint="Les consoles ou appareils avec lesquels le produit fonctionne. Les clients peuvent filtrer la boutique avec.">
                 <div className="flex flex-wrap gap-2">
                   {PLATFORMS.map((pl) => {
                     const on = d.platforms.includes(pl);

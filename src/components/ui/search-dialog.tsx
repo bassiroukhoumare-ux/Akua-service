@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import { useUI } from "@/store/ui";
 
 const norm = (t: string) => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
-const POPULAR = ["Manette PS4", "FC 27", "PS4 Slim", "Switch 2", "DualSense", "Volant"];
+const POPULAR = ["PS5", "MacBook", "Tablette Samsung", "Casque", "Manette", "Souris"];
 
 /**
  * iOS n'ouvre le clavier que si un champ reçoit le focus pendant le toucher lui-même.
@@ -94,7 +94,7 @@ export function SearchDialog() {
               autoFocus
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Console, manette, jeu…"
+              placeholder="Ordinateur, tablette, console…"
               enterKeyHint="search"
               type="search"
               autoComplete="off"
@@ -138,18 +138,18 @@ export function SearchDialog() {
               </ul>
 
               <p className={cn(label, "mt-6")}>Parcourir les rayons</p>
-              <ul className="no-scrollbar -mx-4 mt-2.5 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:px-0">
+              <ul className="mt-2.5 grid grid-cols-4 gap-1.5 sm:gap-2">
                 {categories.map((c) => {
                   const Icon = getCategoryIcon(c.icon);
                   return (
-                    <li key={c.id} className="shrink-0">
+                    <li key={c.id} className="min-w-0">
                       <Link
                         href={`/boutique/${c.slug}`}
                         onClick={close}
-                        className="group flex h-[76px] w-[84px] flex-col items-center justify-center gap-1.5 rounded-[18px] bg-akua-page text-center transition-colors hover:bg-akua-blue-100 sm:w-auto"
+                        className="group flex h-[84px] flex-col items-center justify-center gap-1.5 rounded-[16px] bg-akua-page px-1 text-center sm:rounded-[18px] transition-colors hover:bg-akua-blue-100"
                       >
                         <Icon aria-hidden className="size-6 text-akua-ink transition-colors group-hover:text-akua-blue" strokeWidth={1.4} />
-                        <span className="text-[11.5px] font-semibold whitespace-nowrap group-hover:text-akua-blue">{c.name}</span>
+                        <span className="line-clamp-2 w-full text-[11px] leading-[1.2] font-semibold [overflow-wrap:anywhere] group-hover:text-akua-blue sm:text-[12.5px]">{c.shortName ?? c.name}</span>
                       </Link>
                     </li>
                   );

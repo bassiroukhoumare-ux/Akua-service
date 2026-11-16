@@ -12,7 +12,7 @@ const COPY: Record<PortalKind, { eyebrow: string; sub: string }> = {
   },
   team: {
     eyebrow: "Espace équipe",
-    sub: "Réservé uniquement aux équipes d'AKUA Service. Connectez-vous avec votre numéro WhatsApp et votre mot de passe.",
+    sub: "Réservé uniquement aux équipes d'AKUA.SERVICE. Connectez-vous avec votre numéro WhatsApp et votre mot de passe.",
   },
 };
 
@@ -43,7 +43,7 @@ export function LoginScreen({ kind }: { kind: PortalKind }) {
           </div>
         </Reveal>
       </main>
-      <footer className="relative py-6 text-center text-[12px] text-akua-gray-500">© {new Date().getFullYear()} AKUA Service</footer>
+      <footer className="relative py-6 text-center text-[12px] text-akua-gray-500">© {new Date().getFullYear()} AKUA.SERVICE</footer>
     </div>
   );
 }

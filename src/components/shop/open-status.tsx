@@ -3,23 +3,19 @@
 import { LockKeyhole, LockKeyholeOpen } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-
-/** Ouvert du lundi au samedi, de 10 h à 20 h (heure locale du visiteur). */
-function isOpen(d: Date) {
-  const day = d.getDay();
-  const h = d.getHours() + d.getMinutes() / 60;
-  return day !== 0 && h >= 10 && h < 20;
-}
+import { useShopSettings } from "@/components/shop-settings-provider";
+import { isOpenNow } from "@/lib/shop-settings";
 
 /** Statut d'ouverture : cadenas ouvert / fermé, toujours sur une seule ligne. */
 export function OpenStatus({ className }: { className?: string }) {
+  const { hours } = useShopSettings();
   const [open, setOpen] = useState<boolean | null>(null);
   useEffect(() => {
-    const tick = () => setOpen(isOpen(new Date()));
+    const tick = () => setOpen(isOpenNow(hours));
     tick();
     const id = window.setInterval(tick, 60_000);
     return () => window.clearInterval(id);
-  }, []);
+  }, [hours]);
   if (open === null) return null;
   const Icon = open ? LockKeyholeOpen : LockKeyhole;
   return (

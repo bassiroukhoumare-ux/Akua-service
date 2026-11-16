@@ -1,8 +1,7 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Check, Clock, Copy, ExternalLink, Globe2, Loader2, LockKeyhole, LockKeyholeOpen, MapPin, Navigation, Plus, Send, Store, Trash2, Truck } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, Clock, Copy, ExternalLink, Globe2, Loader2, LockKeyhole, LockKeyholeOpen, MapPin, Navigation, Plus, Send, Store, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Flag } from "@/components/ui/flag";
 import { FacebookIcon, InstagramIcon, LinkedInIcon, TikTokIcon, XIcon, YouTubeIcon } from "@/components/ui/social-icons";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import { btn } from "@/lib/btn";
@@ -22,7 +21,7 @@ import {
   WEEK_ORDER,
 } from "@/store/admin-settings";
 import { useAdmin, useCan } from "../actor-context";
-import { Field, inputCls, Toggle } from "../form";
+import { Field, inputCls } from "../form";
 import { PageHeader } from "../ui";
 import { ReadOnlyNotice } from "../read-only";
 import { PushPanel } from "../push-panel";
@@ -175,11 +174,10 @@ export function SettingsView() {
   if (!hydrated) return <div className="h-[60vh] animate-pulse rounded-[24px] bg-akua-white" />;
 
   const waDigits = digits(s.whatsapp);
-  const deliveryList = s.delivery.filter((c) => c.enabled);
 
   return (
     <div className="flex flex-col gap-5 pb-24 md:gap-6">
-      <PageHeader title="Paramètres" description="Coordonnées, horaires, localisation, réseaux sociaux et pays de livraison de la boutique." />
+      <PageHeader title="Paramètres" description="Coordonnées, horaires, localisation et réseaux sociaux de la boutique." />
       <ReadOnlyNotice module="settings" />
       {actor.kind === "owner" && <PushPanel />}
 
@@ -251,7 +249,7 @@ export function SettingsView() {
           </Section>
 
           {/* horaires */}
-          <Section icon={Clock} title="Horaires d'ouverture" description="Affichés sur la page Contact, avec l'indication « Ouvert » ou « Fermé » en temps réel.">
+          <Section icon={Clock} title="Horaires d'ouverture" description="Affichés sur la page Contact et dans le pied de page du site, avec l'indication « Ouvert » ou « Fermé » en temps réel.">
             <ul className="flex flex-col divide-y divide-akua-gray-200">
               {WEEK_ORDER.map((day) => {
                 const h = s.hours.find((x) => x.day === day)!;
@@ -335,29 +333,6 @@ export function SettingsView() {
             </div>
           </Section>
 
-          {/* livraison */}
-          <Section icon={Truck} title="Pays de livraison" description="Proposés dans le panier et affichés dans le pied de page.">
-            <div className="flex flex-wrap gap-2">
-              {s.delivery.map((c) => (
-                <button
-                  key={c.code}
-                  type="button"
-                  aria-pressed={c.enabled}
-                  onClick={() => set("delivery", s.delivery.map((x) => (x.code === c.code ? { ...x, enabled: !x.enabled } : x)))}
-                  className={cn(
-                    "inline-flex h-10 items-center gap-2 rounded-full border px-3.5 text-[13.5px] font-semibold transition-colors",
-                    c.enabled ? "border-akua-blue bg-akua-blue-100 text-akua-ink" : "border-akua-gray-200 text-akua-gray-500 hover:border-akua-ink",
-                  )}
-                >
-                  <Flag code={c.code} className={cn(!c.enabled && "opacity-40 grayscale")} /> {c.name}
-                  {c.enabled && <Check aria-hidden className="size-3.5 text-akua-blue" strokeWidth={3} />}
-                </button>
-              ))}
-            </div>
-            <div className="mt-4">
-              <Toggle checked={s.deliveryOthers} onChange={(v) => set("deliveryOthers", v)} label="Afficher « et autres pays »" description="Pour indiquer que vous livrez aussi d'autres pays sur demande." />
-            </div>
-          </Section>
         </fieldset>
 
         {/* aperçu */}
@@ -380,15 +355,8 @@ export function SettingsView() {
           </div>
           <div className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5">
             <p className="text-[11px] font-bold tracking-[0.12em] text-akua-gray-500 uppercase">Pied de page</p>
-            <p className="mt-3 text-[12.5px] font-semibold">Nous livrons :</p>
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
-              {deliveryList.map((c) => (
-                <span key={c.code} className="inline-flex items-center gap-1.5 rounded-full bg-akua-page px-2.5 py-1 text-[12px] font-medium">
-                  <Flag code={c.code} /> {c.name}
-                </span>
-              ))}
-              {s.deliveryOthers && <span className="inline-flex items-center gap-1.5 rounded-full bg-akua-page px-2.5 py-1 text-[12px] font-medium text-akua-gray-500">et autres pays</span>}
-            </div>
+            <p className="mt-3 text-[12.5px] font-semibold">Livraison et expédition possibles</p>
+            <p className="mt-1 text-[12px] text-akua-gray-500">Aucun pays n&apos;est listé sur le site : l&apos;envoi est confirmé avec chaque client sur WhatsApp.</p>
             <p className="mt-4 text-[12.5px] font-semibold">Suivez-nous :</p>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               {s.socials.filter((x) => x.url).length === 0 && <span className="text-[12.5px] text-akua-gray-500">Aucun réseau renseigné.</span>}

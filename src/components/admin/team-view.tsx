@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { PageHeader, Panel } from "./ui";
 
 type TeamMember = PublicMember & { owner?: boolean };
-const OWNER_ROW: TeamMember = { id: "owner", name: "Propriétaire AKUA Service", identifier: "Connexion par mot de passe seul", owner: true, modules: [], perms: {}, status: "active", mustChange: false, createdAt: "" };
+const OWNER_ROW: TeamMember = { id: "owner", name: "Propriétaire AKUA.SERVICE", identifier: "Connexion par mot de passe seul", owner: true, modules: [], perms: {}, status: "active", mustChange: false, createdAt: "" };
 
 // le tableau de bord est ouvert à tous les équipiers ; l'équipe et l'activité restent réservées au propriétaire
 const RIGHTS = ADMIN_GROUPS.map((g) => ({ ...g, modules: g.modules.filter((m) => m.id !== "dashboard" && !m.ownerOnly && PERMISSIONS[m.id]) })).filter((g) => g.modules.length);
@@ -283,7 +283,7 @@ function CredentialsDialog({ member, password, onClose }: { member: TeamMember |
   const message = [
     `Bonjour ${first},`,
     "",
-    "Vous avez désormais accès à l'espace équipe d'AKUA Service.",
+    "Vous avez désormais accès à l'espace équipe d'AKUA.SERVICE.",
     "",
     `Adresse : ${url}`,
     `Numéro de connexion : ${member.identifier}`,

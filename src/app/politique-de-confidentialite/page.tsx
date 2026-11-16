@@ -16,7 +16,7 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <P>
-          Le site est édité par <B>{SITE_NAME}</B>, entreprise établie à Lomé (Togo), qui est responsable du traitement des données personnelles collectées sur le site et lors des échanges
+          Le site est édité par <B>{SITE_NAME}</B>, entreprise établie à Lomé (Togo), Agoè-Assiyéyé, à 50 m de la Poste, qui est responsable du traitement des données personnelles collectées sur le site et lors des échanges
           sur WhatsApp liés à vos commandes.
         </P>
         <P>
@@ -36,14 +36,27 @@ const SECTIONS: LegalSection[] = [
         <UL
           items={[
             <>
-              <B>Lors d&apos;une commande</B> : nom, numéro WhatsApp, adresse e-mail (facultative), pays, ville et adresse de livraison, ou jour et heure de retrait, contenu du panier,
-              code promo et éventuelle demande d&apos;acompte.
+              <B>Lors d&apos;une commande</B> : nom, numéro WhatsApp, adresse e-mail (facultative), pays, ville, adresse de livraison et point de repère, ou jour et heure de retrait,
+              contenu du panier, code promo et éventuelle demande d&apos;acompte. La commande est enregistrée sur notre serveur avec une référence (par exemple CMD-AKUA-0001).
             </>,
             <>
-              <B>Lors d&apos;une demande de vente en gros</B> : nom ou raison sociale, pays, numéro de téléphone, produits et quantités souhaités, message.
+              <B>Lorsque vous enregistrez votre panier</B> sans commander : nom, numéro WhatsApp, pays et contenu du panier, pour que nous puissions vous recontacter et vous aider à
+              finaliser votre achat.
+            </>,
+            <>
+              <B>Lors d&apos;une demande de vente en gros ou d&apos;un message de contact</B> : nom, entreprise (facultative), numéro de téléphone, pays, ville, adresse, produits et quantités
+              souhaités, message. Ces informations sont transmises par WhatsApp et ne sont pas enregistrées sur notre serveur.
             </>,
             <>
               <B>Lors de la publication d&apos;un avis</B> : prénom, nom, pays, adresse e-mail, note et commentaire.
+            </>,
+            <>
+              <B>Lorsque vous ajoutez un produit en favori</B> : le produit concerné, associé à un identifiant anonyme (sans nom ni numéro), pour connaître les produits les plus appréciés.
+            </>,
+            <>
+              <B>Statistiques de visite anonymes</B> : pages consultées, provenance de la visite (recherche, réseau social, lien direct), pays déduit de la connexion et type d&apos;appareil
+              (téléphone, ordinateur), associés à un identifiant anonyme tiré au hasard. <B>Votre adresse IP n&apos;est pas conservée</B> et ces statistiques ne permettent pas de vous
+              identifier.
             </>,
             <>
               <B>Lors de nos échanges sur WhatsApp</B> : les messages que vous nous envoyez et les informations utiles au suivi de votre commande.
@@ -69,8 +82,9 @@ const SECTIONS: LegalSection[] = [
             "vous contacter au sujet de votre commande, de sa livraison, de son paiement ou de la garantie ;",
             "répondre à vos demandes de devis et de vente en gros ;",
             "publier et modérer les avis clients ;",
+            "vous recontacter, si vous avez enregistré votre panier, pour vous aider à finaliser votre commande ;",
             "tenir notre comptabilité et respecter nos obligations légales ;",
-            "améliorer notre catalogue et notre service.",
+            "mesurer la fréquentation du site et améliorer notre catalogue et notre service.",
           ]}
         />
         <P>
@@ -86,8 +100,9 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <P>
-          Lorsque vous cliquez sur « Envoyer ma commande sur WhatsApp », le site prépare un message récapitulatif et ouvre l&apos;application WhatsApp. <B>Rien n&apos;est envoyé
-          tant que vous n&apos;avez pas vous-même appuyé sur « Envoyer »</B> dans WhatsApp.
+          Lorsque vous cliquez sur « Envoyer ma commande sur WhatsApp », votre commande est enregistrée sur notre serveur, puis le site prépare un message récapitulatif et ouvre
+          l&apos;application WhatsApp. <B>Le message n&apos;est envoyé que lorsque vous appuyez vous-même sur « Envoyer »</B> dans WhatsApp. Il en va de même pour les demandes de devis
+          et les messages de contact.
         </P>
         <P>
           WhatsApp est un service fourni par une société tierce (WhatsApp, groupe Meta), qui traite les messages selon ses propres conditions et sa propre politique de confidentialité.
@@ -115,18 +130,20 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <P>
-          Le site n&apos;utilise <B>ni cookie publicitaire ni outil de suivi</B>. Pour fonctionner, il enregistre uniquement sur votre propre appareil (stockage local du navigateur) :
+          Le site n&apos;utilise <B>ni cookie publicitaire ni outil de suivi publicitaire</B> (pas de Google Analytics ni de pixel Facebook). Pour fonctionner, il enregistre sur votre
+          propre appareil (stockage local du navigateur) :
         </P>
         <UL
           items={[
             "le contenu de votre panier et les informations saisies dans le formulaire de commande, pour ne pas les perdre si vous quittez la page ;",
             "la liste de vos produits favoris ;",
-            "les avis que vous avez publiés.",
+            "la devise choisie pour afficher les prix (F CFA, euro ou dollar) ;",
+            "un identifiant anonyme tiré au hasard, utilisé pour les statistiques de visite et les favoris.",
           ]}
         />
         <P>
-          Ces informations restent sur votre téléphone ou votre ordinateur et ne nous sont pas transmises tant que vous n&apos;envoyez pas votre commande. Vous pouvez les effacer à tout
-          moment en vidant les données de navigation de votre navigateur.
+          Vous pouvez effacer ces informations à tout moment en vidant les données de navigation de votre navigateur. La carte de la page Contact est fournie par Google Maps : en
+          l&apos;affichant, Google peut déposer ses propres cookies, selon sa politique de confidentialité.
         </P>
       </>
     ),
@@ -141,12 +158,13 @@ const SECTIONS: LegalSection[] = [
           items={[
             `à l'équipe d'${SITE_NAME} chargée des ventes, de la préparation et de la livraison des commandes ;`,
             "au livreur ou au transporteur, pour les seules informations nécessaires à la livraison (nom, téléphone, adresse) ;",
-            "à nos prestataires techniques (hébergement du site), qui agissent uniquement sur nos instructions ;",
+            "à nos prestataires techniques (hébergement du site chez Vercel et base de données chez Neon), qui agissent uniquement sur nos instructions ;",
             "aux autorités, lorsque la loi l'exige.",
           ]}
         />
         <P>
-          Pour les livraisons hors du Togo, les informations de livraison peuvent être transmises au transporteur du pays de destination, dans la stricte mesure nécessaire.
+          Pour une expédition hors du Togo, les informations de livraison peuvent être transmises au transporteur ou au partenaire chargé de l&apos;envoi, dans la stricte mesure
+          nécessaire. Nos prestataires techniques peuvent héberger les données hors du Togo, avec des garanties de sécurité adaptées.
         </P>
       </>
     ),
@@ -158,7 +176,9 @@ const SECTIONS: LegalSection[] = [
       <UL
         items={[
           "Données de commande : pendant la durée nécessaire au suivi de la commande et de la garantie, puis archivées pendant la durée imposée par nos obligations comptables et légales.",
-          "Demandes de devis sans suite : 12 mois maximum après le dernier échange.",
+          "Paniers enregistrés sans commande : 12 mois maximum, puis suppression automatique.",
+          "Demandes de devis et messages de contact (sur WhatsApp) : 12 mois maximum après le dernier échange.",
+          "Favoris et statistiques de visite anonymes : 24 mois maximum, puis suppression automatique.",
           "Avis clients : tant que l'avis est publié ; l'adresse e-mail associée est supprimée avec l'avis.",
           "Données stockées sur votre appareil : jusqu'à ce que vous les effaciez.",
         ]}
@@ -171,7 +191,7 @@ const SECTIONS: LegalSection[] = [
     body: (
       <P>
         Nous mettons en œuvre des mesures raisonnables pour protéger vos données contre la perte, l&apos;accès non autorisé ou la divulgation : connexion sécurisée au site (HTTPS),
-        accès limité aux seules personnes qui en ont besoin, absence de collecte de données de paiement. Aucun système n&apos;étant totalement infaillible, nous vous invitons aussi à
+        espace de gestion protégé par mot de passe, accès de chaque membre de l&apos;équipe limité aux seules informations dont il a besoin, absence de collecte de données de paiement. Aucun système n&apos;étant totalement infaillible, nous vous invitons aussi à
         protéger l&apos;accès à votre téléphone et à votre compte WhatsApp.
       </P>
     ),
@@ -227,7 +247,7 @@ export default function PrivacyPage() {
       eyebrow="Politique de confidentialité"
       title="Politique de confidentialité"
       intro="Quelles informations nous recueillons, pourquoi, combien de temps nous les gardons et comment exercer vos droits."
-      updated="7 novembre 2026"
+      updated="13 novembre 2026"
       sections={SECTIONS}
       related={{ label: "Conditions générales de vente", href: "/conditions-generales-de-vente" }}
     />

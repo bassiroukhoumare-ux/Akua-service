@@ -2,6 +2,7 @@
 // Catalogue géré depuis l'espace admin (base Neon). Tant que rien n'a été enregistré depuis l'admin,
 // le site affiche ses données d'origine.
 
+import { brandOf } from "@/lib/product-filters";
 import { banners } from "@/data/banners";
 import { categories as baseCategories } from "@/data/categories";
 import { products as baseProducts } from "@/data/products";
@@ -36,6 +37,8 @@ export interface ProductQuery {
   /** sous-rayon de la catégorie */
   group?: string;
   platforms?: Platform[];
+  /** marques (id de src/data/brands.ts) */
+  brands?: string[];
   condition?: Condition;
   minPrice?: number;
   maxPrice?: number;
@@ -84,14 +87,15 @@ export async function getProducts(query: ProductQuery = {}): Promise<Product[]> 
   if (query.platforms?.length) {
     list = list.filter((p) => p.platforms.some((pl) => query.platforms!.includes(pl)));
   }
+  if (query.brands?.length) list = list.filter((p) => query.brands!.includes(brandOf(p) ?? ""));
   if (query.condition) list = list.filter((p) => p.condition === query.condition);
   if (query.minPrice != null) list = list.filter((p) => p.price >= query.minPrice!);
   if (query.maxPrice != null) list = list.filter((p) => p.price <= query.maxPrice!);
-  if (query.inStockOnly) list = list.filter((p) => p.stockStatus !== "rupture");
+  if (query.inStockOnly) list = list.filter((p) => p.stockStatus !== "rupture" && p.stockStatus !== "sur_commande");
   if (query.search) {
     const q = normalize(query.search.trim());
     list = list.filter((p) =>
-      normalize(`${p.name} ${p.shortDescription} ${p.platforms.join(" ")} ${categories.find((c) => c.id === p.categoryId)?.name ?? ""}`).includes(q),
+      normalize(`${p.name} ${p.shortDescription} ${p.platforms.join(" ")} ${brandOf(p) ?? ""} ${categories.find((c) => c.id === p.categoryId)?.name ?? ""}`).includes(q),
     );
   }
 
@@ -140,6 +144,24 @@ export async function getDealsOfTheDay(): Promise<Product[]> {
 export async function getPacks(): Promise<Product[]> {
   const { products } = await loadCatalog();
   return products.filter((p) => p.isPack).sort((a, b) => a.price - b.price);
+}
+
+/**
+ * Packs de l'accueil : un pack par univers (gaming, informatique, tablettes…) pour un choix varié,
+ * dans l'ordre des catégories, puis les autres packs si besoin.
+ */
+export async function getMixedPacks(limit = 3): Promise<Product[]> {
+  const [packs, categories] = await Promise.all([getPacks(), getCategories()]);
+  const order = new Map(categories.map((c, i) => [c.id, i]));
+  const picked: Product[] = [];
+  const seen = new Set<string>();
+  for (const p of [...packs].sort((a, b) => (order.get(a.categoryId) ?? 99) - (order.get(b.categoryId) ?? 99))) {
+    if (seen.has(p.categoryId)) continue;
+    seen.add(p.categoryId);
+    picked.push(p);
+  }
+  for (const p of packs) if (!picked.includes(p)) picked.push(p);
+  return picked.slice(0, limit);
 }
 
 export async function getFeaturedProducts(): Promise<Product[]> {

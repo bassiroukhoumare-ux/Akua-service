@@ -9,12 +9,12 @@ interface LogoProps {
   priority?: boolean;
 }
 
-/** Logo officiel AKUA SERVICE (fichier fourni : « LOGO AKUA.png »). */
+/** Logo officiel AKUA.SERVICE (fichier fourni : « LOGO AKUA.png »). */
 export function Logo({ className, href = "/", priority }: LogoProps) {
   const img = (
     <Image
       src="/brand/logo-akua.webp"
-      alt="AKUA Service"
+      alt="AKUA.SERVICE"
       width={638}
       height={280}
       priority={priority}
@@ -23,7 +23,7 @@ export function Logo({ className, href = "/", priority }: LogoProps) {
   );
   if (!href) return img;
   return (
-    <Link href={href} aria-label="AKUA Service, accueil" className="inline-flex shrink-0 rounded-md">
+    <Link href={href} aria-label="AKUA.SERVICE, accueil" className="inline-flex shrink-0 rounded-md">
       {img}
     </Link>
   );

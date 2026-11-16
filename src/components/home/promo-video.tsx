@@ -179,7 +179,7 @@ export function PromoVideo({ videos, className }: { videos: string[]; className?
           loop={!many}
           playsInline
           preload="metadata"
-          aria-label="Vidéo AKUA Service"
+          aria-label="Vidéo AKUA.SERVICE"
           onLoadedData={(e) => {
             setReady(true);
             if (wantPlay.current) e.currentTarget.play().catch(() => {});
@@ -201,7 +201,7 @@ export function PromoVideo({ videos, className }: { videos: string[]; className?
           ref={frame}
           src={`${ORIGIN}/player/v1/${src.id}?${started ? LIVE_PARAMS : POSTER_PARAMS}`}
           onLoad={() => !started && setReady(true)}
-          title="Vidéo TikTok AKUA Service"
+          title="Vidéo TikTok AKUA.SERVICE"
           allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
           tabIndex={-1}
           className={cn("absolute inset-0 size-full border-0 transition-opacity duration-500", ready ? "opacity-100" : "opacity-0")}
@@ -263,7 +263,7 @@ export function PromoVideo({ videos, className }: { videos: string[]; className?
         rel="noopener"
         className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-10 focus:rounded-full focus:bg-akua-white focus:px-3 focus:py-1.5 focus:text-[12.5px] focus:font-semibold"
       >
-        Voir AKUA Service sur TikTok
+        Voir AKUA.SERVICE sur TikTok
       </a>
     </div>
   );

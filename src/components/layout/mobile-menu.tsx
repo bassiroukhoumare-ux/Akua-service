@@ -9,17 +9,18 @@ import { CurrencySwitch } from "@/components/currency";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Logo } from "@/components/ui/logo";
 import { useShopSettings } from "@/components/shop-settings-provider";
-import { SocialLinkIcon } from "@/components/ui/social-link-icon";
+import { SocialBrandBadge } from "@/components/ui/social-brand";
 import { summarizeHours } from "@/lib/shop-settings";
 import { useCatalog } from "@/components/catalog-provider";
 import { getCategoryIcon } from "@/lib/icons";
+import { categoryImages } from "@/data/category-media";
 import { cn } from "@/lib/utils";
 import { useUI } from "@/store/ui";
 
 const LINKS = [
   { label: "Accueil", href: "/", icon: House },
   { label: "Boutique", href: "/boutique", icon: Store },
-  { label: "Packs prêts à jouer", href: "/packs", icon: PackageOpen },
+  { label: "Packs prêts à l'emploi", href: "/packs", icon: PackageOpen },
   { label: "Promotions", href: "/boutique/promos", icon: BadgePercent },
   { label: "Vente en gros", href: "/vente-en-gros", icon: Warehouse },
   { label: "Contact", href: "/contact", icon: MessageCircleMore },
@@ -86,17 +87,30 @@ export function MobileMenu() {
               Tout voir <ArrowUpRight aria-hidden className="size-3.5" />
             </Link>
           </div>
-          <div className="mt-2.5 grid grid-cols-4 rounded-[22px] border border-akua-gray-200">
-            {categories.map((c) => {
-              const Icon = getCategoryIcon(c.icon);
-              return (
-                <Link key={c.id} href={`/boutique/${c.slug}`} onClick={close} className="group flex flex-col items-center gap-1.5 min-w-0 rounded-[20px] px-0 py-3.5 text-center transition-colors hover:bg-akua-page">
-                  <Icon aria-hidden className="size-6 text-akua-ink transition-colors group-hover:text-akua-blue" strokeWidth={1.4} />
-                  <span className="w-full truncate text-[9.5px] leading-tight font-semibold tracking-[-0.03em] min-[380px]:text-[10.5px] min-[380px]:tracking-[-0.01em]">{c.shortName ?? c.name}</span>
-                </Link>
-              );
-            })}
-          </div>
+          {/* 3 colonnes régulières : photo de la catégorie puis nom (les promos sont déjà dans la navigation) */}
+          <ul className="mt-2.5 grid grid-cols-3 gap-2">
+            {categories
+              .filter((c) => c.slug !== "promos")
+              .map((c) => {
+                const img = c.image ?? categoryImages[c.id];
+                const Icon = getCategoryIcon(c.icon);
+                return (
+                  <li key={c.id} className="min-w-0">
+                    <Link href={`/boutique/${c.slug}`} onClick={close} className="group flex h-full flex-col items-center gap-1.5 rounded-2xl border border-akua-gray-200 p-1 pb-2 text-center transition-colors hover:border-akua-ink active:bg-akua-page">
+                      <span className="relative grid aspect-square w-full place-items-center overflow-hidden rounded-xl bg-akua-tile">
+                        {img ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={img} alt="" loading="lazy" className="absolute inset-0 size-full object-contain p-1.5" />
+                        ) : (
+                          <Icon aria-hidden className="size-5 text-akua-ink" strokeWidth={1.5} />
+                        )}
+                      </span>
+                      <span className="w-full px-0.5 text-[10.5px] leading-tight font-semibold tracking-[-0.01em] min-[380px]:text-[11.5px] text-akua-ink [overflow-wrap:normal] [word-break:keep-all]">{c.shortName ?? c.name}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+          </ul>
 
           <div className="mt-6 rounded-[22px] bg-akua-page p-4">
             <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
@@ -113,8 +127,8 @@ export function MobileMenu() {
               {settings.socials
                 .filter((x) => /^https?:\/\//.test(x.url))
                 .map((x) => (
-                  <a key={x.id} href={x.url} target="_blank" rel="noopener" aria-label={x.label} className="grid size-9 place-items-center rounded-full bg-akua-ink text-akua-white">
-                    <SocialLinkIcon network={x.network} className="size-4" />
+                  <a key={x.id} href={x.url} target="_blank" rel="noopener" aria-label={x.label} className="block rounded-full">
+                    <SocialBrandBadge network={x.network} className="size-10" />
                   </a>
                 ))}
             </div>

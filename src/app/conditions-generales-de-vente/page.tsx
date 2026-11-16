@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { B, LegalPage, type LegalSection, P, UL } from "@/components/legal/legal-page";
-import { DELIVERY_COUNTRIES, SITE_NAME } from "@/config/site";
+import { SITE_NAME } from "@/config/site";
 
 export const metadata: Metadata = {
   title: "Conditions générales de vente",
-  description: `Conditions générales de vente d'${SITE_NAME} : commande sur WhatsApp, prix, paiement, livraison, retrait en boutique, garantie et retours.`,
+  description: `Conditions générales de vente d'${SITE_NAME} : commande sur WhatsApp, prix, paiement, livraison et expédition, retrait en boutique, vente en gros, garantie et retours.`,
   alternates: { canonical: "/conditions-generales-de-vente" },
 };
 
-const countries = DELIVERY_COUNTRIES.map((c) => c.name).join(", ");
 
 const SECTIONS: LegalSection[] = [
   {
@@ -18,8 +17,9 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <P>
-          Les présentes conditions générales de vente (ci-après les « CGV ») régissent les ventes de produits proposées par <B>{SITE_NAME}</B>, entreprise établie à Lomé (Togo) et spécialisée dans
-          les consoles, jeux vidéo, manettes, accessoires et produits high-tech (ci-après « le Vendeur »), à toute personne physique ou morale passant commande (ci-après « le Client »).
+          Les présentes conditions générales de vente (ci-après les « CGV ») régissent les ventes de produits proposées par <B>{SITE_NAME}</B>, entreprise établie à Lomé (Togo), Agoè-Assiyéyé,
+          à 50 m de la Poste, et spécialisée dans la vente de consoles et jeux vidéo, d&apos;ordinateurs, de tablettes, d&apos;accessoires informatiques, d&apos;équipements électroniques,
+          d&apos;audio et d&apos;objets connectés (ci-après « le Vendeur »), à toute personne physique ou morale passant commande (ci-après « le Client »).
         </P>
         <P>
           Le site présente le catalogue et permet de préparer une commande. La vente n&apos;est conclue qu&apos;après confirmation de la commande par le Vendeur sur WhatsApp, dans les
@@ -38,9 +38,10 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <P>
-          Les produits sont décrits avec la plus grande exactitude possible : désignation, caractéristiques principales, état et prix. Selon l&apos;article, un produit peut être <B>neuf</B> ou
-          <B> venant</B>, dans son carton d&apos;origine ou sans carton : l&apos;état et le conditionnement sont précisés sur la fiche produit, que le Client est invité à consulter avant
-          toute commande. Les photographies sont fournies à titre illustratif ; une légère différence de présentation (emballage, édition, couleur) ne saurait engager la
+          Les produits sont décrits avec la plus grande exactitude possible : désignation, caractéristiques principales, compatibilité, état et prix. Selon l&apos;article, un produit
+          peut être <B>neuf</B>, <B>venant</B> (déjà utilisé) ou <B>reconditionné</B>, dans son carton d&apos;origine ou sans carton : l&apos;état et le conditionnement sont précisés sur la
+          fiche produit, que le Client est invité à consulter avant toute commande. La compatibilité indiquée (console, ordinateur, téléphone…) l&apos;est à titre informatif ; en cas de doute, le
+          Client se renseigne auprès du Vendeur avant de commander. Les photographies sont fournies à titre illustratif ; une légère différence de présentation (emballage, édition, couleur) ne saurait engager la
           responsabilité du Vendeur ni remettre en cause la vente.
         </P>
         <P>
@@ -57,7 +58,13 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <P>
-          Les prix sont indiqués en <B>francs CFA (F CFA)</B>. Ils s&apos;entendent hors frais de livraison, lesquels sont communiqués au Client avant la confirmation de la commande.
+          Les prix sont fixés en <B>francs CFA (F CFA)</B>. Ils s&apos;entendent hors frais de livraison ou d&apos;expédition, lesquels sont communiqués au Client avant la confirmation de
+          la commande.
+        </P>
+        <P>
+          Le site permet d&apos;afficher les prix en euros ou en dollars américains <B>à titre purement indicatif</B> : l&apos;euro est calculé selon la parité fixe officielle
+          (1 € = 655,957 F CFA) et le dollar selon un taux de change mis à jour automatiquement plusieurs fois par jour. Seul le prix en F CFA fait foi, et le paiement est effectué en F CFA,
+          sauf accord contraire confirmé par le Vendeur.
         </P>
         <P>
           Les prix barrés correspondent au prix habituellement pratiqué par le Vendeur avant la promotion. Les offres promotionnelles et les comptes à rebours affichés sur le site sont
@@ -79,14 +86,15 @@ const SECTIONS: LegalSection[] = [
         <UL
           items={[
             "le Client ajoute les produits souhaités à son panier et choisit les quantités ;",
-            "il renseigne ses informations (nom, numéro WhatsApp, pays, ville et adresse de livraison, ou jour et heure de retrait en boutique) et, le cas échéant, un code promo ;",
-            <>il clique sur « Envoyer ma commande sur WhatsApp » : un message récapitulatif contenant une référence de commande est préparé dans WhatsApp, et le Client l&apos;envoie ;</>,
+            "il renseigne ses informations (nom, numéro WhatsApp, adresse e-mail facultative, pays, ville et adresse de livraison, ou jour et heure de retrait en boutique) et, le cas échéant, un code promo ;",
+            <>il clique sur « Envoyer ma commande sur WhatsApp » : la commande est enregistrée avec une référence (par exemple CMD-AKUA-0001), un message récapitulatif est préparé dans WhatsApp, et le Client l&apos;envoie ;</>,
             "le Vendeur vérifie la disponibilité des produits, confirme le montant total (frais de livraison inclus) et les modalités de paiement ;",
             "la commande est ferme et définitive à réception de cette confirmation par le Vendeur et, lorsque le paiement est demandé à l'avance, à réception du paiement ou de l'acompte convenu.",
           ]}
         />
         <P>
-          Le Client garantit l&apos;exactitude des informations transmises. Le Vendeur se réserve le droit de refuser ou d&apos;annuler une commande présentant un caractère anormal, des
+          Le Client peut aussi enregistrer son panier avec son nom et son numéro, sans commander : le Vendeur peut alors le recontacter pour l&apos;aider à finaliser son achat. Le Client
+          garantit l&apos;exactitude des informations transmises. Le Vendeur se réserve le droit de refuser ou d&apos;annuler une commande présentant un caractère anormal, des
           informations manifestement erronées, ou émanant d&apos;un Client avec lequel existe un litige antérieur.
         </P>
       </>
@@ -117,8 +125,8 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <P>
-          Le Client peut choisir de retirer sa commande en boutique, du lundi au samedi, aux jour et heure sélectionnés lors de la commande. La boutique est fermée le dimanche. Le
-          créneau choisi est confirmé par le Vendeur sur WhatsApp.
+          Le Client peut choisir de retirer sa commande en boutique, à Lomé (Agoè-Assiyéyé, à 50 m de la Poste), du lundi au samedi de 8 h à 20 h, aux jour et heure sélectionnés lors de la
+          commande. La boutique est fermée le dimanche. Le créneau choisi est confirmé par le Vendeur sur WhatsApp.
         </P>
         <P>
           Pour garantir la réservation des produits, le Client peut verser un acompte de 25 %, 50 % ou la totalité du prix. Le solde est réglé au moment du retrait. Les produits sont
@@ -133,13 +141,31 @@ const SECTIONS: LegalSection[] = [
     ),
   },
   {
+    id: "gros",
+    title: "Vente en gros et demandes de devis",
+    body: (
+      <>
+        <P>
+          Les revendeurs, entreprises, écoles, salles de jeux et autres professionnels peuvent demander un devis depuis la page Vente en gros : ils choisissent les produits du site qui les
+          intéressent (ou décrivent les produits souhaités), indiquent les quantités, leurs coordonnées et l&apos;adresse de livraison, puis envoient la demande sur WhatsApp.
+        </P>
+        <P>
+          Les prix affichés sur le site sont des prix à l&apos;unité et ne constituent pas un devis. Le devis, les tarifs dégressifs, la disponibilité des quantités demandées et les
+          modalités de paiement et de livraison sont communiqués par le Vendeur sur WhatsApp. La commande en gros n&apos;est ferme qu&apos;après acceptation du devis par le Client et
+          confirmation par le Vendeur.
+        </P>
+      </>
+    ),
+  },
+  {
     id: "livraison",
     title: "Livraison",
     body: (
       <>
         <P>
-          Le Vendeur livre dans les pays suivants : <B>{countries}</B>. Les frais et le délai de livraison dépendent de la destination et du volume de la commande ; ils sont communiqués
-          au Client avant la confirmation de la commande.
+          La livraison et l&apos;expédition sont possibles. Le Client indique son pays, sa ville et son adresse lors de la commande ; la possibilité d&apos;envoi vers sa destination, la
+          solution de transport, les frais et le délai sont convenus avec lui sur WhatsApp avant toute confirmation et tout paiement. Le Vendeur peut refuser une expédition qu&apos;il
+          n&apos;est pas en mesure d&apos;assurer dans de bonnes conditions.
         </P>
         <P>
           Les délais annoncés sont indicatifs. Un retard de livraison ne peut donner lieu à annulation de la commande ou à indemnisation que s&apos;il est déraisonnable et imputable au
@@ -170,7 +196,11 @@ const SECTIONS: LegalSection[] = [
             "la demande est formulée sur WhatsApp dans les 48 heures suivant la réception ou le retrait ;",
             "le produit est rendu complet, dans son emballage d'origine, avec ses accessoires et sa notice ;",
             <>
-              les produits vendus <B>neufs et scellés</B> (jeux, consoles, manettes) ne sont ni repris ni échangés une fois l&apos;emballage ouvert, sauf défaut ou non-conformité ;
+              les produits vendus <B>neufs et scellés</B> (consoles, jeux, ordinateurs, tablettes, accessoires…) ne sont ni repris ni échangés une fois l&apos;emballage ouvert, sauf défaut ou
+              non-conformité ;
+            </>,
+            <>
+              pour des raisons d&apos;hygiène, les <B>écouteurs, casques et autres produits portés sur le corps</B> ne sont pas repris une fois déballés, sauf défaut ;
             </>,
             "les frais de retour sont à la charge du Client, sauf erreur du Vendeur ou produit défectueux.",
           ]}
@@ -192,11 +222,16 @@ const SECTIONS: LegalSection[] = [
           de la commande. Le Client conserve le message de confirmation de commande, qui fait office de preuve d&apos;achat.
         </P>
         <P>En cas de panne couverte par la garantie, le Vendeur procède, à son choix, à la réparation, à l&apos;échange du produit ou, à défaut, à son remboursement.</P>
+        <P>
+          Avant de confier un ordinateur, une tablette ou tout appareil contenant des données pour une réparation ou un échange, le Client sauvegarde ses fichiers : le Vendeur ne peut être
+          tenu responsable de leur perte.
+        </P>
         <P>La garantie ne couvre pas :</P>
         <UL
           items={[
             "les dommages résultant d'une chute, d'un choc, d'un contact avec un liquide ou d'une mauvaise utilisation ;",
-            "l'usure normale (sticks, boutons, batteries) ;",
+            "l'usure normale (sticks, boutons, touches, batteries) ;",
+            "les écrans fissurés ou cassés après la remise du produit ;",
             "les produits ouverts, modifiés ou réparés par un tiers, ou dont le scellé de garantie a été retiré ;",
             "les dommages liés à une surtension ou à un branchement non conforme.",
           ]}
@@ -267,8 +302,8 @@ export default function CgvPage() {
     <LegalPage
       eyebrow="Conditions générales de vente"
       title="Conditions générales de vente"
-      intro="Comment se passent la commande, le paiement, la livraison, le retrait en boutique, la garantie et les retours chez AKUA Service."
-      updated="7 novembre 2026"
+      intro="Comment se passent la commande, le paiement, la livraison et l'expédition, le retrait en boutique, la vente en gros, la garantie et les retours chez AKUA.SERVICE."
+      updated="13 novembre 2026"
       sections={SECTIONS}
       related={{ label: "Politique de confidentialité", href: "/politique-de-confidentialite" }}
     />

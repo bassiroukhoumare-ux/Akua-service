@@ -1,6 +1,6 @@
 import type { Category } from "@/types/catalog";
 
-// Les 5 univers d'AKUA Service (+ « Promos », rayon automatique des produits en promotion).
+// Les 5 univers d'AKUA.SERVICE (+ « Promos », rayon automatique des produits en promotion).
 export const categories: Category[] = [
   {
     id: "cat-consoles",

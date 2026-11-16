@@ -21,9 +21,48 @@ type Seed = {
   compatibility?: string[];
   includes?: string[];
   featured?: boolean;
+  /** pack (plusieurs produits vendus ensemble) */
+  pack?: boolean;
+  /** photos suivantes */
+  more?: string[];
 };
 
 const seeds: Seed[] = [
+  /* ------------------------------------------- Packs (hors gaming) */
+  {
+    slug: "pack-bureau-thinkpad",
+    name: "Pack Bureau ThinkPad",
+    categoryId: "cat-informatique",
+    group: "portables",
+    price: 285000,
+    compareAt: 307500,
+    image: "thinkpad",
+    more: ["mx-master", "hub-usb", "refroidisseur"],
+    short: "Le poste de travail complet, prêt à l'emploi.",
+    description: "Tout pour travailler dès le déballage : le portable Lenovo ThinkPad T490 (Core i5, 8 Go, SSD 256 Go), la souris sans fil Logitech MX Master, un hub USB 4 ports et un refroidisseur 2 ventilateurs. Testé, configuré et garanti par AKUA.SERVICE.",
+    condition: "reconditionne",
+    badges: ["garantie"],
+    compatibility: ["Windows 11", "Bureau et télétravail", "Études"],
+    includes: ["ThinkPad Core i5", "Souris MX Master", "Hub USB", "Refroidisseur"],
+    pack: true,
+  },
+  {
+    slug: "pack-etudiant-ipad",
+    name: "Pack Étudiant iPad",
+    categoryId: "cat-tablettes",
+    group: "professionnelles",
+    price: 185000,
+    compareAt: 202500,
+    image: "etui-clavier",
+    more: ["ipad", "casque-micro"],
+    short: "Prendre des notes, suivre ses cours, réviser partout.",
+    description: "Un iPad 9,7 pouces (32 Go) avec son étui clavier Bluetooth et un casque micro pour les cours en ligne. Léger, simple et prêt pour les études. Testé et garanti par AKUA.SERVICE.",
+    badges: ["garantie"],
+    compatibility: ["Cours en ligne", "Bureautique", "Visioconférence"],
+    includes: ["iPad 32 Go", "Étui clavier", "Casque micro", "Garantie"],
+    pack: true,
+  },
+
   /* ------------------------------------------- Ordinateurs & Informatique */
   {
     slug: "lenovo-thinkpad-t490",
@@ -34,7 +73,7 @@ const seeds: Seed[] = [
     compareAt: 275000,
     image: "thinkpad",
     short: "Portable professionnel 14 pouces, robuste et rapide.",
-    description: "Le ThinkPad T490 est un ordinateur portable professionnel de 14 pouces : processeur Intel Core i5, 8 Go de mémoire et SSD de 256 Go. Idéal pour le bureau, les études et le télétravail. Testé et garanti par AKUA Service.",
+    description: "Le ThinkPad T490 est un ordinateur portable professionnel de 14 pouces : processeur Intel Core i5, 8 Go de mémoire et SSD de 256 Go. Idéal pour le bureau, les études et le télétravail. Testé et garanti par AKUA.SERVICE.",
     condition: "reconditionne",
     badges: ["garantie", "promo"],
     compatibility: ["Windows 11", "Wi-Fi et Bluetooth", "HDMI et USB-C"],
@@ -80,7 +119,7 @@ const seeds: Seed[] = [
     price: 310000,
     image: "macbook-pro",
     short: "La puissance du MacBook Pro à prix accessible.",
-    description: "MacBook Pro 13 pouces reconditionné : châssis aluminium, processeur Intel Core i5 et 8 Go de mémoire. Testé et garanti par AKUA Service.",
+    description: "MacBook Pro 13 pouces reconditionné : châssis aluminium, processeur Intel Core i5 et 8 Go de mémoire. Testé et garanti par AKUA.SERVICE.",
     condition: "reconditionne",
     badges: ["garantie"],
     compatibility: ["macOS", "Wi-Fi", "USB et Thunderbolt"],
@@ -138,7 +177,7 @@ const seeds: Seed[] = [
     compareAt: 195000,
     image: "ipad",
     short: "L'iPad classique, fluide et simple à utiliser.",
-    description: "iPad 9,7 pouces avec 32 Go de stockage : écran Retina, applications fluides et grande autonomie. Reconditionné, testé et garanti par AKUA Service.",
+    description: "iPad 9,7 pouces avec 32 Go de stockage : écran Retina, applications fluides et grande autonomie. Reconditionné, testé et garanti par AKUA.SERVICE.",
     condition: "reconditionne",
     badges: ["garantie", "promo"],
     compatibility: ["iPadOS", "Wi-Fi", "Apple Pencil"],
@@ -438,13 +477,14 @@ export const techProducts: Product[] = seeds.map((s, i) => {
     compareAtPrice: s.compareAt,
     stockStatus: s.stock ?? "en_stock",
     stockLeft: s.stockLeft,
-    images: [`/products/${s.image}.webp`],
+    images: [s.image, ...(s.more ?? [])].map((x) => `/products/${x}.webp`),
     badges,
     shortDescription: s.short,
     description: s.description,
     compatibility: s.compatibility,
     includes: s.includes,
     isFeatured: s.featured,
+    isPack: s.pack,
     warranty: true,
     createdAt: `2026-11-${String(10 - (i % 9)).padStart(2, "0")}`,
   } as Product;

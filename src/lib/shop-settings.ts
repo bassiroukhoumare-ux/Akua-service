@@ -48,7 +48,7 @@ export const initialSettings: ShopSettings = {
   mapsLink: MAPS_URL,
   lat: SHOP_COORDS.lat,
   lng: SHOP_COORDS.lng,
-  hours: WEEK_ORDER.map((day) => ({ day, open: day !== 0, from: "10:00", to: "20:00" })),
+  hours: WEEK_ORDER.map((day) => ({ day, open: day !== 0, from: "08:00", to: "20:00" })),
   socials: [
     { id: "so-facebook", network: "facebook", label: "Facebook", url: FACEBOOK_URL },
     { id: "so-tiktok", network: "tiktok", label: "TikTok", url: TIKTOK_URL },
@@ -65,7 +65,7 @@ const hh = (t: string) => {
   return m ? `${h}h${String(m).padStart(2, "0")}` : `${h}h`;
 };
 
-/** Regroupe les jours consécutifs identiques : « Lundi – Samedi : 10h – 20h », « Dimanche : Fermé ». */
+/** Regroupe les jours consécutifs identiques : « Lundi – Samedi : 8h – 20h », « Dimanche : Fermé ». */
 export function summarizeHours(hours: DayHours[]) {
   const ordered = WEEK_ORDER.map((d) => hours.find((h) => h.day === d)!).filter(Boolean);
   const key = (h: DayHours) => (h.open ? `${h.from}-${h.to}` : "closed");
@@ -82,14 +82,14 @@ export function summarizeHours(hours: DayHours[]) {
   return groups;
 }
 
-/** La boutique est-elle ouverte à cet instant (heure de l'appareil) ? */
+/** La boutique est-elle ouverte à cet instant ? Heure de Lomé (UTC+0 toute l'année), quel que soit le pays du visiteur. */
 export function isOpenNow(hours: DayHours[], d = new Date()) {
-  const h = hours.find((x) => x.day === d.getDay());
+  const h = hours.find((x) => x.day === d.getUTCDay());
   if (!h?.open) return false;
-  const now = d.getHours() * 60 + d.getMinutes();
+  const now = d.getUTCHours() * 60 + d.getUTCMinutes();
   const [fh, fm] = h.from.split(":").map(Number);
   const [th, tm] = h.to.split(":").map(Number);
-  return now >= fh * 60 + fm && now < th * 60 + tm;
+  return now >= fh * 60 + (fm || 0) && now < th * 60 + (tm || 0);
 }
 
 /** Extrait la position d'un lien Google Maps complet (ou de coordonnées collées telles quelles). */

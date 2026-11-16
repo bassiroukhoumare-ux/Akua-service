@@ -188,7 +188,7 @@ export function buildOrderFollowUp(o: FollowUpOrder): string {
   const first = o.customer.name.trim().split(/\s+/)[0] || "";
   const lines: string[] = [];
   lines.push(`Bonjour ${first},`.replace(" ,", ","), "");
-  lines.push(`Ici AKUA Service. Nous avons bien reçu votre commande n° ${o.ref} passée sur notre site, et nous vous remercions pour votre confiance.`, "");
+  lines.push(`Ici AKUA.SERVICE. Nous avons bien reçu votre commande n° ${o.ref} passée sur notre site, et nous vous remercions pour votre confiance.`, "");
   lines.push("Voici le récapitulatif de votre commande :");
   for (const i of o.items) lines.push(`- ${i.quantity} x ${i.name} : ${formatFCFA(i.price * i.quantity)}`);
   if (o.promo) {

@@ -47,7 +47,7 @@ const norm = (s: string) =>
     .trim();
 
 /**
- * Liste déroulante aux couleurs d'AKUA Service, avec recherche intégrée.
+ * Liste déroulante aux couleurs d'AKUA.SERVICE, avec recherche intégrée.
  * Remplace les <select> du navigateur partout sur le site.
  */
 export function SearchSelect({

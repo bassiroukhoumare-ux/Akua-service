@@ -328,7 +328,9 @@ export function CategoriesView() {
         <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {sorted.map((c, i) => {
             const Icon = getCategoryIcon(c.icon);
-            const n = products.filter((p) => p.categoryId === c.id).length;
+            // « Promos » : rayon automatique (tous les produits avec un prix barré)
+            const auto = c.slug === "promos";
+            const n = auto ? products.filter((p) => p.compareAtPrice && p.compareAtPrice > p.price).length : products.filter((p) => p.categoryId === c.id).length;
             return (
               <li
                 key={c.id}
@@ -348,13 +350,18 @@ export function CategoriesView() {
                     <p className="flex items-center gap-2">
                       <span className="truncate text-[16px] font-bold">{c.name}</span>
                       <span className="shrink-0 rounded-full bg-akua-page px-2 py-0.5 text-[11.5px] font-semibold text-akua-gray-500 tabular-nums">{i + 1}</span>
+                      {auto && <span className="shrink-0 rounded-full bg-akua-ink px-2 py-0.5 text-[11px] font-semibold text-akua-white">Automatique</span>}
                     </p>
                     <p className="mt-0.5 text-[13px] text-akua-gray-500">
                       {n} produit{n > 1 ? "s" : ""}
                     </p>
                   </div>
                 </div>
-                {c.description && <p className="mt-3 line-clamp-2 text-[13.5px] text-akua-gray-500">{c.description}</p>}
+                {auto ? (
+                  <p className="mt-3 text-[13px] leading-snug text-akua-gray-500">Regroupe tout seul les produits qui ont un prix barré. Il apparaît dans le menu « Offres » et les filtres de la boutique, pas dans les catégories de l&apos;accueil.</p>
+                ) : (
+                  c.description && <p className="mt-3 line-clamp-2 text-[13.5px] text-akua-gray-500">{c.description}</p>
+                )}
                 {!!c.groups?.length && (
                   <ul className="mt-3 flex flex-wrap gap-1.5">
                     {c.groups.map((g) => (
@@ -407,7 +414,7 @@ export function CategoriesView() {
                         <Pencil aria-hidden className="size-4" />
                       </button>
                     )}
-                    {can("categories", "delete") && (
+                    {can("categories", "delete") && !auto && (
                       <button
                         type="button"
                         onClick={() => setToDelete(c)}

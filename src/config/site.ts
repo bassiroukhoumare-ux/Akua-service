@@ -1,4 +1,4 @@
-export const SITE_NAME = "AKUA Service";
+export const SITE_NAME = "AKUA.SERVICE";
 export const SITE_TAGLINE = "La technologie à votre service";
 export const SITE_URL = "https://akuaservice.com"; // TODO domaine définitif
 
@@ -10,20 +10,20 @@ export const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=10008687308
 export const TIKTOK_URL = "https://www.tiktok.com/@akua.service.togo";
 export const TIKTOK_HANDLE = "@akua.service.togo";
 
-export const ADDRESS = "Lomé, Togo";
-export const MAPS_URL = "https://maps.app.goo.gl/XjkoBGehYDk1kRS4A";
-// Position de la boutique (issue du lien ci-dessus). Pour un repère plus précis,
-// remplacez ces coordonnées par celles de l'épingle exacte de la boutique.
-export const SHOP_COORDS = { lat: 6.1295577, lng: 1.2196502 };
+export const ADDRESS = "Agoè-Assiyéyé, à 50 m de la Poste, Lomé";
+export const MAPS_URL = "https://www.google.com/maps/search/?api=1&query=6.2307916,1.1989111";
+// Position de la boutique : Agoè-Assiyéyé, à 50 m du bureau de poste. Pour un repère plus précis,
+// collez le lien Google Maps de la boutique dans l'admin (Paramètres › Localisation).
+export const SHOP_COORDS = { lat: 6.2307916, lng: 1.1989111 };
 const coords = `${SHOP_COORDS.lat},${SHOP_COORDS.lng}`;
 /** Carte intégrée (zoom, déplacement) sans clé d'API. */
 export const MAPS_EMBED_URL = `https://www.google.com/maps/embed?origin=mfe&pb=!1m3!2m1!1s${coords}!6i15!3m1!1sfr!5m1!1sfr`;
 /** Ouvre Google Maps (application sur téléphone) avec l'itinéraire jusqu'à la boutique. */
 export const MAPS_DIRECTIONS_URL = `https://www.google.com/maps/dir/?api=1&destination=${coords}`;
-export const DELIVERY_TAGLINE = "Livraison disponible au Togo et dans la sous-région.";
-export const OPENING_HOURS = "Lun – Sam : 10h – 20h";
+export const DELIVERY_TAGLINE = "Livraison et expédition possibles.";
+export const OPENING_HOURS = "Lun – Sam : 8h – 20h";
 export const OPENING_SCHEDULE = [
-  { days: "Lundi – Samedi", hours: "10h – 20h" },
+  { days: "Lundi – Samedi", hours: "8h – 20h" },
   { days: "Dimanche", hours: "Fermé" },
 ] as const;
 
@@ -50,7 +50,7 @@ export const MAIN_NAV = [
 export const MARQUEE_ITEMS = [
   "Neuf ou venant",
   "Garantie",
-  "Togo et sous-région",
+  "Livraison et expédition possibles",
   "Gros et détail",
   "Commande en 1 clic sur WhatsApp",
 ] as const;

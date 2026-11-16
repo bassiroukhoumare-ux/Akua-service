@@ -1,9 +1,9 @@
 import type { Product } from "@/types/catalog";
 import { techProducts } from "./products-tech";
 
-// Prix issus des flyers Facebook d'AKUA Service.
+// Prix issus des flyers Facebook d'AKUA.SERVICE.
 // Photos : /public/products. Préfixe « fb- » = photos de la page Facebook
-// d'AKUA Service ; les autres = photos studio libres (voir photo-credits.json).
+// d'AKUA.SERVICE ; les autres = photos studio libres (voir photo-credits.json).
 
 const gaming: Product[] = [
   // ---------------------------------------------------------------- Packs
@@ -24,7 +24,7 @@ const gaming: Product[] = [
     badges: ["best-seller", "garantie", "promo"],
     shortDescription: "1 console, 2 manettes, 10 jeux et tous les accessoires.",
     description:
-      "L'offre exceptionnelle AKUA Service : une PS4 Slim prête à jouer dès le déballage, avec 2 manettes, 10 jeux et tous les accessoires. Garantie incluse.",
+      "L'offre exceptionnelle AKUA.SERVICE : une PS4 Slim prête à jouer dès le déballage, avec 2 manettes, 10 jeux et tous les accessoires. Garantie incluse.",
     compatibility: ["Télévision HDMI", "Jeu en ligne", "Netflix et YouTube"],
     includes: ["1 console PS4 Slim", "2 manettes sans fil", "10 jeux", "Tous les accessoires", "Garantie"],
     isFeatured: true,
@@ -89,7 +89,7 @@ const gaming: Product[] = [
     images: ["/products/fb-ps4-box.webp", "/products/ps4-slim-photo.webp", "/products/fb-ps4-box-2.webp"],
     badges: ["neuf-scelle", "garantie"],
     shortDescription: "Neuve dans le carton, 100 % garantie.",
-    description: "PS4 Slim neuve, vendue dans son carton scellé d'origine. Garantie AKUA Service.",
+    description: "PS4 Slim neuve, vendue dans son carton scellé d'origine. Garantie AKUA.SERVICE.",
     includes: ["1 console PS4 Slim", "1 manette sans fil", "Câbles d'origine"],
     createdAt: "2026-08-20",
   },

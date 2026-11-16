@@ -7,5 +7,5 @@ export const TOP_BANNER = {
   width: 1920,
   height: 200,
   href: "/boutique",
-  alt: "AKUA Service : vente de jeux vidéo et accessoires gaming",
+  alt: "AKUA.SERVICE : vente de jeux vidéo et accessoires gaming",
 };

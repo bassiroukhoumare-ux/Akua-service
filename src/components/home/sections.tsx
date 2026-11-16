@@ -1,7 +1,7 @@
 import { ArrowRight, BadgeCheck, Check, MessageCircleMore, PackageCheck, ShieldCheck, Store, TrendingUp, Truck } from "lucide-react";
+import { MobileFilterBar } from "./home-shell";
 import Image from "next/image";
 import Link from "next/link";
-import { HOME_BANNER, HOME_VISUAL } from "@/config/home-visual";
 import { BuyNowButton } from "@/components/product/add-to-cart-button";
 import { ProductCard } from "@/components/product/product-card";
 import { ProductVisual } from "@/components/product/product-visual";
@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils";
 import type { Category, Product } from "@/types/catalog";
 import { MobileSlider } from "@/components/ui/mobile-slider";
 import { PLATFORM_LOGOS } from "./platform-logos";
-import { HomeMedia } from "@/components/ui/home-media";
 import { PromoTimer } from "./promo-timer";
 import { WhatsAppContactButton } from "@/components/shop/whatsapp-contact-dialog";
 import { dealEnd, type DealTiming } from "@/lib/deals";
@@ -56,15 +55,6 @@ export interface HomeSlot {
   media?: "image" | "video";
 }
 
-function SlotLink({ slot, className, style, children, label }: { slot: HomeSlot; className: string; style?: React.CSSProperties; children: React.ReactNode; label?: string }) {
-  if (!slot.href) return <div className={className} style={style}>{children}</div>;
-  const external = /^https?:\/\//.test(slot.href);
-  return (
-    <Link href={slot.href} aria-label={label} style={style} className={className} {...(external ? { target: "_blank", rel: "noopener" } : {})}>
-      {children}
-    </Link>
-  );
-}
 
 /** Photo d'une catégorie : fichier du site (optimisé) ou image importée / externe. */
 function CategoryPhoto({ src, className, sizes }: { src: string; className?: string; sizes: string }) {
@@ -84,15 +74,13 @@ function CategoryTile({ c }: { c: Category }) {
   );
 }
 
-export function CategoryRail({ categories, poster, banner }: { categories: Category[]; products?: Product[]; poster?: HomeSlot | null; banner?: HomeSlot | null }) {
-  const p = poster ?? { src: HOME_VISUAL.src, alt: HOME_VISUAL.alt, href: HOME_VISUAL.href };
-  const b = banner ?? { src: HOME_BANNER.src, alt: HOME_BANNER.alt, href: HOME_BANNER.href };
+export function CategoryRail({ categories }: { categories: Category[]; products?: Product[] }) {
   // les promos ont leur propre section et le menu « Offres » : pas de tuile ici
   const cards = categories.filter((c) => c.slug !== "promos").map((c) => ({ ...c, image: c.image ?? categoryImages[c.id] }));
 
   return (
     <>
-      <h1 className="sr-only">AKUA Service : consoles, ordinateurs, tablettes, accessoires informatiques et équipements électroniques</h1>
+      <h1 className="sr-only">AKUA.SERVICE : consoles, ordinateurs, tablettes, accessoires informatiques et équipements électroniques</h1>
 
       {/* Catégories : tout en haut, droit au but. Téléphone : 3 par ligne. Ordinateur : toutes sur une ligne. */}
       <section id="categories" aria-labelledby="rayons" className="container-akua scroll-mt-[120px] pt-5 md:scroll-mt-36 md:pt-8">
@@ -102,7 +90,11 @@ export function CategoryRail({ categories, poster, banner }: { categories: Categ
             Tout voir <ArrowRight aria-hidden className="size-4" />
           </Link>
         </div>
-        <ul className={cn("mt-4 grid grid-cols-3 gap-x-3 gap-y-5 md:mt-5 md:gap-x-4", cards.length > 4 ? "md:grid-cols-6" : "md:grid-cols-4")}>
+        {/* une seule ligne sur grand écran (jusqu'à 8 catégories) ; 3 par ligne sur téléphone et sur petit ordinateur (colonne de filtres à gauche) */}
+        <ul
+          className="mt-4 grid grid-cols-3 gap-x-3 gap-y-5 md:mt-5 md:[grid-template-columns:repeat(var(--cols-md),minmax(0,1fr))] md:gap-x-4 lg:grid-cols-3 xl:[grid-template-columns:repeat(var(--cols-lg),minmax(0,1fr))]"
+          style={{ "--cols-md": cards.length <= 6 ? cards.length : 4, "--cols-lg": Math.min(Math.max(cards.length, 4), 8) } as React.CSSProperties}
+        >
           {cards.map((c) => (
             <li key={c.id}>
               <CategoryTile c={c} />
@@ -111,24 +103,9 @@ export function CategoryRail({ categories, poster, banner }: { categories: Categ
         </ul>
       </section>
 
-      {/* Bannière + affiche (gérées dans l'admin). Ordinateur : côte à côte, même hauteur. Téléphone : bannière puis affiche. */}
-      <section aria-label="À la une" className="container-akua pt-8 md:pt-12">
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,3.72fr)_minmax(0,1fr)] lg:gap-5">
-          <SlotLink slot={b} label={b.alt} className="group relative block aspect-[3/1] overflow-hidden rounded-[24px] bg-akua-page lg:aspect-auto lg:min-h-full">
-            <HomeMedia src={b.src} alt={b.alt} media={b.media} sizes="(min-width:1024px) 1000px, 100vw" priority className="transition-transform duration-700 ease-akua group-hover:scale-[1.02]" />
-          </SlotLink>
-          <SlotLink slot={p} style={{ aspectRatio: `${HOME_VISUAL.width} / ${HOME_VISUAL.height}` }} className="group relative hidden overflow-hidden rounded-[24px] bg-akua-page lg:block">
-            <HomeMedia src={p.src} alt={p.alt} media={p.media} fit={p.media === "video" ? "cover" : "contain"} priority sizes="280px" className="transition-transform duration-700 ease-akua group-hover:scale-[1.03]" />
-          </SlotLink>
-        </div>
-      </section>
+      {/* Téléphone : accès aux filtres juste sous les catégories */}
+      <MobileFilterBar />
 
-      {/* Affiche portrait : sur téléphone et tablette, sous la bannière */}
-      <div className="container-akua pt-4 lg:hidden">
-        <SlotLink slot={p} style={{ aspectRatio: `${HOME_VISUAL.width} / ${HOME_VISUAL.height}` }} className="group relative mx-auto block w-full max-w-[420px] overflow-hidden rounded-[24px] bg-akua-page">
-          <HomeMedia src={p.src} alt={p.alt} media={p.media} fit={p.media === "video" ? "cover" : "contain"} sizes="(min-width:768px) 420px, 100vw" />
-        </SlotLink>
-      </div>
     </>
   );
 }
@@ -146,11 +123,8 @@ export interface DealsSettings extends DealTiming {
 
 export function DealsSection({ deals, config }: { deals: Product[]; config?: DealsSettings | null }) {
   if (config && (!config.enabled || !dealEnd(config))) return null;
-  // les 4 dernières promotions ajoutées
-  const promo = deals
-    .filter((p) => p.compareAtPrice)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .slice(0, 4);
+  // les 4 produits choisis dans l'admin (« Offre spéciale »), dans l'ordre choisi
+  const promo = deals.filter((p) => p.compareAtPrice && p.published !== false).slice(0, 4);
   if (!promo.length) return null;
   return (
     <section aria-labelledby="promo" className="container-akua pt-12 md:pt-16">
@@ -166,8 +140,8 @@ export function DealsSection({ deals, config }: { deals: Product[]; config?: Dea
           </div>
           <PromoTimer timing={config ? { mode: config.mode, hours: config.hours, startedAt: config.startedAt, repeat: config.repeat } : undefined} />
         </div>
-        {/* Les 4 dernières promotions : 2 par ligne sur téléphone, 4 alignées sur ordinateur. */}
-        <div className="mt-8 grid grid-cols-2 gap-2.5 md:gap-4 lg:grid-cols-4">
+        {/* Les 4 promotions : 2 par ligne sur téléphone et petit ordinateur, 4 alignées sur grand écran. */}
+        <div className="mt-8 grid grid-cols-2 gap-2.5 md:gap-4 xl:grid-cols-4">
           {promo.map((p, i) => (
             <div key={p.id} className="min-w-0">
               <ProductCard product={p} priority={i < 2} />
@@ -175,7 +149,7 @@ export function DealsSection({ deals, config }: { deals: Product[]; config?: Dea
           ))}
         </div>
         <div className="mt-8 flex justify-center">
-          <Link href="/boutique/promos" className={btn({ variant: "dark", size: "lg", className: "w-full sm:w-auto" })}>
+          <Link href="/boutique/promos" className={btn({ variant: "dark", size: "lg", className: "w-auto" })}>
             Voir toutes les promotions <ArrowRight aria-hidden className="size-4" />
           </Link>
         </div>
@@ -213,7 +187,7 @@ export function PackCard({ product, featured }: { product: Product; featured?: b
         </ul>
         <div className="mt-auto flex items-end justify-between gap-3 pt-6">
           <div>
-            <p className="text-[28px] leading-none font-extrabold tracking-[-0.03em]"><Money amount={product.price} /></p>
+            <p className="text-[24px] leading-none font-extrabold tracking-[-0.03em] whitespace-nowrap md:text-[26px]"><Money amount={product.price} /></p>
             {product.compareAtPrice && <p className="mt-1.5 text-[13px] text-akua-gray-500 line-through tabular-nums"><Money amount={product.compareAtPrice} /></p>}
           </div>
           <BuyNowButton product={product} />
@@ -227,7 +201,7 @@ export function PackCard({ product, featured }: { product: Product; featured?: b
   );
 }
 
-export function PacksSection({ packs, eyebrow = "Consoles complètes", title = "Packs prêts à jouer" }: { packs: Product[]; eyebrow?: string; title?: string }) {
+export function PacksSection({ packs, eyebrow = "Nos packs", title = "Packs prêts à l'emploi" }: { packs: Product[]; eyebrow?: string; title?: string }) {
   return (
     <section aria-labelledby="packs" className="pt-14 md:pt-20">
       <Reveal className="container-akua">
@@ -238,7 +212,7 @@ export function PacksSection({ packs, eyebrow = "Consoles complètes", title = "
         </SectionHeading>
       </Reveal>
       <div className="mt-7 md:container-akua">
-        <MobileSlider label="Packs prêts à jouer" slideClass="w-[82%] sm:w-[60%] py-1" gridClass="grid-cols-3 gap-4" speed={0.8}>
+        <MobileSlider label="Packs prêts à l'emploi" slideClass="w-[82%] sm:w-[60%] py-1" gridClass="grid-cols-3 gap-4" speed={0.8}>
           {packs.map((p, i) => (
             <PackCard key={p.id} product={p} featured={i === 0} />
           ))}
@@ -251,9 +225,9 @@ export function PacksSection({ packs, eyebrow = "Consoles complètes", title = "
 /* ------------------------------------------------------------ pourquoi AKUA */
 
 const WHY = [
-  { icon: BadgeCheck, t: "Testé et garanti", d: "Neuf ou venant, chaque produit est vérifié avant la vente et garanti par AKUA Service." },
+  { icon: BadgeCheck, t: "Testé et garanti", d: "Neuf ou venant, chaque produit est vérifié avant la vente et garanti par AKUA.SERVICE." },
   { icon: ShieldCheck, t: "Zéro risque", d: "Vous ne payez qu'après confirmation de votre commande sur WhatsApp." },
-  { icon: Truck, t: "Togo et sous-région", d: "Livraison au Togo et dans la sous-région : Bénin, Ghana, Burkina Faso, Côte d'Ivoire, Niger et Mali." },
+  { icon: Truck, t: "Livraison et expédition", d: "Livraison et expédition possibles : nous voyons avec vous sur WhatsApp l'envoi vers votre pays." },
   { icon: PackageCheck, t: "Retrait en boutique", d: "Réservez votre créneau et récupérez votre commande sur place." },
 ];
 
@@ -261,7 +235,7 @@ export function WhySection() {
   return (
     <section aria-labelledby="why" className="container-akua pt-14 md:pt-20">
       <Reveal>
-        <SectionHeading index="04" eyebrow="Pourquoi AKUA Service" title={<span id="why">Achetez l&apos;esprit tranquille.</span>} />
+        <SectionHeading index="04" eyebrow="Pourquoi AKUA.SERVICE" title={<span id="why">Achetez l&apos;esprit tranquille.</span>} />
       </Reveal>
       <div className="mt-7 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         {WHY.map((w, i) => (
@@ -280,7 +254,7 @@ export function WhySection() {
             <Store aria-hidden className="size-10 shrink-0" strokeWidth={1.3} />
             <div>
               <p className="text-[22px] font-extrabold tracking-[-0.03em] md:text-[26px]">Revendeur, entreprise ou école ?</p>
-              <p className="text-[14px] text-akua-white/80">Tarifs dégressifs, stock disponible, livraison au Togo et dans la sous-région.</p>
+              <p className="text-[14px] text-akua-white/80">Tarifs dégressifs, stock disponible, livraison et expédition possibles.</p>
             </div>
           </div>
           <Link href="/vente-en-gros" className={btn({ variant: "light", size: "lg" })}>
@@ -299,7 +273,7 @@ const FAQ = [
   { q: "Les produits sont-ils neufs ?", a: "Selon l'article, un produit peut être neuf ou venant, dans son carton d'origine ou sans carton. Vérifiez toujours la fiche du produit : son état et son conditionnement y sont indiqués. En cas de doute, posez-nous la question sur WhatsApp." },
   { q: "Puis-je récupérer ma commande en boutique ?", a: "Oui. Choisissez « Retrait en boutique », indiquez le jour et l'heure de passage. Vous pouvez verser un acompte pour réserver le produit." },
   { q: "Que vendez-vous ?", a: "Consoles et jeux vidéo, ordinateurs portables, tablettes, accessoires informatiques (souris, claviers, hubs USB…) et équipements électroniques comme les routeurs Wi-Fi et les vidéoprojecteurs. Tous nos produits sont testés et garantis." },
-  { q: "Livrez-vous hors du Togo ?", a: "Oui, nous livrons dans les pays de la sous-région : Bénin, Ghana, Burkina Faso, Côte d'Ivoire, Niger et Mali. Les frais sont confirmés sur WhatsApp." },
+  { q: "Expédiez-vous dans mon pays ?", a: "L'expédition est possible. Indiquez-nous votre pays sur WhatsApp : nous voyons ensemble la solution d'envoi, les frais et le délai avant tout paiement." },
 ];
 
 /** Questions fréquentes (page Contact) : titre à gauche, questions à droite sur ordinateur. */

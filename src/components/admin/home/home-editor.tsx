@@ -1,5 +1,6 @@
 "use client";
 
+import { categoryImages } from "@/data/category-media";
 import { ArrowUpRight, Check, Film, Image as ImageIcon, Link2, Pencil, RefreshCw, RotateCcw, Upload } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
@@ -53,7 +54,11 @@ function useLinkLabel() {
 
 type Source = "upload" | "link";
 
-/** Remplacement d'un des deux visuels de l'accueil : image ou vidéo, importée ou par lien. */
+/**
+ * Remplacement d'un visuel image ou vidéo de l'accueil. Plus affiché : la bannière est désormais automatique.
+ * Conservé pour pouvoir revenir facilement à une bannière image si besoin.
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function SlotEditor({ slot }: { slot: SlotId }) {
   const { actor, base } = useAdmin();
   const canReplace = useCan()("home", "replace");
@@ -358,11 +363,9 @@ function SlotEditor({ slot }: { slot: SlotId }) {
 /* --------------------------------------------------------- aperçu de page */
 
 function LayoutPreview() {
-  const slides = useAdminHome((s) => s.slides);
   const categories = useAdminCatalog((s) => s.categories);
-  const poster = slides.poster.find((s) => s.active);
-  const banner = slides.banner.find((s) => s.active);
-  const cats = [...categories].sort((a, b) => a.order - b.order).slice(0, 8);
+  // les promos ne sont pas une tuile sur l'accueil
+  const cats = [...categories].filter((c) => c.slug !== "promos").sort((a, b) => a.order - b.order).slice(0, 8);
   return (
     <div className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
       <div className="flex items-center justify-between gap-3">
@@ -371,25 +374,30 @@ function LayoutPreview() {
           Voir le site <ArrowUpRight aria-hidden className="size-3.5" />
         </Link>
       </div>
-      <div className="mt-4 grid grid-cols-[minmax(0,1fr)_26%] gap-2.5 rounded-[18px] bg-akua-page p-3">
-        <div className="flex flex-col gap-2.5">
-          <div className="grid grid-cols-8 rounded-[12px] bg-akua-white p-1.5">
-            {cats.map((c) => {
-              const Icon = getCategoryIcon(c.icon);
-              return (
-                <div key={c.id} className="flex flex-col items-center gap-0.5 py-1">
-                  <Icon aria-hidden className="size-3.5 text-akua-ink" strokeWidth={1.5} />
-                  <span className="max-w-full truncate px-0.5 text-[7px] font-semibold">{c.name}</span>
-                </div>
-              );
-            })}
-          </div>
-          <div className="relative flex-1 overflow-hidden rounded-[12px] bg-akua-white" style={{ minHeight: 60 }}>
-            {banner ? <HomeMedia src={banner.image} alt="" media={banner.media} sizes="500px" /> : null}
-          </div>
+      <div className="mt-4 rounded-[18px] bg-akua-page p-3">
+        {/* même disposition que le site : catégories en tête, puis bannière et affiche */}
+        <div className="grid gap-2 rounded-[12px] bg-akua-white p-2" style={{ gridTemplateColumns: `repeat(${Math.max(cats.length, 1)}, minmax(0, 1fr))` }}>
+          {cats.map((c) => {
+            const img = c.image ?? categoryImages[c.id];
+            return (
+              <div key={c.id} className="flex min-w-0 flex-col items-center gap-1">
+                <span className="relative block aspect-square w-full overflow-hidden rounded-[8px] bg-akua-tile">
+                  {img && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={img} alt="" className="absolute inset-0 size-full object-contain p-1" />
+                  )}
+                </span>
+                <span className="w-full truncate text-center text-[7.5px] font-extrabold tracking-[0.02em] uppercase">{c.name}</span>
+              </div>
+            );
+          })}
         </div>
-        <div className="relative overflow-hidden rounded-[12px] bg-akua-white" style={{ aspectRatio: "4 / 5" }}>
-          {poster ? <HomeMedia src={poster.image} alt="" media={poster.media} fit={poster.media === "video" ? "cover" : "contain"} sizes="200px" /> : null}
+        <div className="mt-2.5 flex aspect-[4/1] items-center justify-between gap-3 overflow-hidden rounded-[12px] bg-[radial-gradient(120%_140%_at_85%_50%,#3b7bff_0%,var(--akua-blue)_45%,#0b3fd1_100%)] px-4 text-akua-white">
+          <span>
+            <span className="block text-[8px] font-bold tracking-[0.14em] uppercase opacity-80">Bannière automatique</span>
+            <span className="block text-[13px] font-extrabold">Offre du jour · Saison · Confiance</span>
+          </span>
+          <span className="text-[9px] font-semibold opacity-80">3 visuels · 5 s chacun</span>
         </div>
       </div>
     </div>
@@ -465,11 +473,33 @@ export function HomeEditor() {
   if (!hydrated) return <div className="h-[60vh] animate-pulse rounded-[24px] bg-akua-white" />;
   return (
     <div className="flex flex-col gap-5 md:gap-6">
-      <PageHeader title="Accueil et bannières" description="Les deux visuels du haut de l'accueil (affiche portrait et bannière horizontale) et les sections de la page. Remplacez un visuel par une image ou une vidéo." />
+      <PageHeader title="Accueil et bannières" description="Aperçu du haut de l'accueil, bannière automatique et sections de la page." />
       <ReadOnlyNotice module="home" />
       <LayoutPreview />
-      <SlotEditor slot="poster" />
-      <SlotEditor slot="banner" />
+      <section className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
+        <h2 className="text-[16.5px] font-bold">Bannière de l&apos;accueil</h2>
+        <p className="mt-1 text-[13.5px] leading-relaxed text-akua-gray-500">
+          La bannière se compose toute seule de 3 visuels qui défilent toutes les 5 secondes, avec les vraies données du site : aucune image à préparer.
+        </p>
+        <ul className="mt-4 grid gap-2.5 md:grid-cols-3">
+          {[
+            { t: "Offre du jour", d: "Le produit le plus remisé parmi ceux choisis dans « Offre spéciale », avec un compte à rebours qui repart chaque nuit à minuit." },
+            { t: "Catégorie de saison", d: "Change selon le mois : fêtes en novembre et décembre, nouvelle année, rentrée… avec 3 produits et le prix de départ." },
+            { t: "Confiance", d: "Produits testés et garantis, livraison et expédition, retrait en boutique, avec « Découvrir la boutique » et « Nous écrire »." },
+          ].map((x, i) => (
+            <li key={x.t} className="rounded-2xl bg-akua-page p-4">
+              <p className="flex items-center gap-2 text-[14px] font-bold">
+                <span className="grid size-6 place-items-center rounded-full bg-akua-ink text-[12px] text-akua-white">{i + 1}</span>
+                {x.t}
+              </p>
+              <p className="mt-1.5 text-[12.5px] leading-snug text-akua-gray-500">{x.d}</p>
+            </li>
+          ))}
+        </ul>
+        <Link href="/spaceakua/offre-speciale" className="mt-4 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-akua-blue">
+          Choisir les produits de l&apos;offre du jour <ArrowUpRight aria-hidden className="size-3.5" />
+        </Link>
+      </section>
       <section className="rounded-[24px] border border-akua-gray-200 bg-akua-white p-5 md:p-6">
         <h2 className="text-[16.5px] font-bold">Sections de l&apos;accueil</h2>
         <p className="mt-0.5 text-[13px] text-akua-gray-500">Affichez ou masquez chaque section, et modifiez leurs titres.</p>
