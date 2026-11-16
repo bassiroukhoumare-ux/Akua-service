@@ -1,9 +1,9 @@
 "use client";
 
+import { useSitePath } from "@/lib/use-site-path";
 import { motion } from "framer-motion";
 import { Heart, House, Menu, ShoppingBag, Store } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
 import { selectCount, useCart } from "@/store/cart";
@@ -27,7 +27,7 @@ const spring = { type: "spring", stiffness: 420, damping: 34 } as const;
  * posée sur une pastille bleu clair lumineuse qui glisse d'un onglet à l'autre.
  */
 export function MobileBottomNav() {
-  const path = usePathname();
+  const path = useSitePath();
   const hydrated = useHydrated();
   const count = useCart(selectCount);
   const menuOpen = useUI((s) => s.menuOpen);

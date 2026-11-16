@@ -1,10 +1,10 @@
 "use client";
 
+import { useSitePath } from "@/lib/use-site-path";
 import { useMoney } from "@/components/currency";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { WhatsAppContactButton } from "@/components/shop/whatsapp-contact-dialog";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import { pluralize } from "@/lib/format";
@@ -18,7 +18,7 @@ export function CartBar() {
   const hydrated = useHydrated();
   const count = useCart(selectCount);
   const total = useCart(selectTotal);
-  const path = usePathname();
+  const path = useSitePath();
   const toast = useUI((s) => s.toast);
   const hidden = path.startsWith("/produit/") || path === "/panier" || !!toast;
 

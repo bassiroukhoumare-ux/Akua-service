@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { useSitePath } from "@/lib/use-site-path";
 import { AddedToast } from "@/components/cart/added-toast";
 import { CartBar, WhatsAppFab } from "@/components/cart/whatsapp-order-bar";
 import { VisitTracker } from "@/components/analytics/visit-tracker";
@@ -14,7 +14,7 @@ import { ADMIN_BASE, TEAM_BASE } from "@/config/admin-base";
 
 /** En-tête, pied de page et éléments flottants du site public : absents de l'espace administrateur. */
 export function SiteChrome({ children }: { children: React.ReactNode }) {
-  const path = usePathname();
+  const path = useSitePath();
   if (path?.startsWith(ADMIN_BASE) || path?.startsWith(TEAM_BASE)) return <>{children}</>;
   return (
     <>

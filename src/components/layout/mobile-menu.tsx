@@ -1,8 +1,8 @@
 "use client";
 
+import { useSitePath } from "@/lib/use-site-path";
 import { ArrowUpRight, BadgePercent, ChevronRight, House, MessageCircleMore, PackageOpen, Store, Warehouse, X } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { OpenStatus } from "@/components/shop/open-status";
 import { CurrencySwitch } from "@/components/currency";
@@ -36,7 +36,7 @@ export function MobileMenu() {
   const { categories } = useCatalog();
   const open = useUI((s) => s.menuOpen);
   const setOpen = useUI((s) => s.setMenuOpen);
-  const path = usePathname();
+  const path = useSitePath();
   const close = () => setOpen(false);
 
   useEffect(() => setOpen(false), [path, setOpen]);

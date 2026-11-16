@@ -1,10 +1,11 @@
 "use client";
 
+import { useSitePath } from "@/lib/use-site-path";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, ChevronDown, Heart, Menu, Search, ShoppingBag, SlidersHorizontal } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/ui/logo";
 import { primeKeyboard } from "@/components/ui/search-dialog";
@@ -163,7 +164,7 @@ const badge = "absolute -top-1.5 -right-2 grid h-[18px] min-w-[18px] place-items
 
 
 export function SiteHeader() {
-  const path = usePathname();
+  const path = useSitePath();
   const hydrated = useHydrated();
   const count = useCart(selectCount);
   const total = useCart(selectTotal);
