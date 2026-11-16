@@ -1,7 +1,7 @@
 import { HeroSlider } from "@/components/home/hero-slider";
 import { HomeShell } from "@/components/home/home-shell";
 import { ProductFeed } from "@/components/home/product-feed";
-import { CategoryRail, DealsSection, PacksSection, PlatformMarquee, PromoBand, TrustStrip } from "@/components/home/sections";
+import { CategoryRail, DealsSection, PlatformMarquee, PromoBand } from "@/components/home/sections";
 import { getCategories, getDealsOfTheDay, getMixedPacks, getProducts, loadHome } from "@/lib/catalog";
 
 export default async function HomePage() {
@@ -18,15 +18,13 @@ export default async function HomePage() {
     .map((x) => ({ id: x.id, src: x.image, alt: x.alt, href: href(x), media: x.media ?? ("image" as const) }));
   return (
     <HomeShell>
-      {/* bannière, catégories, promotions, bandeau packs, catalogue, packs, marques, garanties */}
+      {/* bannière, catégories, promotions, catalogue, affiche des packs, marques */}
       <HeroSlider deals={deals} month={new Date().getUTCMonth()} banners={banners} />
       <CategoryRail categories={categories} products={products} />
       {shown("deals") && <DealsSection deals={deals} config={home?.deals ?? null} />}
-      {shown("packs") && <PromoBand packs={packs} />}
       {shown("catalogue") && <ProductFeed products={products} {...text("catalogue")} />}
-      {shown("packs") && <PacksSection packs={packs} {...text("packs")} />}
+      {shown("packs") && <PromoBand packs={packs} />}
       {shown("platforms") && <PlatformMarquee />}
-      <TrustStrip />
     </HomeShell>
   );
 }

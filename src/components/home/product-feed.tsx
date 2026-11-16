@@ -28,6 +28,8 @@ function interleave(products: Product[], order: string[]) {
 }
 
 const STEP = 10;
+/** au départ : 4 lignes de 5 produits sur ordinateur */
+const FIRST = 20;
 
 /**
  * Catalogue de l'accueil avec filtres : colonne à gauche sur ordinateur, panneau « Filtres » sur téléphone.
@@ -43,7 +45,7 @@ export function ProductFeed({ products, eyebrow = "Catalogue", title = "Nos prod
   const [localSort, setLocalSort] = useState("pertinence");
   const sort = shared?.sort ?? localSort;
   const setSort = shared?.setSort ?? setLocalSort;
-  const [n, setN] = useState(STEP);
+  const [n, setN] = useState(FIRST);
   const [sheet, setSheet] = useState(false);
   const realCats = useMemo(() => categories.filter((c) => c.slug !== "promos"), [categories]);
 
@@ -55,7 +57,7 @@ export function ProductFeed({ products, eyebrow = "Catalogue", title = "Nos prod
     return f.category ? base : interleave(base, realCats.map((c) => c.id));
   }, [products, f, sort, realCats]);
 
-  useEffect(() => setN(STEP), [f, sort]);
+  useEffect(() => setN(FIRST), [f, sort]);
   const shown = Math.min(n, list.length);
   const count = activeCount(f);
   const shopHref = filtersToHref(f, categories, { tri: sort === "pertinence" ? null : sort });

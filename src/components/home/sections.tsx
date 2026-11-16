@@ -137,34 +137,11 @@ export function CategoryRail({ categories }: { categories: Category[]; products?
 /** Bandeau intermédiaire : les packs, entre deux rangées de produits. */
 export function PromoBand({ packs }: { packs: Product[] }) {
   if (!packs.length) return null;
-  const best = Math.max(0, ...packs.map((p) => (p.compareAtPrice ? p.compareAtPrice - p.price : 0)));
   return (
     <section aria-label="Packs prêts à l'emploi" className="container-akua pt-10 md:pt-14">
-      <Link href="/packs" className="group relative flex items-center overflow-hidden rounded-[12px] bg-[linear-gradient(100deg,var(--akua-blue-100)_0%,#f4f7ff_60%,var(--akua-blue-100)_100%)] ring-1 ring-akua-blue/15 transition-shadow duration-500 hover:shadow-[0_24px_50px_-30px_rgb(31_91_255/0.65)]">
-        <span aria-hidden className="absolute top-1/2 right-[18%] hidden size-[320px] -translate-y-1/2 rounded-full bg-akua-blue/10 md:block" />
-        <div className="relative z-[1] flex-1 px-5 py-6 md:px-10 md:py-9">
-          <p className="text-[11px] font-bold tracking-[0.14em] text-akua-blue uppercase md:text-[12px]">Packs prêts à l&apos;emploi</p>
-          <p className="font-num mt-1.5 text-[22px] leading-[1.1] font-extrabold tracking-[-0.04em] text-akua-ink md:text-[34px]">
-            {best > 0 ? (
-              <>
-                Jusqu&apos;à <span className="text-akua-blue"><Money amount={best} /></span> d&apos;économie
-              </>
-            ) : (
-              "Tout est inclus."
-            )}
-          </p>
-          <p className="mt-1.5 text-[13px] text-akua-gray-500 md:text-[15px]">Gaming, bureau, études : l&apos;appareil et ses accessoires.</p>
-          <span className={btn({ variant: "primary", size: "md", className: "mt-4 md:mt-5" })}>
-            Voir les packs <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-0.5" />
-          </span>
-        </div>
-        <div className="relative z-[1] hidden h-[190px] w-[46%] shrink-0 items-center justify-end gap-3 pr-8 sm:flex lg:gap-5 lg:pr-12">
-          {packs.slice(0, 3).map((p, i) => (
-            <span key={p.id} className={cn("relative block aspect-square h-[72%] overflow-hidden rounded-[12px] bg-akua-white shadow-[0_18px_36px_-20px_rgb(11_16_32/0.5)] ring-1 ring-akua-gray-200 transition-transform duration-500 ease-akua group-hover:-translate-y-1", i === 2 && "hidden lg:block")} style={{ transitionDelay: `${i * 60}ms` }}>
-              <ProductVisual product={p} sizes="140px" inset="p-[8%]" />
-            </span>
-          ))}
-        </div>
+      {/* affiche fournie (5121 × 1146) : même forme sur téléphone et ordinateur, jamais recadrée ni déformée */}
+      <Link href="/packs" aria-label="Packs prêts à l'emploi : voir les packs" className="glow-soft group relative block aspect-[5121/1146] overflow-hidden rounded-[8px] bg-akua-blue-100 ring-1 ring-akua-blue/15 sm:rounded-[12px]">
+        <Image src="/banners/packs-prets-a-lemploi.webp" alt="Packs prêts à l'emploi : gaming, études ou bureau. L'appareil et ses accessoires, testés et garantis." fill sizes="(min-width:1320px) 1256px, 100vw" className="object-cover transition-transform duration-700 ease-akua group-hover:scale-[1.015]" />
       </Link>
     </section>
   );
@@ -226,34 +203,34 @@ export function DealsSection({ deals, config }: { deals: Product[]; config?: Dea
 export function PackCard({ product, featured }: { product: Product; featured?: boolean }) {
   const card = (
     <article className={cn("group flex h-full flex-col overflow-hidden rounded-[11px] bg-akua-white", !featured && "glow-card border border-akua-gray-200")}>
-      <Link href={`/produit/${product.slug}`} aria-label={product.name} className="relative block aspect-[16/10] overflow-hidden bg-akua-page">
+      <Link href={`/produit/${product.slug}`} aria-label={product.name} className="relative block aspect-[4/3] overflow-hidden bg-akua-page">
         <div className="absolute inset-0 transition-transform duration-700 ease-akua group-hover:scale-105">
-          <ProductVisual product={product} sizes="(min-width:1024px) 30vw, 90vw" inset="p-[8%]" />
+          <ProductVisual product={product} sizes="(min-width:1024px) 300px, (min-width:768px) 33vw, 50vw" inset="p-[8%]" />
         </div>
         {featured ? (
-          <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 rounded-full bg-[linear-gradient(135deg,var(--akua-gold-light),var(--akua-gold))] px-3 py-1 text-[11.5px] font-bold text-akua-ink shadow-[0_8px_18px_-8px_rgb(201_162_39/0.9)]">
-            <TrendingUp aria-hidden className="size-3.5" strokeWidth={2.5} /> Le plus vendu
+          <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-[linear-gradient(135deg,var(--akua-gold-light),var(--akua-gold))] px-2 py-1 text-[10.5px] whitespace-nowrap md:top-3 md:left-3 md:gap-1.5 md:px-3 md:text-[11.5px] font-bold text-akua-ink shadow-[0_8px_18px_-8px_rgb(201_162_39/0.9)]">
+            <TrendingUp aria-hidden className="size-3 md:size-3.5" strokeWidth={2.5} /> Le plus vendu
           </span>
         ) : (
-          <span className="absolute top-4 left-4 rounded-full bg-akua-ink px-3 py-1 text-[11.5px] font-bold text-akua-white">{CONDITION_LABEL[product.condition]}</span>
+          <span className="absolute top-2 left-2 rounded-full bg-akua-ink px-2 py-1 text-[10.5px] whitespace-nowrap md:top-3 md:left-3 md:px-3 md:text-[11.5px] font-bold text-akua-white">{CONDITION_LABEL[product.condition]}</span>
         )}
       </Link>
-      <div className="flex flex-1 flex-col p-5 md:p-6">
-        <h3 className="font-num text-[20px] leading-tight font-extrabold tracking-[-0.04em]">{product.name}</h3>
-        <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2">
+      <div className="flex min-w-0 flex-1 flex-col p-3 md:p-4">
+        <h3 className="font-num text-[14.5px] leading-tight font-extrabold tracking-[-0.03em] [overflow-wrap:anywhere] md:text-[17px]">{product.name}</h3>
+        <ul className="mt-2.5 grid gap-y-1.5 md:mt-3">
           {(product.includes ?? []).slice(0, 4).map((inc) => (
-            <li key={inc} className="flex items-center gap-2 text-[13px] text-akua-gray-500">
-              <Check aria-hidden className={cn("size-3.5 shrink-0", featured ? "text-akua-gold" : "text-akua-blue")} strokeWidth={3} />
+            <li key={inc} className="flex items-start gap-1.5 text-[11.5px] leading-snug text-akua-gray-500 md:gap-2 md:text-[13px]">
+              <Check aria-hidden className={cn("mt-[2px] size-3 shrink-0 md:size-3.5", featured ? "text-akua-gold" : "text-akua-blue")} strokeWidth={3} />
               {inc}
             </li>
           ))}
         </ul>
-        <div className="mt-auto flex flex-wrap items-end justify-between gap-x-3 gap-y-4 pt-6">
+        <div className="mt-auto pt-4">
           <div className="min-w-0">
-            <p className="font-num text-[23px] leading-none font-extrabold tracking-[-0.04em] whitespace-nowrap md:text-[25px]"><Money amount={product.price} /></p>
-            {product.compareAtPrice && <p className="mt-1.5 text-[13px] text-akua-gray-500 line-through tabular-nums"><Money amount={product.compareAtPrice} /></p>}
+            <p className="font-num text-[17px] leading-none font-extrabold tracking-[-0.04em] whitespace-nowrap text-akua-blue md:text-[21px]"><Money amount={product.price} /></p>
+            {product.compareAtPrice && <p className="mt-1 text-[12px] whitespace-nowrap text-akua-gray-500 line-through tabular-nums md:text-[13px]"><Money amount={product.compareAtPrice} /></p>}
           </div>
-          <BuyNowButton product={product} className="grow sm:grow-0" />
+          <BuyNowButton product={product} className="mt-3 h-10 w-full px-2 text-[13.5px] md:h-11 md:text-[14.5px]" />
         </div>
       </div>
     </article>

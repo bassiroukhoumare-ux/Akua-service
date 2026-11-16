@@ -16,7 +16,7 @@ export default async function PacksPage() {
     <>
       <PageHero word="Packs" image="/products/ps4-ds4.webp" icon={PackageOpen} eyebrow="Packs prêts à l'emploi" title="Tout est inclus." text="Gaming, bureau ou études : l'appareil et ses accessoires, testés et garantis." />
       <section className="container-akua pt-10 md:pt-14">
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
           {packs.map((p, i) => (
             <PackCard key={p.id} product={p} featured={i === 0} />
           ))}
@@ -25,7 +25,7 @@ export default async function PacksPage() {
       <section className="container-akua pt-16 md:pt-24">
         <p className="text-[12px] font-semibold tracking-[0.16em] text-akua-gray-500 uppercase"><span className="text-akua-blue">02</span> — Consoles complètes</p>
         <h2 className="mt-2.5 text-[28px] font-extrabold tracking-[-0.035em] md:text-[42px]">Éditions complètes et zone rétro.</h2>
-        <div className="mt-7 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-7 grid grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
           {complete.map((p) => (
             <PackCard key={p.id} product={p} />
           ))}
